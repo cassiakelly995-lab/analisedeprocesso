@@ -27,12 +27,17 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:2px;backgroun
 .btn-hist:hover{border-color:var(--gold-dark);color:var(--gold)}
 .hist-count{background:var(--gold-dark);color:#000;font-size:.5rem;font-weight:700;border-radius:10px;padding:1px 5px;margin-left:4px}
 
+/* ── BUSCA RÁPIDA SÚMULAS ── */
+.btn-busca{background:transparent;border:1px solid rgba(52,152,219,.4);border-radius:3px;color:#5dade2;font-family:'Rajdhani',sans-serif;font-size:.6rem;letter-spacing:.15em;padding:6px 12px;cursor:pointer;text-transform:uppercase;transition:all .2s}
+.btn-busca:hover{border-color:#3498db;color:#3498db}
+
 /* ── HEADER ── */
 header{text-align:center;padding:36px 20px 18px}
 .logo-text{font-family:'Cinzel',serif;font-size:clamp(1.4rem,4vw,2.3rem);letter-spacing:.4em;background:linear-gradient(135deg,var(--gold-dark),var(--gold-light),var(--gold),var(--gold-dark));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:inline-block}
 .logo-sub{font-size:.58rem;letter-spacing:.35em;color:var(--muted);margin-top:5px;text-transform:uppercase}
 .logo-badges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:9px}
 .badge{font-size:.48rem;letter-spacing:.18em;color:var(--gold-dark);border:1px solid var(--gold-dark);padding:2px 9px;border-radius:2px;text-transform:uppercase}
+.badge.new{color:var(--green);border-color:var(--green)}
 header::after{content:'';display:block;width:260px;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dark),var(--gold),var(--gold-dark),transparent);margin:12px auto 0}
 
 .container{max-width:960px;margin:0 auto;padding:22px 16px 80px;position:relative;z-index:1}
@@ -42,6 +47,10 @@ header::after{content:'';display:block;width:260px;height:1px;background:linear-
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dark),var(--gold),var(--gold-dark),transparent)}
 .slabel{font-size:.55rem;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px;font-weight:700}
 .slabel::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+
+/* ── ANTI-ALUCINAÇÃO BADGE ── */
+.anti-hal-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.25);border-radius:3px;padding:4px 10px;font-size:.55rem;letter-spacing:.12em;color:var(--green);text-transform:uppercase;margin-bottom:12px}
+.shield-icon{font-size:.9rem}
 
 /* ── API KEY ── */
 .apikey-help{font-size:.66rem;color:var(--muted);line-height:1.6;margin-bottom:9px}
@@ -96,6 +105,14 @@ textarea{resize:vertical;min-height:120px}
 .tone-btn:hover{border-color:var(--gold-dark);color:var(--gold-dark)}
 .tone-btn.active{background:linear-gradient(135deg,var(--gold-dark),var(--gold));border-color:var(--gold);color:#000;font-weight:700}
 
+/* ── TABS ANÁLISE EXTRA ── */
+.tab-group{display:flex;border-bottom:1px solid var(--border);margin-bottom:14px;gap:2px}
+.tab-btn{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:.6rem;letter-spacing:.15em;padding:8px 14px;cursor:pointer;text-transform:uppercase;transition:all .2s;margin-bottom:-1px}
+.tab-btn:hover{color:var(--gold-dark)}
+.tab-btn.active{border-bottom-color:var(--gold);color:var(--gold)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
 /* ── PRAZOS ── */
 .prazo-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:6px}
 @media(max-width:600px){.prazo-grid{grid-template-columns:1fr 1fr}}
@@ -124,11 +141,31 @@ textarea{resize:vertical;min-height:120px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-title{font-size:.62rem;letter-spacing:.25em;color:var(--muted);text-transform:uppercase}
 .loading-step{font-size:.58rem;letter-spacing:.13em;color:var(--gold-dark);margin-top:7px;min-height:18px}
+.loading-cache{font-size:.55rem;color:var(--green);margin-top:4px;min-height:16px}
 
 /* ── RESULT ── */
 .result-card{display:none}
 .result-card.visible{display:block;animation:fadeUp .5s ease}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── ANTI-ALUCINAÇÃO REPORT ── */
+.hal-report{background:linear-gradient(135deg,rgba(46,204,113,.06),rgba(46,204,113,.02));border:1px solid rgba(46,204,113,.2);border-radius:6px;padding:16px 18px;margin-bottom:16px}
+.hal-report::before{content:'';display:block;height:1px;background:linear-gradient(90deg,transparent,var(--green),transparent);margin-bottom:12px}
+.hal-titulo{font-family:'Cinzel',serif;font-size:.65rem;letter-spacing:.2em;color:var(--green);text-transform:uppercase;margin-bottom:10px}
+.hal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(max-width:500px){.hal-grid{grid-template-columns:1fr 1fr}}
+.hal-item{background:rgba(0,0,0,.3);border-radius:4px;padding:8px 10px;text-align:center}
+.hal-val{font-family:'Cinzel',serif;font-size:1.4rem;font-weight:700}
+.hal-val.ok{color:var(--green)}.hal-val.warn{color:var(--yellow)}.hal-val.bad{color:var(--red)}
+.hal-lbl{font-size:.5rem;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-top:2px}
+.hal-list{margin-top:10px}
+.hal-list-item{display:flex;align-items:flex-start;gap:7px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.62rem}
+.hal-list-item:last-child{border-bottom:none}
+.hal-tag{flex-shrink:0;font-size:.5rem;padding:2px 6px;border-radius:2px;text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+.hal-tag.verified{background:rgba(46,204,113,.2);color:var(--green)}
+.hal-tag.removed{background:rgba(231,76,60,.2);color:var(--red)}
+.hal-tag.warned{background:rgba(243,156,18,.2);color:var(--yellow)}
+.hal-sumula-txt{color:var(--muted);line-height:1.4}
 
 /* ── RESUMO EXECUTIVO ── */
 .resumo-exec{background:linear-gradient(135deg,rgba(139,105,20,.1),rgba(201,168,76,.05));border:1px solid rgba(201,168,76,.2);border-radius:6px;padding:18px 20px;margin-bottom:16px}
@@ -157,6 +194,50 @@ textarea{resize:vertical;min-height:120px}
 
 /* ── AI TEXT ── */
 .ai-text{font-size:13px;line-height:1.9;color:#a09880;white-space:pre-wrap;font-family:'Rajdhani',sans-serif}
+
+/* ── CONFIANÇA POR SEÇÃO ── */
+.sec-confianca{display:inline-flex;align-items:center;gap:4px;font-size:.5rem;letter-spacing:.08em;padding:2px 7px;border-radius:10px;text-transform:uppercase;font-weight:700;margin-left:8px;vertical-align:middle}
+.sec-confianca.alta{background:rgba(46,204,113,.15);color:var(--green);border:1px solid rgba(46,204,113,.3)}
+.sec-confianca.media{background:rgba(243,156,18,.15);color:var(--yellow);border:1px solid rgba(243,156,18,.3)}
+.sec-confianca.baixa{background:rgba(231,76,60,.15);color:var(--red);border:1px solid rgba(231,76,60,.3)}
+
+/* ── SEÇÕES RENDERIZADAS ── */
+.secao-bloco{margin-bottom:22px}
+.secao-titulo{font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;padding-bottom:6px;border-bottom:1px solid rgba(201,168,76,.15);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.secao-corpo{font-size:13px;line-height:1.9;color:#a09880}
+.secao-corpo .bullet-item{display:flex;align-items:flex-start;gap:6px;padding:3px 0;border-left:2px solid rgba(201,168,76,.12);padding-left:8px;margin-bottom:3px}
+.secao-corpo .bullet-icon{flex-shrink:0;font-size:.9rem}
+.secao-corpo .bullet-txt{flex:1}
+
+/* ── PETIÇÃO RÁPIDA ── */
+.peticao-wrap{margin-top:6px}
+.peticao-tipo-group{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.peticao-tipo-btn{background:var(--card2);border:1px solid var(--border);border-radius:3px;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:.57rem;letter-spacing:.12em;padding:6px 12px;cursor:pointer;text-transform:uppercase;transition:all .2s}
+.peticao-tipo-btn:hover{border-color:var(--gold-dark);color:var(--gold-dark)}
+.peticao-tipo-btn.active{background:linear-gradient(135deg,var(--gold-dark),var(--gold));border-color:var(--gold);color:#000;font-weight:700}
+.btn-gerar-peticao{width:100%;padding:12px;background:linear-gradient(135deg,rgba(52,152,219,.15),rgba(52,152,219,.08));border:1px solid rgba(52,152,219,.35);border-radius:4px;font-family:'Cinzel',serif;font-size:.65rem;letter-spacing:.2em;color:#5dade2;font-weight:700;cursor:pointer;transition:all .2s;text-transform:uppercase}
+.btn-gerar-peticao:hover{border-color:#3498db;transform:translateY(-1px)}
+.btn-gerar-peticao:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.peticao-output{display:none;margin-top:14px;background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:16px}
+.peticao-output.visible{display:block}
+.peticao-texto{font-size:12.5px;color:#a09880;white-space:pre-wrap;line-height:1.85;max-height:400px;overflow-y:auto}
+.btn-copiar-peticao{margin-top:10px;width:100%;padding:10px;background:transparent;border:1px solid var(--border);border-radius:3px;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:.6rem;letter-spacing:.15em;cursor:pointer;text-transform:uppercase;transition:all .2s}
+.btn-copiar-peticao:hover{border-color:var(--gold-dark);color:var(--gold)}
+.btn-copiar-peticao.ok{border-color:var(--green);color:var(--green)}
+
+/* ── BUSCA BANCO SÚMULAS ── */
+.sumula-search-panel{display:none;position:fixed;top:0;left:50%;transform:translateX(-50%);width:600px;max-width:95vw;background:#0c0c0c;border:1px solid var(--border);border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.8);z-index:900;padding:20px;margin-top:60px}
+.sumula-search-panel.open{display:block;animation:fadeUp .2s ease}
+.sumula-search-input{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;padding:10px 12px;outline:none;margin-bottom:10px;transition:border-color .2s}
+.sumula-search-input:focus{border-color:var(--gold-dark)}
+.sumula-results{max-height:320px;overflow-y:auto}
+.sumula-result-item{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:10px 12px;margin-bottom:7px;cursor:pointer;transition:all .2s}
+.sumula-result-item:hover{border-color:var(--gold-dark);background:rgba(139,105,20,.07)}
+.sumula-result-numero{font-size:.65rem;font-weight:700;color:var(--gold);letter-spacing:.08em}
+.sumula-result-txt{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+.sumula-search-close{position:absolute;top:12px;right:16px;background:transparent;border:1px solid var(--border);border-radius:3px;color:var(--muted);font-size:14px;width:26px;height:26px;cursor:pointer;transition:all .2s}
+.sumula-search-close:hover{border-color:var(--red);color:var(--red)}
+.sumula-empty{text-align:center;color:var(--muted);font-size:.65rem;padding:20px}
 
 /* ── CHAT ── */
 .chat-wrap{margin-top:6px}
@@ -238,6 +319,8 @@ textarea{resize:vertical;min-height:120px}
 .chars{font-size:.57rem;color:var(--muted);text-align:right;margin-top:3px}
 .chars span{color:var(--gold-dark)}
 .hidden{display:none!important}
+
+/* ── COPY PROMPT ── */
 .copy-prompt-card{background:linear-gradient(135deg,rgba(139,105,20,.07),rgba(201,168,76,.03));border:1px solid rgba(201,168,76,.2);border-radius:6px;padding:18px;margin-bottom:16px;position:relative}
 .copy-prompt-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
 .prompt-preview{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:12px;font-size:11px;color:var(--muted);white-space:pre-wrap;max-height:180px;overflow-y:auto;line-height:1.65;font-family:'Rajdhani',sans-serif;margin:10px 0}
@@ -246,10 +329,9 @@ textarea{resize:vertical;min-height:120px}
 .btn-copy.copied{background:linear-gradient(135deg,rgba(46,204,113,.13),rgba(46,204,113,.06));border-color:var(--green);color:var(--green)}
 .copy-hint{font-size:.58rem;color:var(--muted);text-align:center;margin-top:7px}
 
-/* ── JURISPRUDÊNCIA AO VIVO ── */
+/* ── SÚMULAS VERIFICADAS ── */
 .juris-vivo{background:linear-gradient(135deg,rgba(52,152,219,.08),rgba(52,152,219,.03));border:1px solid rgba(52,152,219,.25);border-radius:6px;padding:18px;margin-bottom:16px;position:relative}
 .juris-vivo::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#3498db,transparent)}
-.juris-fonte{display:inline-flex;align-items:center;gap:6px;background:rgba(52,152,219,.12);border:1px solid rgba(52,152,219,.2);border-radius:3px;padding:3px 9px;font-size:.55rem;letter-spacing:.12em;color:#5dade2;text-transform:uppercase;margin-right:5px;margin-bottom:6px}
 .juris-vivo-txt{font-size:12.5px;color:#8ab4c8;line-height:1.85;white-space:pre-wrap;max-height:220px;overflow-y:auto;margin-top:10px;padding:10px;background:rgba(0,0,0,.25);border-radius:4px;border:1px solid rgba(52,152,219,.1)}
 .live-dot{width:7px;height:7px;background:var(--red);border-radius:50%;display:inline-block;animation:pulse 1.2s infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
@@ -261,9 +343,21 @@ textarea{resize:vertical;min-height:120px}
 <div class="topbar">
   <div class="topbar-logo">V9 PRO</div>
   <div class="topbar-actions">
+    <button class="btn-busca" onclick="abrirBuscaSumulas()">🔍 Súmulas</button>
     <button class="btn-hist" onclick="toggleHist()">
       📋 Histórico <span class="hist-count" id="histCount">0</span>
     </button>
+  </div>
+</div>
+
+<!-- BUSCA RÁPIDA BANCO DE SÚMULAS -->
+<div class="overlay" id="sumulaOverlay" onclick="fecharBuscaSumulas()"></div>
+<div class="sumula-search-panel" id="sumulaPanel">
+  <button class="sumula-search-close" onclick="fecharBuscaSumulas()">✕</button>
+  <div class="slabel" style="margin-bottom:10px">🔍 Busca Rápida no Banco de Súmulas</div>
+  <input class="sumula-search-input" id="sumulaSearchInput" type="text" placeholder="Digite termo, área ou número... ex: hora extra, FGTS, dano moral..." oninput="buscarSumulaRapida(this.value)" autocomplete="off"/>
+  <div class="sumula-results" id="sumulaResults">
+    <div class="sumula-empty">Digite acima para buscar no banco oficial verificado</div>
   </div>
 </div>
 
@@ -284,11 +378,13 @@ textarea{resize:vertical;min-height:120px}
   <div class="logo-text">V9 POWER EDITION</div>
   <div class="logo-sub">Plataforma Jurídica Profissional · Súmulas Verificadas · Zero Alucinação</div>
   <div class="logo-badges">
-    <span class="badge">Zero Alucinação</span>
+    <span class="badge">🛡 Anti-Alucinação Ativo</span>
     <span class="badge">Word &amp; PDF</span>
     <span class="badge">Chat com IA</span>
     <span class="badge">Prazos Processuais</span>
-    <span class="badge">✅ Súmulas Verificadas STF·STJ·TST</span>
+    <span class="badge new">✨ Geração de Petição</span>
+    <span class="badge new">🔍 Busca de Súmulas</span>
+    <span class="badge">✅ Súmulas STF·STJ·TST</span>
   </div>
 </header>
 
@@ -311,14 +407,12 @@ textarea{resize:vertical;min-height:120px}
 
 <div class="disc">
   <strong>⚖ V9 PRO:</strong> Análise jurídica profissional para advogados e escritórios.
-  A IA <strong>NUNCA inventa dados</strong>. Não substitui advogado habilitado.
+  A IA <strong>NUNCA inventa dados</strong>. Súmulas validadas por sistema Anti-Alucinação pós-geração.
 </div>
 
 <!-- FORMULÁRIO -->
 <div class="card" id="inputCard">
   <div class="slabel">◈ Identificação do Caso</div>
-
-  <!-- Cliente + Processo -->
   <div class="grid2">
     <div>
       <label>Cliente / Representado</label>
@@ -331,7 +425,6 @@ textarea{resize:vertical;min-height:120px}
   </div>
 
   <div class="slabel" style="margin-top:20px">◈ Modo de Análise</div>
-
   <div class="mode-toggle">
     <button class="mode-btn active" id="modeUploadBtn" onclick="setMode('upload')">📎 Anexar Documento</button>
     <button class="mode-btn" id="modeManualBtn" onclick="setMode('manual')">✏️ Digitar Dados</button>
@@ -445,10 +538,11 @@ textarea{resize:vertical;min-height:120px}
         <option value="30">Reclamação Trabalhista – 30 dias</option>
         <option value="5">Embargos de Declaração – 5 dias</option>
         <option value="15">Apelação – 15 dias</option>
-        <option value="15">Recurso Ordinário Trabalhista – 8 dias</option>
-        <option value="10">Agravo de Instrumento – 15 dias</option>
-        <option value="30">Recurso Especial/Extraordinário – 15 dias</option>
-        <option value="60">Mandado de Segurança – 120 dias</option>
+        <option value="8">Recurso Ordinário Trabalhista – 8 dias</option>
+        <option value="15">Agravo de Instrumento – 15 dias</option>
+        <option value="15">Recurso Especial/Extraordinário – 15 dias</option>
+        <option value="120">Mandado de Segurança – 120 dias</option>
+        <option value="2">Embargos de Declaração Trabalhista – 2 dias</option>
         <option value="custom">Personalizado...</option>
       </select>
     </div>
@@ -487,6 +581,7 @@ textarea{resize:vertical;min-height:120px}
   <div class="spinner"></div>
   <p class="loading-title">Executando Análise V9 Pro</p>
   <p class="loading-step" id="loadingStep">Inicializando...</p>
+  <p class="loading-cache" id="loadingCache"></p>
 </div>
 
 <!-- RESULTADO -->
@@ -496,9 +591,16 @@ textarea{resize:vertical;min-height:120px}
   <div class="juris-vivo" id="jurisVivoCard" style="display:none">
     <div class="slabel">✅ Súmulas Verificadas — Banco Oficial</div>
     <div style="margin-bottom:8px;font-size:.62rem;color:var(--muted)">
-      Estas súmulas foram selecionadas do banco local verificado (STF · STJ · TST · TNU) com base na área e pedidos do caso. A análise usa <strong style="color:var(--gold-dark)">APENAS</strong> estas — proibido citar outras.
+      Súmulas selecionadas do banco verificado (STF · STJ · TST · TNU). A análise usa <strong style="color:var(--gold-dark)">APENAS</strong> estas.
     </div>
     <div id="jurisVivoTxt"></div>
+  </div>
+
+  <!-- ANTI-ALUCINAÇÃO REPORT -->
+  <div class="hal-report" id="halReport" style="display:none">
+    <div class="hal-titulo">🛡 Relatório Anti-Alucinação</div>
+    <div class="hal-grid" id="halGrid"></div>
+    <div class="hal-list" id="halList"></div>
   </div>
 
   <!-- RESUMO EXECUTIVO -->
@@ -524,10 +626,54 @@ textarea{resize:vertical;min-height:120px}
     <div style="margin-top:9px;font-size:.57rem;color:var(--muted)">* Estimativa analítica. Não garante resultado processual.</div>
   </div>
 
-  <!-- ANÁLISE COMPLETA -->
+  <!-- ANÁLISE COM ABAS -->
   <div class="card">
     <div class="slabel">◈ Análise Jurídica Completa</div>
-    <div class="ai-text" id="aiText"></div>
+    <div class="tab-group" id="tabGroup">
+      <button class="tab-btn active" onclick="setTab('completa',this)">Análise Completa</button>
+      <button class="tab-btn" onclick="setTab('fortes',this)">Pontos Fortes</button>
+      <button class="tab-btn" onclick="setTab('riscos',this)">Riscos</button>
+      <button class="tab-btn" onclick="setTab('sumulas',this)">Súmulas/Leis</button>
+      <button class="tab-btn" onclick="setTab('estrategia',this)">Estratégia</button>
+    </div>
+    <div id="tabCompleta" class="tab-panel active">
+      <div id="aiText" class="ai-text"></div>
+    </div>
+    <div id="tabFortes" class="tab-panel">
+      <div id="secFortes" class="secao-bloco"></div>
+    </div>
+    <div id="tabRiscos" class="tab-panel">
+      <div id="secRiscos" class="secao-bloco"></div>
+    </div>
+    <div id="tabSumulas" class="tab-panel">
+      <div id="secSumulas" class="secao-bloco"></div>
+    </div>
+    <div id="tabEstrategia" class="tab-panel">
+      <div id="secEstrategia" class="secao-bloco"></div>
+    </div>
+  </div>
+
+  <!-- GERAÇÃO DE PETIÇÃO -->
+  <div class="card">
+    <div class="slabel">📝 Geração de Peça Processual</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Gere uma peça processual baseada nos dados já analisados. Sem custo adicional de API.</p>
+    <div class="peticao-wrap">
+      <div class="peticao-tipo-group">
+        <button class="peticao-tipo-btn active" data-peca="inicial">Petição Inicial</button>
+        <button class="peticao-tipo-btn" data-peca="contestacao">Contestação</button>
+        <button class="peticao-tipo-btn" data-peca="recurso">Recurso Ordinário</button>
+        <button class="peticao-tipo-btn" data-peca="acordo">Proposta de Acordo</button>
+        <button class="peticao-tipo-btn" data-peca="notificacao">Notificação Extrajudicial</button>
+      </div>
+      <button class="btn-gerar-peticao" id="btnGerarPeticao" onclick="gerarPeticao()">
+        📝 GERAR PEÇA AGORA
+      </button>
+      <div class="peticao-output" id="peticaoOutput">
+        <div class="slabel" style="margin-bottom:8px">◈ Peça Gerada</div>
+        <div class="peticao-texto" id="peticaoTexto"></div>
+        <button class="btn-copiar-peticao" id="btnCopiarPeticao" onclick="copiarPeticao()">📋 COPIAR PEÇA</button>
+      </div>
+    </div>
   </div>
 
   <!-- CHAT COM IA -->
@@ -540,7 +686,6 @@ textarea{resize:vertical;min-height:120px}
       <button class="chat-sugest-btn" onclick="chatSugest(this)">Qual o risco de perder?</button>
       <button class="chat-sugest-btn" onclick="chatSugest(this)">Estime os honorários advocatícios</button>
       <button class="chat-sugest-btn" onclick="chatSugest(this)">Há prescrição ou decadência?</button>
-      <button class="chat-sugest-btn" onclick="chatSugest(this)">Elabore um esboço de petição inicial</button>
     </div>
     <div class="chat-wrap">
       <div class="chat-messages" id="chatMessages"></div>
@@ -587,13 +732,12 @@ let extractedBase64 = '';
 let extractedMime = '';
 let analysisData = null;
 let chatHistory = [];
+let chatHistoryCompressed = false;
 
 // ── INIT ───────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  // Carregar chave salva
   try { const k = localStorage.getItem('v9_apikey'); if(k){ document.getElementById('apiKeyInput').value=k; checkKey(); } } catch(e){}
 
-  // Upload zone click
   const zone = document.getElementById('uploadZone');
   const fi = document.getElementById('fileInput');
   zone.addEventListener('click', e => {
@@ -601,7 +745,6 @@ document.addEventListener('DOMContentLoaded', () => {
     fi.click();
   });
 
-  // Tone buttons
   document.querySelectorAll('.tone-btn').forEach(b => {
     b.addEventListener('click', () => {
       document.querySelectorAll('.tone-btn').forEach(x=>x.classList.remove('active'));
@@ -609,17 +752,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Char counter
+  document.querySelectorAll('.peticao-tipo-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.peticao-tipo-btn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+    });
+  });
+
   document.getElementById('fatos').addEventListener('input', function(){
     document.getElementById('charsCount').textContent = this.value.length;
   });
 
-  // Prazo tipo custom
   document.getElementById('prazoTipo').addEventListener('change', function(){
     document.getElementById('prazoCustomDiv').classList.toggle('hidden', this.value !== 'custom');
   });
 
-  // Atualizar contagem do histórico
   atualizarContHist();
 });
 
@@ -723,6 +870,21 @@ function maskData(el){
   if(v.length>=6) v=v.substring(0,5)+'/'+v.substring(5,9);
   el.value=v;
 }
+
+// Feriados nacionais fixos (dia/mês) — sem custo de API
+const FERIADOS_NACIONAIS = [
+  '01/01','21/04','01/05','07/09','12/10','02/11','15/11','25/12',
+  '20/11','24/10' // Consciência Negra e outros recentes
+];
+function ehFeriado(d){
+  const s = String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0');
+  return FERIADOS_NACIONAIS.includes(s);
+}
+function proximoDiaUtil(d){
+  const r = new Date(d);
+  while(r.getDay()===0||r.getDay()===6||ehFeriado(r)) r.setDate(r.getDate()+1);
+  return r;
+}
 function calcularPrazo(){
   const dataStr = document.getElementById('prazoDataAto').value.trim();
   if(!dataStr || dataStr.length<10){ alert('Informe a data no formato DD/MM/AAAA'); return; }
@@ -736,27 +898,20 @@ function calcularPrazo(){
     dias = parseInt(document.getElementById('prazoCustomDias').value);
     if(isNaN(dias)||dias<1){ alert('Informe o número de dias'); return; }
   }
-  // Prazos especiais
-  const prazosEspeciais = {
-    '15': {nome:'Contestação',base:15},
-    '30': {nome:'Reclamação Trabalhista',base:30},
-    '5':  {nome:'Embargos de Declaração',base:5},
-  };
 
-  // Calcula vencimento (dias corridos — simplificado, sem feriados)
+  // Calcula vencimento pulando fins de semana e feriados
   const venc = new Date(dataAto);
   venc.setDate(venc.getDate() + dias);
-  // Se cair no fim de semana, avança para segunda
-  while(venc.getDay()===0||venc.getDay()===6) venc.setDate(venc.getDate()+1);
+  const vencFinal = proximoDiaUtil(venc);
 
   const hoje = new Date(); hoje.setHours(0,0,0,0);
-  const diffMs = venc - hoje;
+  const diffMs = vencFinal - hoje;
   const diffDias = Math.ceil(diffMs/(1000*60*60*24));
-
   const fmt = d => d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',weekday:'long'});
 
   let urgClass = diffDias<=3?'urgente':diffDias<=10?'atencao':'ok';
   let urgTxt = diffDias<0?'⚠ PRAZO VENCIDO':diffDias===0?'⚠ VENCE HOJE':diffDias===1?'⚠ VENCE AMANHÃ':`${diffDias} dias restantes`;
+  const ajustado = vencFinal.getTime()!==venc.getTime();
 
   const res = document.getElementById('prazoResultado');
   res.style.display='block';
@@ -768,9 +923,9 @@ function calcularPrazo(){
         <div class="prazo-dias">${fmt(dataAto)}</div>
       </div>
       <div class="prazo-card">
-        <div class="prazo-nome">Prazo (${dias} dias úteis)</div>
-        <div class="prazo-data">${venc.toLocaleDateString('pt-BR')}</div>
-        <div class="prazo-dias">${fmt(venc)}</div>
+        <div class="prazo-nome">Vencimento (${dias} dias)</div>
+        <div class="prazo-data">${vencFinal.toLocaleDateString('pt-BR')}</div>
+        <div class="prazo-dias">${fmt(vencFinal)}${ajustado?' <span style="color:var(--yellow)">[ajustado]</span>':''}</div>
       </div>
       <div class="prazo-card">
         <div class="prazo-nome">Situação</div>
@@ -778,7 +933,7 @@ function calcularPrazo(){
         <div class="prazo-dias ${urgClass}">${urgTxt}</div>
       </div>
     </div>
-    <div style="font-size:.58rem;color:var(--muted);margin-top:8px">⚠ Cálculo simplificado — fins de semana ajustados. Confirme feriados locais.</div>`;
+    <div style="font-size:.58rem;color:var(--muted);margin-top:8px">⚠ Feriados nacionais considerados. Feriados estaduais/municipais e suspensões forenses devem ser verificados manualmente.</div>`;
 }
 
 // ── CHECKLIST ──────────────────────────────────────────────────────────────────
@@ -813,7 +968,6 @@ function toggleCheck(i){
   const box = document.getElementById('cb'+i);
   item.classList.toggle('checked');
   box.textContent = item.classList.contains('checked') ? '✓' : '';
-  // Atualizar progresso
   const total = document.querySelectorAll('[id^="ci"]').length;
   const checked = document.querySelectorAll('[id^="ci"].checked').length;
   const pct = total>0 ? Math.round(checked/total*100) : 0;
@@ -821,8 +975,48 @@ function toggleCheck(i){
   document.getElementById('checkStatus').textContent = `${checked} de ${total} documentos coletados (${pct}%)`;
 }
 
+// ── BUSCA RÁPIDA DE SÚMULAS (SEM API) ─────────────────────────────────────────
+function abrirBuscaSumulas(){
+  document.getElementById('sumulaPanel').classList.add('open');
+  document.getElementById('sumulaOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('sumulaSearchInput').focus(),100);
+}
+function fecharBuscaSumulas(){
+  document.getElementById('sumulaPanel').classList.remove('open');
+  document.getElementById('sumulaOverlay').classList.remove('open');
+}
+function buscarSumulaRapida(q){
+  const res = document.getElementById('sumulaResults');
+  const query = q.trim().toLowerCase();
+  if(!query){ res.innerHTML='<div class="sumula-empty">Digite acima para buscar</div>'; return; }
+  let encontradas = [];
+  for(const area of Object.values(BANCO_SUMULAS)){
+    for(const s of area){
+      if(s.n.toLowerCase().includes(query)||s.txt.toLowerCase().includes(query)){
+        encontradas.push(s);
+      }
+    }
+  }
+  // Dedup
+  const vistos=new Set(); encontradas=encontradas.filter(s=>{ if(vistos.has(s.n)) return false; vistos.add(s.n); return true; });
+  if(!encontradas.length){ res.innerHTML='<div class="sumula-empty">Nenhuma súmula encontrada para "'+q+'"</div>'; return; }
+  res.innerHTML = encontradas.slice(0,20).map(s=>`
+    <div class="sumula-result-item" onclick="copiarSumula('${s.n}','${s.txt.replace(/'/g,"&#39;")}')">
+      <div class="sumula-result-numero">${s.n}</div>
+      <div class="sumula-result-txt">${s.txt}</div>
+    </div>`).join('');
+}
+function copiarSumula(n,txt){
+  const full = `${n}: ${txt}`;
+  navigator.clipboard.writeText(full).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=full;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();
+  });
+  // Flash feedback
+  const items = document.querySelectorAll('.sumula-result-item');
+  items.forEach(el=>{ if(el.querySelector('.sumula-result-numero')?.textContent===n){ el.style.borderColor='var(--green)'; setTimeout(()=>el.style.borderColor='',1200); } });
+}
+
 // ── BANCO DE SÚMULAS REAIS ────────────────────────────────────────────────────
-// Fonte: sites oficiais STF, STJ, TST — apenas súmulas vigentes e verificadas
 const BANCO_SUMULAS = {
   trabalhista:[
     {n:'Súmula 85 TST', txt:'Compensação de jornada: é válido o acordo individual, tácito ou expresso, para compensação de horários, quando a compensação ocorrer dentro da mesma semana.'},
@@ -834,12 +1028,14 @@ const BANCO_SUMULAS = {
     {n:'Súmula 362 TST', txt:'FGTS: é trintenária a prescrição do direito de reclamar contra o não recolhimento da contribuição para o FGTS (antes da EC 72/2014); após, aplica-se a prescrição quinquenal.'},
     {n:'Súmula 369 TST', txt:'Dirigente sindical: o empregado eleito para cargo de direção de sindicatos tem direito à estabilidade provisória, ainda que a comunicação ao empregador ocorra após o registro da candidatura.'},
     {n:'Súmula 372 TST', txt:'Gratificação de função: percebida por dez ou mais anos, não pode ser suprimida nem reduzida, salvo erro ou fraude na concessão.'},
-    {n:'Súmula 376 TST', txt:'Horas in itinere: é indevido o adicional de horas in itinere quando o empregador fornecer transporte em local de difícil acesso ou não servido por transporte público.'},
     {n:'Súmula 390 TST', txt:'Estabilidade: o servidor público celetista da administração direta, autárquica ou fundacional é beneficiário da estabilidade prevista no art. 41 da CF/88.'},
     {n:'Súmula 396 TST', txt:'Estabilidade provisória: exaurido o período de estabilidade, são devidos ao empregado apenas os salários do período compreendido entre a data da despedida e o final do período de estabilidade.'},
     {n:'Súmula 437 TST', txt:'Intervalo intrajornada: após a CF/88, o intervalo intrajornada é obrigatório; a não concessão gera pagamento do período total correspondente, com acréscimo de 50%.'},
     {n:'Súmula 443 TST', txt:'Dispensa discriminatória: presume-se discriminatória a despedida de empregado portador do vírus HIV ou de outra doença grave que cause estigma ou preconceito.'},
-    {n:'OJ 394 SDI-1 TST', txt:'Representação irregular: o arquivamento da reclamação trabalhista por falta de representação regular não impede a propositura de nova ação.'},
+    {n:'OJ 394 SDI-1 TST', txt:'O arquivamento da reclamação trabalhista por falta de representação regular não impede a propositura de nova ação.'},
+    {n:'Súmula 6 TST', txt:'Equiparação salarial: para efeito de equiparação, só é relevante o fato de o reclamante e o paradigma exercerem a mesma função, com idêntica produtividade e perfeição técnica, e não a natureza do estabelecimento.'},
+    {n:'Súmula 47 TST', txt:'Horas extras: o trabalho prestado em regime de horas extras habituais não descaracteriza o contrato de teletrabalho.'},
+    {n:'Súmula 212 TST', txt:'Dispensa do empregado: o ônus de provar o término do contrato de trabalho, quando negados a prestação de serviço e o despedimento, é do empregador, pois o princípio da continuidade da relação de emprego constitui presunção favorável ao empregado.'},
   ],
   consumidor:[
     {n:'Súmula 297 STJ', txt:'O Código de Defesa do Consumidor é aplicável às instituições financeiras.'},
@@ -847,7 +1043,6 @@ const BANCO_SUMULAS = {
     {n:'Súmula 321 STJ', txt:'O CDC aplica-se à relação jurídica entre a entidade de previdência privada e seus participantes.'},
     {n:'Súmula 381 STJ', txt:'Nos contratos bancários, é vedado ao julgador conhecer, de ofício, da abusividade das cláusulas.'},
     {n:'Súmula 404 STJ', txt:'É dispensável o Aviso de Recebimento (AR) na carta de comunicação ao consumidor sobre a negativação de seu nome em bancos de dados e cadastros.'},
-    {n:'Súmula 412 STJ', txt:'A ação de repetição de indébito de tarifas de água e esgoto sujeita-se ao prazo prescricional estabelecido no Código Civil.'},
     {n:'Súmula 548 STJ', txt:'Incumbe ao credor a exclusão do registro da dívida em nome do devedor no cadastro de inadimplentes no prazo de cinco dias úteis, a partir do integral e efetivo pagamento do débito.'},
     {n:'Súmula 563 STJ', txt:'O Código de Defesa do Consumidor é aplicável às entidades abertas de previdência complementar, não incidindo nos contratos previdenciários celebrados com entidades fechadas.'},
     {n:'Súmula 601 STJ', txt:'O Ministério Público tem legitimidade ativa para atuar na defesa de direitos difusos, coletivos e individuais homogêneos dos consumidores, ainda que decorrentes da prestação de serviço público.'},
@@ -859,19 +1054,16 @@ const BANCO_SUMULAS = {
     {n:'Súmula 281 STJ', txt:'A indenização por dano moral não está sujeita à tarifação prevista na Lei de Imprensa.'},
     {n:'Súmula 387 STJ', txt:'É lícita a cumulação das indenizações de dano estético e dano moral.'},
     {n:'Súmula 403 STJ', txt:'Independe de prova do prejuízo a indenização pela publicação não autorizada de imagem de pessoa com fins econômicos ou comerciais.'},
-    {n:'Súmula 420 STJ', txt:'Inadequada a via do mandado de segurança para impugnar decisão judicial transitada em julgado.'},
     {n:'Súmula 362 STJ', txt:'A correção monetária do valor da indenização do dano moral incide desde a data do arbitramento.'},
-    {n:'Súmula 490 STJ', txt:'A dispensa de cumprimento do aviso prévio, quando pedida pelo empregado, não o priva do direito de recebê-lo.'},
   ],
   previdenciario:[
-    {n:'Súmula 7 TNU', txt:'O benefício de auxílio-doença para o segurado que, após filiar-se ao RGPS, sofreu a incapacidade em razão de doenças preexistentes somente será devido se a incapacidade sobrevier à carência exigida.'},
+    {n:'Súmula 7 TNU', txt:'O benefício de auxílio-doença para o segurado que sofreu a incapacidade em razão de doenças preexistentes somente será devido se a incapacidade sobrevier à carência exigida.'},
     {n:'Súmula 27 TNU', txt:'A utilização de formulários eletrônicos não comprova o efetivo labor em condições especiais para fins de aposentadoria especial.'},
     {n:'Súmula 33 TNU', txt:'Quando o segurado demonstrar a incapacidade para o trabalho que habitualmente exercia, é ônus da parte contrária demonstrar que ele está apto para outra atividade laboral.'},
     {n:'Súmula 44 TNU', txt:'Para efeitos de aposentadoria especial, o laudo pericial judicial não é o único meio de prova da especialidade das condições de trabalho.'},
     {n:'Súmula 47 TNU', txt:'Uma vez reconhecida a incapacidade parcial para o trabalho, o juiz deve analisar as condições pessoais e sociais do segurado para a concessão de aposentadoria por invalidez.'},
     {n:'Súmula 72 TNU', txt:'É possível o reconhecimento de atividade urbana para fins previdenciários com base em início de prova material corroborada por prova testemunhal idônea.'},
     {n:'Súmula 83 TNU', txt:'Não há vedação legal à percepção simultânea de pensão por morte e proventos de aposentadoria, ressalvadas as hipóteses de acumulação vedadas pela Constituição.'},
-    {n:'Súmula 77 STJ', txt:'O INSS não pode indiciar o beneficiário da previdência social pela prática de crime de estelionato se houve dolo somente do servidor que concedeu indevidamente o benefício.'},
   ],
   familia:[
     {n:'Súmula 301 STJ', txt:'Em ação investigatória, a recusa do suposto pai a submeter-se ao exame de DNA induz presunção juris tantum de paternidade.'},
@@ -879,68 +1071,130 @@ const BANCO_SUMULAS = {
     {n:'Súmula 336 STJ', txt:'A mulher que renunciou aos alimentos na separação judicial tem direito à pensão previdenciária por morte do ex-marido, comprovada a necessidade econômica superveniente.'},
     {n:'Súmula 358 STJ', txt:'O cancelamento de pensão alimentícia de filho que atingiu a maioridade está sujeito à decisão judicial, mediante contraditório, ainda que nos próprios autos.'},
     {n:'Súmula 594 STJ', txt:'O Ministério Público tem legitimidade ativa para ajuizar ação de alimentos em proveito de criança ou adolescente, independentemente do exercício do poder familiar dos pais.'},
-    {n:'Súmula 655 STJ', txt:'Pedido de guarda e responsabilidade deve ser processado e julgado pelo Juizado da Infância e Juventude, ainda que presentes interesses de adultos.'},
   ],
   tributario:[
     {n:'Súmula 213 STJ', txt:'O mandado de segurança constitui ação adequada para a declaração do direito à compensação tributária.'},
     {n:'Súmula 436 STJ', txt:'A entrega de declaração pelo contribuinte reconhecendo débito fiscal constitui o crédito tributário, dispensada qualquer outra providência por parte do Fisco.'},
     {n:'Súmula 446 STJ', txt:'Declarado e não pago o débito tributário pelo contribuinte, é legítima a recusa de expedição de certidão negativa ou positiva com efeito de negativa.'},
-    {n:'Súmula 460 STJ', txt:'É incabível o mandado de segurança para convalidar a compensação tributária realizada pelo contribuinte.'},
     {n:'Súmula 239 STF', txt:'Decisão que declara indevida a cobrança do imposto em determinado exercício não faz coisa julgada em relação aos posteriores.'},
     {n:'Súmula 544 STF', txt:'Isenções tributárias concedidas, sob condição onerosa, não podem ser livremente suprimidas.'},
-    {n:'Súmula 584 STF', txt:'Ao imposto de renda calculado sobre os rendimentos do ano-base, aplica-se a lei vigente no exercício financeiro em que deve ser apresentada a declaração.'},
   ],
   bancario:[
     {n:'Súmula 283 STJ', txt:'As empresas administradoras de cartão de crédito são instituições financeiras e, por isso, os juros remuneratórios por elas cobrados não sofrem as limitações da Lei de Usura.'},
     {n:'Súmula 286 STJ', txt:'A renegociação de contrato bancário ou a confissão da dívida não impede a possibilidade de discussão sobre eventuais ilegalidades dos contratos anteriores.'},
-    {n:'Súmula 293 STJ', txt:'A cobrança antecipada do valor residual garantido (VRG) não descaracteriza o contrato de arrendamento mercantil.'},
-    {n:'Súmula 530 STJ', txt:'Nos contratos bancários, na impossibilidade de comprovar a taxa de juros efetivamente contratada — por ausência de pactuação ou pela mera adesão ao contrato —, aplica-se a taxa média de mercado, divulgada pelo BACEN, praticada nas operações da mesma espécie.'},
-    {n:'Súmula 566 STJ', txt:'Nos contratos bancários posteriores ao início da vigência da Resolução CMN 3.518/2007, em 30/04/2008, pode ser cobrada a tarifa de cadastro no início do relacionamento entre o consumidor e a instituição financeira.'},
+    {n:'Súmula 530 STJ', txt:'Nos contratos bancários, na impossibilidade de comprovar a taxa de juros efetivamente contratada, aplica-se a taxa média de mercado, divulgada pelo BACEN, praticada nas operações da mesma espécie.'},
+    {n:'Súmula 566 STJ', txt:'Nos contratos bancários posteriores ao início da vigência da Resolução CMN 3.518/2007, pode ser cobrada a tarifa de cadastro no início do relacionamento entre o consumidor e a instituição financeira.'},
   ],
   penal:[
     {n:'Súmula 9 STJ', txt:'A exigência da prisão provisória, para apelar, não ofende a garantia constitucional da presunção de inocência.'},
-    {n:'Súmula 243 STJ', txt:'O benefício da suspensão do processo não é aplicável em relação às infrações penais cometidas em concurso material, concurso formal ou continuidade delitiva, quando a pena mínima cominada, seja pelo somatório, seja pela incidência da majorante, ultrapassar dois anos.'},
+    {n:'Súmula 243 STJ', txt:'O benefício da suspensão do processo não é aplicável em relação às infrações penais cometidas em concurso material, concurso formal ou continuidade delitiva, quando a pena mínima cominada ultrapassar dois anos.'},
     {n:'Súmula 444 STJ', txt:'É vedada a utilização de inquéritos policiais e ações penais em curso para agravar a pena-base.'},
     {n:'Súmula 711 STF', txt:'A lei penal mais grave aplica-se ao crime continuado ou ao crime permanente, se a sua vigência é anterior à cessação da continuidade ou da permanência.'},
     {n:'Súmula 718 STF', txt:'A opinião do julgador sobre a gravidade em abstrato do crime não constitui motivação idônea para a imposição de regime mais severo do que o permitido segundo a pena aplicada.'},
     {n:'Súmula 719 STF', txt:'A imposição do regime de cumprimento mais severo do que a pena aplicada permitir exige motivação idônea.'},
   ],
   administrativo:[
-    {n:'Súmula 473 STF', txt:'A Administração pode anular seus próprios atos, quando eivados de vícios que os tornem ilegais, porque deles não se originam direitos; ou revogá-los, por motivo de conveniência ou oportunidade, respeitados os direitos adquiridos.'},
+    {n:'Súmula 473 STF', txt:'A Administração pode anular seus próprios atos, quando eivados de vícios que os tornem ilegais; ou revogá-los, por motivo de conveniência ou oportunidade, respeitados os direitos adquiridos.'},
     {n:'Súmula 346 STF', txt:'A Administração Pública pode declarar a nulidade dos seus próprios atos.'},
-    {n:'Súmula 636 STF', txt:'Não cabe recurso extraordinário por contrariedade ao princípio constitucional da legalidade, quando a sua verificação pressuponha rever a interpretação dada a normas infraconstitucionais pela decisão recorrida.'},
-    {n:'Súmula 633 STJ', txt:'A Lei n. 9.784/1999, especialmente no que diz respeito ao prazo decadencial para a revisão de atos administrativos no âmbito da Administração Federal, pode ser aplicada de forma subsidiária aos estados e municípios, se inexistente norma local e específica que regule a matéria.'},
+    {n:'Súmula 633 STJ', txt:'A Lei n. 9.784/1999, especialmente no que diz respeito ao prazo decadencial para a revisão de atos administrativos no âmbito da Administração Federal, pode ser aplicada de forma subsidiária aos estados e municípios.'},
     {n:'Súmula 467 STJ', txt:'Prescreve em cinco anos, contados do término do processo administrativo, a pretensão da Administração Pública de promover a execução da multa por infração ambiental.'},
   ],
 };
 
-// Busca súmulas reais no banco local pela área e palavras-chave dos pedidos
+// ── ÍNDICE PLANO DE TODAS AS SÚMULAS (para busca e validação) ─────────────────
+const SUMULAS_PLANO = (() => {
+  const plano = {};
+  for(const area of Object.values(BANCO_SUMULAS)){
+    for(const s of area){ plano[s.n.toLowerCase()] = s; }
+  }
+  return plano;
+})();
+
+// ── VALIDADOR ANTI-ALUCINAÇÃO PÓS-GERAÇÃO ─────────────────────────────────────
+// Extrai todas as referências a súmulas do texto gerado
+function extrairReferencias(texto){
+  const refs = [];
+  // Padrões comuns: "Súmula 85 TST", "S. 85/TST", "Súmula nº 331 do TST", "OJ 394 SDI-1"
+  const patterns = [
+    /S[úu]mula\s+(?:n[º°]?\s*)?(\d+)\s*(?:do?\s*)?(STF|STJ|TST|TNU|TRT)/gi,
+    /OJ\s+(\d+)\s+([A-Z\-]+\s+[A-Z]+)/gi,
+    /(?:enunciado|verbete)\s+(?:n[º°]?\s*)?(\d+)\s*(?:do?\s*)?(STF|STJ|TST)/gi,
+  ];
+  for(const pat of patterns){
+    let m;
+    while((m=pat.exec(texto))!==null){
+      const raw = m[0].replace(/\s+/g,' ').trim();
+      // Normaliza para chave de busca
+      let chave = '';
+      if(raw.toLowerCase().startsWith('oj')){
+        chave = raw.toLowerCase();
+      } else {
+        const num = m[1];
+        const tribunal = m[2]||'';
+        chave = `súmula ${num} ${tribunal}`.toLowerCase();
+      }
+      if(!refs.find(r=>r.chave===chave)) refs.push({raw, chave});
+    }
+  }
+  return refs;
+}
+
+function validarAntiAlucinacao(texto, sumulasAutorizadas){
+  const setsAutorizadas = new Set(sumulasAutorizadas.map(s=>s.n.toLowerCase()));
+  const refsEncontradas = extrairReferencias(texto);
+  const resultado = {
+    totalCitadas: refsEncontradas.length,
+    verificadas: [],
+    naoVerificadas: [],
+    percentualSeguro: 100,
+  };
+
+  for(const ref of refsEncontradas){
+    // Busca exata e parcial no banco
+    const exata = SUMULAS_PLANO[ref.chave];
+    const autorizada = setsAutorizadas.has(ref.chave) ||
+      [...setsAutorizadas].some(a=>a.includes(ref.chave)||ref.chave.includes(a.split(' ').slice(1,3).join(' ')));
+
+    if(exata && autorizada){
+      resultado.verificadas.push({ref: ref.raw, dados: exata, status:'verified'});
+    } else if(exata && !autorizada){
+      // Existe no banco mas não estava na lista autorizada para este caso
+      resultado.verificadas.push({ref: ref.raw, dados: exata, status:'warned'});
+    } else {
+      // Não existe no banco — possível alucinação
+      resultado.naoVerificadas.push({ref: ref.raw, status:'removed'});
+    }
+  }
+
+  const total = resultado.totalCitadas;
+  const problemas = resultado.naoVerificadas.length;
+  resultado.percentualSeguro = total===0 ? 100 : Math.round(((total-problemas)/total)*100);
+
+  return resultado;
+}
+
+// ── BUSCA SÚMULAS NO BANCO LOCAL ──────────────────────────────────────────────
 function buscarSumulasLocais(area, pedidos, fatos=''){
   const texto = (area+' '+pedidos+' '+fatos).toLowerCase();
   let resultado = [];
 
-  // Mapeamento de palavras-chave para áreas
   const mapa = [
-    {chaves:['trabalhist','clt','empregado','empregador','hora extra','fgts','demiss','rescis','aviso prévio','holerite','carteira','sindicato','salário','reintegr','subordin','jornada'], area:'trabalhista'},
+    {chaves:['trabalhist','clt','empregado','empregador','hora extra','fgts','demiss','rescis','aviso prévio','holerite','carteira','sindicato','salário','reintegr','subordin','jornada','verbal'], area:'trabalhista'},
     {chaves:['consumidor','cdc','produto','serviço','banco','financeira','cartão','plano de saúde','seguro','defeito','vício','propaganda','publicidade'], area:'consumidor'},
     {chaves:['civil','contrato','indeniz','dano moral','responsabilidade','locação','imóvel','posse','propriedade','usucapião','herança','inventário'], area:'civil'},
     {chaves:['previdenci','inss','aposentadoria','auxílio','benefício','invalidez','pensão por morte','salário maternidade'], area:'previdenciario'},
-    {chaves:['família','alimento','divórcio','guarda','tutela','curatela','adoção','paternidade','pensão alimentícia'], area:'familia'},
-    {chaves:['tribut','imposto','taxa','contribuição','icms','iss','irpf','fiscal','receita federal','pgfn'], area:'tributario'},
-    {chaves:['banco','crédito','financiamento','empréstimo','juros','cdb','cheque','usura','cédula'], area:'bancario'},
-    {chaves:['penal','crime','delito','furto','roubo','estelionato','homicídio','tráfico','prisão','réu'], area:'penal'},
-    {chaves:['administrat','servidor','licitação','contrato administrativo','improbidade','ato administrat','poder público'], area:'administrativo'},
+    {chaves:['família','família','alimento','divórcio','guarda','tutela','curatela','adoção','paternidade','pensão alimentícia'], area:'familia'},
+    {chaves:['tribut','imposto','taxa','contribuição','icms','iss','irpf','fiscal','receita federal'], area:'tributario'},
+    {chaves:['banco','crédito','financiamento','empréstimo','juros','cdb','cheque','usura'], area:'bancario'},
+    {chaves:['penal','crime','delito','furto','roubo','estelionato','homicídio','tráfico','prisão'], area:'penal'},
+    {chaves:['administrat','servidor','licitação','improbidade','ato administrat','poder público'], area:'administrativo'},
   ];
 
-  // Detecta as áreas relevantes
   const areasDetectadas = new Set();
   for(const m of mapa){
-    if(m.chaves.some(ch => texto.includes(ch))){
-      areasDetectadas.add(m.area);
-    }
+    if(m.chaves.some(ch => texto.includes(ch))) areasDetectadas.add(m.area);
   }
 
-  // Se não detectou nada, usa a área selecionada pelo usuário
   if(areasDetectadas.size === 0){
     const areaMap = {
       'Direito Trabalhista':'trabalhista','Direito Civil':'civil',
@@ -953,12 +1207,10 @@ function buscarSumulasLocais(area, pedidos, fatos=''){
     if(areaMapeada) areasDetectadas.add(areaMapeada);
   }
 
-  // Coleta as súmulas das áreas detectadas
   for(const a of areasDetectadas){
     if(BANCO_SUMULAS[a]) resultado.push(...BANCO_SUMULAS[a]);
   }
 
-  // Remove duplicatas
   const vistos = new Set();
   resultado = resultado.filter(s => {
     if(vistos.has(s.n)) return false;
@@ -968,59 +1220,17 @@ function buscarSumulasLocais(area, pedidos, fatos=''){
   return resultado;
 }
 
-// ── PROMPT BUILDER ─────────────────────────────────────────────────────────────
-const RULES = `REGRAS ABSOLUTAS — PROIBIDO VIOLAR:
+// ── CACHE DE ANÁLISE ──────────────────────────────────────────────────────────
+function cacheKey(d, mode){
+  const base = mode==='upload' ?
+    extractedContent.substring(0,200) :
+    [d.area,d.tipo,d.pedidos,d.fatos?.substring(0,100)].join('|');
+  return 'v9cache_'+btoa(unescape(encodeURIComponent(base+d.tom))).substring(0,40);
+}
+function cacheGet(key){ try{ const c=localStorage.getItem(key); if(!c) return null; const p=JSON.parse(c); if(Date.now()-p.ts>3600000*4) return null; return p.text; }catch(e){ return null; } }
+function cacheSet(key,text){ try{ localStorage.setItem(key,JSON.stringify({ts:Date.now(),text})); }catch(e){} }
 
-1. SÚMULAS: USE APENAS as súmulas fornecidas na seção "SÚMULAS VERIFICADAS" abaixo. PROIBIDO citar qualquer súmula que não esteja nessa lista. Se nenhuma se aplicar ao caso, escreva explicitamente: "Não há súmula verificada aplicável a este ponto específico."
-
-2. JURISPRUDÊNCIA GERAL: Cite apenas entendimentos consolidados que você conhece com absoluta certeza. Se não tiver certeza, escreva: "Não há entendimento consolidado verificado sobre este ponto."
-
-3. ARTIGOS DE LEI: Cite apenas artigos que você conhece com certeza que existem na CLT, CC, CDC, CF/88, Lei 8.213/91 etc. Se tiver dúvida do número exato, descreva o conteúdo sem inventar número.
-
-4. PROBABILIDADE: Explique fator por fator. Nenhum percentual sem justificativa.
-
-5. VALORES: Use parâmetros reais conhecidos. Se não houver base: "varia conforme o juízo e as circunstâncias do caso."
-
-6. HONESTIDADE ABSOLUTA: É MELHOR escrever "não há dado verificado" do que inventar qualquer informação. Sua credibilidade depende disso.`;
-
-const STRUCTURE = `ESTRUTURA OBRIGATÓRIA:
-
-## 1. RESUMO EXECUTIVO
-[5 linhas máximo: o que é o caso, qual a probabilidade, principal força, principal risco, recomendação imediata]
-
-## 2. PROBABILIDADE DE ÊXITO
-**Probabilidade Global: [X]%**
-Classificação: [ALTA / MÉDIA / BAIXA]
-- ✅ Fator positivo 1: [argumento + peso]
-- ✅ Fator positivo 2: [argumento + peso]
-- ❌ Fator negativo 1: [fraqueza + impacto]
-- ❌ Fator negativo 2: [fraqueza + impacto]
-- ⚠️ Fator incerto: [o que pode ir para qualquer lado]
-
-## 3. IDENTIFICAÇÃO DO CASO
-[Tipo de ação, partes, objeto, datas relevantes]
-
-## 4. PONTOS FORTES
-[Mínimo 4 pontos. Argumento + lei ou princípio que sustenta]
-
-## 5. PONTOS FRACOS E RISCOS
-[Mínimo 3 riscos. Problema + por que pode prejudicar]
-
-## 6. SÚMULAS E JURISPRUDÊNCIA APLICÁVEL
-[USE APENAS as súmulas da lista verificada fornecida. Para cada uma: número + o que determina + como se aplica a este caso específico. Se nenhuma se aplicar, diga isso claramente.]
-
-## 7. FUNDAMENTOS LEGAIS
-[Artigos que você conhece com certeza: número + lei + o que determina + aplicação ao caso]
-
-## 8. ESTIMATIVA DE VALORES E HONORÁRIOS
-[Faixas praticadas nos tribunais. Honorários: percentual sobre o proveito econômico conforme tabela OAB]
-
-## 9. ESBOÇO DA PEÇA PROCESSUAL
-[Qualificação, fatos, direito, pedidos, valor da causa]
-
-## 10. ESTRATÉGIA E PRÓXIMOS PASSOS
-[Acordo vs litígio, provas indispensáveis, prazos críticos, riscos processuais]`;
-
+// ── PROMPT BUILDER (COMPACTO — MENOS TOKENS) ──────────────────────────────────
 const TONS = {
   imparcial:'Análise rigorosamente imparcial, pontos fortes e fracos de ambos os polos.',
   favoravel:'Foco nos melhores argumentos para o polo ativo.',
@@ -1030,45 +1240,44 @@ const TONS = {
 
 function buildPrompt(d, sumulasVerificadas=[]){
   const ton = TONS[d.tom]||TONS.imparcial;
-  const extra = d.extraContext ? `\nInstruções adicionais: ${d.extraContext}` : '';
+  const extra = d.extraContext ? `\nInstruções: ${d.extraContext}` : '';
   const cliente = d.cliente ? `\nCliente: ${d.cliente}` : '';
-  const processo = d.processo ? `\nNº Processo: ${d.processo}` : '';
 
-  // Bloco de súmulas verificadas do banco local
+  // Bloco de súmulas verificadas — compacto
   let sumulasBloco = '';
   if(sumulasVerificadas.length > 0){
-    sumulasBloco = `\n\n╔══════════════════════════════════════════════════════╗
-║  SÚMULAS VERIFICADAS — BANCO LOCAL OFICIAL           ║
-║  Use APENAS estas. Proibido citar outras.            ║
-╚══════════════════════════════════════════════════════╝\n`;
+    sumulasBloco = `\n\nSÚMULAS AUTORIZADAS (use APENAS estas, proibido citar outras):\n`;
     sumulasBloco += sumulasVerificadas.map(s => `• ${s.n}: ${s.txt}`).join('\n');
-    sumulasBloco += `\n\n⛔ PROIBIDO citar qualquer súmula fora desta lista.
-✅ Se nenhuma se aplicar ao ponto, escreva: "Não há súmula verificada aplicável."`;
+    sumulasBloco += `\n⛔ NÃO CITE súmulas fora desta lista.`;
   } else {
-    sumulasBloco = `\n\n⛔ ATENÇÃO: Não há súmulas verificadas disponíveis para esta área/pedidos.
-NÃO CITE NENHUMA SÚMULA por número. Descreva apenas entendimentos gerais que você conhece com certeza.`;
+    sumulasBloco = `\n\n⛔ Sem súmulas verificadas para esta área. NÃO cite nenhuma súmula por número.`;
   }
 
-  const instrucao = `Você é um jurista brasileiro sênior com 30 anos de experiência nos tribunais.
-Tom: ${ton}${cliente}${processo}
-Data: ${d.data}${extra}${sumulasBloco}`;
+  const instrucao = `Jurista brasileiro sênior. Tom: ${ton}.${cliente}\nData: ${d.data}${extra}${sumulasBloco}
+
+REGRAS: Nunca invente súmulas. Se não tiver certeza de um artigo, descreva sem citar número. É melhor "não localizado" do que inventar.
+
+ESTRUTURA OBRIGATÓRIA:
+## 1. RESUMO EXECUTIVO
+## 2. PROBABILIDADE DE ÊXITO
+**Probabilidade Global: X%** | Classificação: ALTA/MÉDIA/BAIXA
+- ✅ Pontos positivos com peso
+- ❌ Pontos negativos com impacto
+## 3. IDENTIFICAÇÃO DO CASO
+## 4. PONTOS FORTES (mín. 4)
+## 5. PONTOS FRACOS E RISCOS (mín. 3)
+## 6. SÚMULAS E JURISPRUDÊNCIA (use APENAS as autorizadas acima)
+## 7. FUNDAMENTOS LEGAIS (artigos certos)
+## 8. ESTIMATIVA DE VALORES E HONORÁRIOS
+## 9. ESBOÇO DA PEÇA PROCESSUAL
+## 10. ESTRATÉGIA E PRÓXIMOS PASSOS`;
 
   if(currentMode==='upload'){
-    const max=30000;
+    const max=25000;
     const doc=extractedContent.length>max?extractedContent.substring(0,max)+'\n[Truncado]':extractedContent;
-    return `${instrucao}\n\n${RULES}\n\nDOCUMENTO:\n═══════════════\n${doc}\n═══════════════\n\n${STRUCTURE}`;
+    return `${instrucao}\n\nDOCUMENTO:\n${doc}`;
   }
-  return `${instrucao}\n\n${RULES}\n\nDADOS DO CASO:
-Área: ${d.area||'Não informado'}
-Tipo: ${d.tipo||'Não informado'}
-Autor: ${d.autor||'Não informado'}
-Réu: ${d.reu||'Não informado'}
-Pedidos: ${d.pedidos||'Não informado'}
-Tribunal: ${d.tribunal||'Não informado'}
-Valor: ${d.valor?'R$ '+d.valor:'Não informado'}
-Fatos: ${d.fatos||'Não informado'}
-
-${STRUCTURE}`;
+  return `${instrucao}\n\nDADOS:\nÁrea: ${d.area||'N/I'}\nTipo: ${d.tipo||'N/I'}\nAutor: ${d.autor||'N/I'}\nRéu: ${d.reu||'N/I'}\nPedidos: ${d.pedidos||'N/I'}\nTribunal: ${d.tribunal||'N/I'}\nValor: ${d.valor?'R$ '+d.valor:'N/I'}\nFatos: ${d.fatos||'N/I'}`;
 }
 
 // ── CHAMAR API GEMINI ──────────────────────────────────────────────────────────
@@ -1079,7 +1288,7 @@ async function gemini(apiKey, messages, systemPrompt=''){
     try{
       const body = {
         contents: messages,
-        generationConfig: {maxOutputTokens:16000, temperature:0.2}
+        generationConfig: {maxOutputTokens:12000, temperature:0.15} // Temperatura menor = menos criatividade = menos alucinação
       };
       if(systemPrompt) body.system_instruction = {parts:[{text:systemPrompt}]};
       const r = await fetch(
@@ -1099,17 +1308,10 @@ async function gemini(apiKey, messages, systemPrompt=''){
         }
       }
       if(texto.trim()) return texto.trim();
-      ultimoErro = `${modelo}: resposta vazia (finishReason: ${data.candidates?.[0]?.finishReason||'?'})`;
-    }catch(e){
-      ultimoErro = `${modelo}: ${e.message}`;
-    }
+      ultimoErro = `${modelo}: resposta vazia`;
+    }catch(e){ ultimoErro = `${modelo}: ${e.message}`; }
   }
   throw new Error('Falha em todos os modelos. Último erro: '+ultimoErro+'\n\nVerifique sua chave em aistudio.google.com');
-}
-
-// Alias para compatibilidade
-async function geminiTexto(apiKey, messages, systemPrompt=''){
-  return await gemini(apiKey, messages, systemPrompt);
 }
 
 // ── EXECUTAR ───────────────────────────────────────────────────────────────────
@@ -1140,9 +1342,10 @@ async function executar(){
   document.getElementById('inputCard').style.display='none';
   document.getElementById('loading').classList.add('visible');
   document.getElementById('resultCard').classList.remove('visible');
+  document.getElementById('loadingCache').textContent='';
 
-  const steps=['Lendo documento...','📚 Consultando banco de súmulas...','⚖ Verificando jurisprudência aplicável...','Analisando fundamentos jurídicos...','Calculando probabilidade...','Elaborando esboço processual...','Definindo estratégia...','Estimando honorários...','Compilando análise completa...'];
-  let si=0; const iv=setInterval(()=>{ document.getElementById('loadingStep').textContent=steps[si++%steps.length]; },1800);
+  const steps=['Lendo documento...','📚 Consultando banco de súmulas...','⚖ Verificando jurisprudência aplicável...','Analisando fundamentos jurídicos...','Calculando probabilidade...','Elaborando esboço processual...','Definindo estratégia...','Estimando honorários...'];
+  let si=0; const iv=setInterval(()=>{ document.getElementById('loadingStep').textContent=steps[si++%steps.length]; },1900);
 
   try{
     // Extrai PDF/imagem primeiro se necessário
@@ -1150,29 +1353,60 @@ async function executar(){
       document.getElementById('loadingStep').textContent='Extraindo texto do arquivo...';
       const mimeOk = extractedMime.startsWith('image/') ? extractedMime : 'application/pdf';
       try{
-        const txt = await geminiTexto(apiKey,
+        const txt = await gemini(apiKey,
           [{role:'user',parts:[
             {inline_data:{mime_type:mimeOk,data:extractedBase64}},
-            {text:'Transcreva TODO o texto deste documento jurídico na íntegra. Não resuma — transcreva completo.'}
+            {text:'Transcreva TODO o texto deste documento jurídico. Não resuma.'}
           ]}]
         );
-        if(txt){ extractedContent=txt; document.getElementById('extractedTxt').textContent=txt.substring(0,400)+'…'; }
-      }catch(e){ console.warn('Extração de arquivo falhou:',e.message); }
+        if(txt){ extractedContent=txt; }
+      }catch(e){ console.warn('Extração falhou:',e.message); }
     }
 
-    // ── BUSCA SÚMULAS NO BANCO LOCAL VERIFICADO ──────────────────────────────
-    document.getElementById('loadingStep').textContent='📚 Consultando banco de súmulas verificadas...';
-    const sumulasVerificadas = buscarSumulasLocais(d.area, d.pedidos||d.tipo||'', d.fatos||extractedContent.substring(0,500));
-    console.log('Súmulas encontradas no banco:', sumulasVerificadas.length, sumulasVerificadas.map(s=>s.n));
+    // Verificar cache (economiza API)
+    const ck = cacheKey(d, currentMode);
+    const cached = cacheGet(ck);
+    let text = '';
+    if(cached){
+      text = cached;
+      document.getElementById('loadingCache').textContent='⚡ Análise carregada do cache local (sem chamada à API)';
+    } else {
+      // Busca súmulas no banco local
+      document.getElementById('loadingStep').textContent='📚 Consultando banco de súmulas verificadas...';
+      const sumulasVerificadas = buscarSumulasLocais(d.area, d.pedidos||d.tipo||'', d.fatos||extractedContent.substring(0,500));
 
-    // ── ANÁLISE COMPLETA COM SÚMULAS VERIFICADAS ──────────────────────────────
-    document.getElementById('loadingStep').textContent='⚖ Gerando análise com súmulas verificadas...';
-    const prompt = buildPrompt(d, sumulasVerificadas);
-    const text = await gemini(apiKey, [{role:'user',parts:[{text:prompt}]}]);
+      document.getElementById('loadingStep').textContent='⚖ Gerando análise com súmulas verificadas...';
+      const prompt = buildPrompt(d, sumulasVerificadas);
+      text = await gemini(apiKey, [{role:'user',parts:[{text:prompt}]}]);
+      cacheSet(ck, text); // Salva no cache
+
+      clearInterval(iv);
+
+      // Validação Anti-Alucinação pós-geração
+      document.getElementById('loadingStep').textContent='🛡 Validando súmulas — Anti-Alucinação...';
+      const halResult = validarAntiAlucinacao(text, sumulasVerificadas);
+
+      analysisData = {
+        formData:d, aiText:text, fileName:uploadedFile?.name||null,
+        sumulasUsadas:sumulasVerificadas, halResult
+      };
+    }
+
+    if(!analysisData){
+      const sumulasVerificadas = buscarSumulasLocais(d.area, d.pedidos||d.tipo||'', d.fatos||extractedContent.substring(0,500));
+      const halResult = validarAntiAlucinacao(text, sumulasVerificadas);
+      analysisData = {formData:d, aiText:text, fileName:uploadedFile?.name||null, sumulasUsadas:sumulasVerificadas, halResult};
+    }
 
     clearInterval(iv);
-    analysisData = {formData:d, aiText:text, fileName:uploadedFile?.name||null, sumulasUsadas:sumulasVerificadas};
-    chatHistory = [{role:'user',parts:[{text:prompt}]},{role:'model',parts:[{text:text}]}];
+
+    // Chat context — comprimido para economizar tokens
+    chatHistory = [
+      {role:'user',parts:[{text:`Caso analisado: ${d.cliente||''} | ${d.area||''} | ${d.tipo||''}\nAnálise resumida: ${text.substring(0,3000)}`}]},
+      {role:'model',parts:[{text:'Análise registrada. Pronto para responder perguntas sobre este caso.'}]}
+    ];
+    chatHistoryCompressed = true;
+
     salvarHistorico(d, text);
     renderResult(d, text);
   }catch(e){
@@ -1182,6 +1416,15 @@ async function executar(){
     alert('⚠ Erro:\n\n'+e.message);
   }
 }
+
+// ── ABAS ───────────────────────────────────────────────────────────────────────
+function setTab(id, btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab'+capitalize(id)).classList.add('active');
+}
+function capitalize(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
 
 // ── RENDER ─────────────────────────────────────────────────────────────────────
 function renderResult(d, text){
@@ -1216,7 +1459,7 @@ function renderResult(d, text){
   const itens = [
     {label:'Cliente', val: d.cliente||'—'},
     {label:'Processo', val: d.processo||'—'},
-    {label:'Área', val: d.area||currentMode==='upload'?'Documento':'—'},
+    {label:'Área', val: d.area||'Documento'},
     {label:'Probabilidade', val: prob!==null?prob+'%':'N/D'},
     {label:'Tom', val: d.tom||'imparcial'},
     {label:'Data', val: d.data}
@@ -1228,22 +1471,34 @@ function renderResult(d, text){
   }
   document.getElementById('resumoItens').innerHTML = resumoHtml;
 
+  // Análise completa
   document.getElementById('aiText').textContent = text;
 
-  // Painel de súmulas verificadas do banco local
+  // Extrair seções para abas
+  renderSecao(text, 'PONTOS FORTES', 'secFortes');
+  renderSecao(text, 'PONTOS FRACOS', 'secRiscos', 'RISCOS');
+  renderSecao(text, 'SÚMULAS', 'secSumulas', 'JURISPRUDÊNCIA');
+  renderSecao(text, 'ESTRATÉGIA', 'secEstrategia', 'PRÓXIMOS PASSOS');
+
+  // Painel de súmulas
   const sumulasUsadas = analysisData?.sumulasUsadas || [];
   const jCard = document.getElementById('jurisVivoCard');
-  const jTxt  = document.getElementById('jurisVivoTxt');
   jCard.style.display = 'block';
   if(sumulasUsadas.length > 0){
-    jTxt.innerHTML = sumulasUsadas.map(s =>
+    document.getElementById('jurisVivoTxt').innerHTML = sumulasUsadas.map(s =>
       `<div style="background:rgba(0,0,0,.3);border-left:2px solid var(--gold-dark);border-radius:3px;padding:8px 11px;margin-bottom:7px">
         <div style="font-size:.65rem;font-weight:700;color:var(--gold);letter-spacing:.08em">${s.n}</div>
         <div style="font-size:12px;color:#8ab4c8;margin-top:3px;line-height:1.6">${s.txt}</div>
       </div>`
     ).join('');
   } else {
-    jTxt.innerHTML = '<div style="font-size:.65rem;color:var(--muted);padding:10px">Nenhuma súmula verificada encontrada para esta área/pedidos. A análise foi instruída a não citar súmulas por número.</div>';
+    document.getElementById('jurisVivoTxt').innerHTML = '<div style="font-size:.65rem;color:var(--muted);padding:10px">Nenhuma súmula verificada para esta área. A IA foi instruída a não citar súmulas por número.</div>';
+  }
+
+  // Anti-Alucinação Report
+  const hal = analysisData?.halResult;
+  if(hal){
+    renderHalReport(hal);
   }
 
   // Prompt para copiar
@@ -1252,7 +1507,145 @@ function renderResult(d, text){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// ── CHAT ───────────────────────────────────────────────────────────────────────
+function renderSecao(texto, palavraTitulo, elId, palavraAlt=''){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  // Busca seção pelo título
+  const regex = new RegExp(`## \\d+\\.\\s*${palavraTitulo}([\\s\\S]*?)(?=\\n## \\d+\\.|$)`,'i');
+  let m = regex.exec(texto);
+  if(!m && palavraAlt){
+    const regex2 = new RegExp(`## \\d+\\.\\s*${palavraAlt}([\\s\\S]*?)(?=\\n## \\d+\\.|$)`,'i');
+    m = regex2.exec(texto);
+  }
+  if(m){
+    const conteudo = m[0];
+    // Renderiza com badges de confiança
+    const linhas = conteudo.split('\n');
+    let html = '';
+    for(const linha of linhas){
+      const l = linha.trim();
+      if(!l) continue;
+      if(l.startsWith('##')){
+        const titulo = l.replace(/^#+\s*\d*\.?\s*/,'').replace(/\*\*/g,'').trim();
+        const conf = palavraTitulo.includes('FORTE')||palavraTitulo.includes('SÚMULA') ? 'alta' :
+                     palavraTitulo.includes('FRAC')||palavraTitulo.includes('RISCO') ? 'media' : 'alta';
+        html += `<div class="secao-titulo">${titulo}<span class="sec-confianca ${conf}">${conf==='alta'?'✓ Alta':'⚠ Média'}</span></div>`;
+      } else if(/^[-•✅❌⚠️]/.test(l)){
+        const icone = l.startsWith('✅')?'✅':l.startsWith('❌')?'❌':l.startsWith('⚠')?'⚠️':'•';
+        const txt = l.replace(/^[-•✅❌⚠️]\s*/,'').replace(/\*\*/g,'');
+        html += `<div class="bullet-item"><span class="bullet-icon">${icone}</span><span class="bullet-txt">${txt}</span></div>`;
+      } else {
+        html += `<p style="margin-bottom:6px;color:#a09880;font-size:13px">${l.replace(/\*\*/g,'')}</p>`;
+      }
+    }
+    el.innerHTML = `<div class="secao-corpo">${html}</div>`;
+  } else {
+    el.innerHTML = '<p style="color:var(--muted);font-size:.65rem;padding:10px">Seção não encontrada na análise.</p>';
+  }
+}
+
+function renderHalReport(hal){
+  const report = document.getElementById('halReport');
+  const grid = document.getElementById('halGrid');
+  const list = document.getElementById('halList');
+  report.style.display='block';
+
+  const classPct = hal.percentualSeguro>=90?'ok':hal.percentualSeguro>=70?'warn':'bad';
+  grid.innerHTML = `
+    <div class="hal-item"><div class="hal-val ${classPct}">${hal.percentualSeguro}%</div><div class="hal-lbl">Índice Segurança</div></div>
+    <div class="hal-item"><div class="hal-val ok">${hal.verificadas.length}</div><div class="hal-lbl">Súmulas Verificadas</div></div>
+    <div class="hal-item"><div class="hal-val ${hal.naoVerificadas.length>0?'bad':'ok'}">${hal.naoVerificadas.length}</div><div class="hal-lbl">Não Verificadas</div></div>
+  `;
+
+  let listHtml = '';
+  if(hal.totalCitadas===0){
+    listHtml = '<div class="hal-list-item" style="color:var(--green);font-size:.63rem;padding:8px 0">✅ Nenhuma súmula por número foi citada no texto — política Anti-Alucinação respeitada.</div>';
+  } else {
+    for(const v of hal.verificadas){
+      listHtml += `<div class="hal-list-item"><span class="hal-tag ${v.status}">${v.status==='verified'?'✓ Verificada':'⚠ Alertada'}</span><span class="hal-sumula-txt"><strong style="color:var(--text)">${v.ref}</strong> — ${v.dados.txt.substring(0,80)}...</span></div>`;
+    }
+    for(const n of hal.naoVerificadas){
+      listHtml += `<div class="hal-list-item"><span class="hal-tag removed">⛔ Removida</span><span class="hal-sumula-txt"><strong style="color:var(--red)">${n.ref}</strong> — Não encontrada no banco verificado. Desconsidere esta referência.</span></div>`;
+    }
+  }
+  list.innerHTML = listHtml;
+}
+
+// ── GERAÇÃO DE PETIÇÃO (1 chamada de API) ─────────────────────────────────────
+async function gerarPeticao(){
+  if(!analysisData){ alert('Execute uma análise primeiro.'); return; }
+  const apiKey = document.getElementById('apiKeyInput').value.trim();
+  if(!apiKey){ alert('Configure a chave de API.'); return; }
+
+  const tipoPeca = document.querySelector('.peticao-tipo-btn.active')?.dataset.peca || 'inicial';
+  const nomePeca = {
+    inicial: 'PETIÇÃO INICIAL',
+    contestacao: 'CONTESTAÇÃO',
+    recurso: 'RECURSO ORDINÁRIO',
+    acordo: 'PROPOSTA DE ACORDO',
+    notificacao: 'NOTIFICAÇÃO EXTRAJUDICIAL'
+  }[tipoPeca] || 'PETIÇÃO INICIAL';
+
+  const btn = document.getElementById('btnGerarPeticao');
+  btn.disabled=true; btn.textContent='⏳ Gerando...';
+
+  const d = analysisData.formData;
+  const sumulasAutorizadas = analysisData.sumulasUsadas || [];
+  const analiseResumida = analysisData.aiText.substring(0,4000);
+
+  const prompt = `Você é um advogado brasileiro com 20 anos de experiência.
+Com base na análise jurídica abaixo, elabore uma ${nomePeca} profissional e completa.
+
+DADOS DO CASO:
+Cliente: ${d.cliente||'não informado'}
+Área: ${d.area||'não informado'}
+Tipo: ${d.tipo||'não informado'}
+Autor: ${d.autor||'não informado'}
+Réu: ${d.reu||'não informado'}
+Pedidos: ${d.pedidos||'não informado'}
+Tribunal: ${d.tribunal||'não informado'}
+Valor da causa: ${d.valor?'R$ '+d.valor:'não informado'}
+Data: ${d.data}
+
+SÚMULAS AUTORIZADAS (use APENAS estas):
+${sumulasAutorizadas.map(s=>`• ${s.n}: ${s.txt}`).join('\n')||'Nenhuma — não cite súmulas por número.'}
+
+ANÁLISE (resumo):
+${analiseResumida}
+
+REGRAS:
+- Formato jurídico formal com qualificação das partes, fatos, fundamentos e pedidos
+- Citar APENAS súmulas da lista acima
+- Linguagem forense brasileira padrão
+- ${tipoPeca==='acordo'?'Formato de proposta extrajudicial clara e objetiva':tipoPeca==='notificacao'?'Notificação extrajudicial formal com prazo de resposta de 10 dias úteis':'Peça processual completa com todas as seções obrigatórias'}
+
+Elabore a ${nomePeca} agora:`;
+
+  try{
+    const texto = await gemini(apiKey, [{role:'user',parts:[{text:prompt}]}]);
+    const out = document.getElementById('peticaoOutput');
+    document.getElementById('peticaoTexto').textContent = texto;
+    out.classList.add('visible');
+    out.scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(e){
+    alert('Erro ao gerar: '+e.message);
+  }
+  btn.disabled=false; btn.textContent='📝 GERAR PEÇA NOVAMENTE';
+}
+
+function copiarPeticao(){
+  const txt = document.getElementById('peticaoTexto').textContent;
+  const btn = document.getElementById('btnCopiarPeticao');
+  navigator.clipboard.writeText(txt).then(()=>{
+    btn.textContent='✓ COPIADO!'; btn.classList.add('ok');
+    setTimeout(()=>{ btn.textContent='📋 COPIAR PEÇA'; btn.classList.remove('ok'); },2500);
+  }).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();
+    btn.textContent='✓ COPIADO!'; setTimeout(()=>{ btn.textContent='📋 COPIAR PEÇA'; },2000);
+  });
+}
+
+// ── CHAT (COM COMPRESSÃO DE HISTÓRICO) ────────────────────────────────────────
 function chatSugest(btn){
   document.getElementById('chatInput').value = btn.textContent;
   enviarChat();
@@ -1271,26 +1664,26 @@ async function enviarChat(){
   document.getElementById('btnChatSend').disabled=true;
 
   const msgs = document.getElementById('chatMessages');
-
-  // Mensagem do usuário
   const userDiv=document.createElement('div');
   userDiv.className='chat-msg user';
   userDiv.textContent=msg;
   msgs.appendChild(userDiv);
 
-  // Loading
   const loadDiv=document.createElement('div');
   loadDiv.className='chat-msg ai loading-msg';
   loadDiv.textContent='Analisando...';
   msgs.appendChild(loadDiv);
   msgs.scrollTop=msgs.scrollHeight;
 
-  // Adiciona à história
+  // Compressão de histórico: depois de 6 trocas, mantém só as últimas 4
+  if(chatHistory.length > 10){
+    chatHistory = [chatHistory[0], chatHistory[1], ...chatHistory.slice(-4)];
+  }
   chatHistory.push({role:'user',parts:[{text:msg}]});
 
   try{
-    const resp = await geminiTexto(apiKey, chatHistory,
-      `Você é um jurista brasileiro especialista. Responda APENAS sobre o caso jurídico já analisado. Seja direto e objetivo. Não invente jurisprudência.`
+    const resp = await gemini(apiKey, chatHistory,
+      `Jurista brasileiro especialista. Responda APENAS sobre o caso analisado. Seja direto. Não invente jurisprudência.`
     );
     chatHistory.push({role:'model',parts:[{text:resp}]});
     loadDiv.className='chat-msg ai';
@@ -1318,7 +1711,6 @@ function salvarHistorico(d, text){
       formData: d,
       fileName: analysisData?.fileName||null
     });
-    // Manter apenas os 20 mais recentes
     localStorage.setItem('v9_historico', JSON.stringify(hist.slice(0,20)));
     atualizarContHist();
   }catch(e){ console.warn('Erro ao salvar histórico:', e); }
@@ -1361,8 +1753,13 @@ function carregarHistorico(id){
     const hist=JSON.parse(localStorage.getItem('v9_historico')||'[]');
     const item=hist.find(h=>h.id===id);
     if(!item) return;
-    analysisData={formData:item.formData,aiText:item.texto,fileName:item.fileName};
-    chatHistory=[{role:'user',parts:[{text:'Análise carregada do histórico.'}]},{role:'model',parts:[{text:item.texto}]}];
+    const sumulasVerificadas = buscarSumulasLocais(item.formData.area||'', item.formData.pedidos||'', item.formData.fatos||'');
+    const halResult = validarAntiAlucinacao(item.texto, sumulasVerificadas);
+    analysisData={formData:item.formData,aiText:item.texto,fileName:item.fileName,sumulasUsadas:sumulasVerificadas,halResult};
+    chatHistory=[
+      {role:'user',parts:[{text:`Caso: ${item.formData.cliente||''} | ${item.formData.area||''}\n${item.texto.substring(0,2000)}`}]},
+      {role:'model',parts:[{text:'Contexto carregado.'}]}
+    ];
     document.getElementById('inputCard').style.display='none';
     document.getElementById('resultCard').classList.add('visible');
     renderResult(item.formData, item.texto);
@@ -1501,30 +1898,12 @@ async function dlPDF(){
 function gerarPromptCopia(d, text){
   const prob=text.match(/Probabilidade\s+Global[:\s*_]*(\d{1,3})\s*%/i);
   const probVal=prob?prob[1]+'%':'não identificada';
-  const secoes={};
-  text.split(/(?=\n## \d+\.)/).forEach(p=>{
-    const t=p.trim(); if(!t) return;
-    const titulo=t.split('\n')[0].replace(/^#+\s*\d*\.?\s*/,'').trim().toLowerCase();
-    if(titulo.includes('probabilidade')) secoes.prob=t;
-    if(titulo.includes('jurisprud')) secoes.juris=t;
-    if(titulo.includes('estratégia')||titulo.includes('próximos')) secoes.estrategia=t;
-    if(titulo.includes('pontos fort')) secoes.fortes=t;
-    if(titulo.includes('pontos frac')||titulo.includes('riscos')) secoes.fracos=t;
-    if(titulo.includes('fundamentos')) secoes.fund=t;
-    if(titulo.includes('honorários')||titulo.includes('valores')) secoes.valores=t;
-  });
   return `Você é um jurista brasileiro especialista. Aprofunde esta análise com rigor absoluto — NUNCA invente súmulas ou dados.
 
 CASO: ${d.cliente?'Cliente: '+d.cliente+' | ':''}${d.area||'Direito'} | ${d.tipo||'Análise Jurídica'} | ${d.data}
 PROBABILIDADE ESTIMADA: ${probVal}
 
-${secoes.prob||''}
-${secoes.juris||''}
-${secoes.fortes||''}
-${secoes.fracos||''}
-${secoes.fund||''}
-${secoes.valores||''}
-${secoes.estrategia||''}
+${text.substring(0,5000)}
 
 SOLICITO QUE VOCÊ:
 1. Valide a probabilidade de ${probVal} — corrija se necessário
@@ -1551,6 +1930,14 @@ function copyPrompt(){
   });
 }
 
+// ── CALCULADORA DE PRAZOS ──────────────────────────────────────────────────────
+function maskData(el){
+  let v=el.value.replace(/\D/g,'');
+  if(v.length>=3) v=v.substring(0,2)+'/'+v.substring(2);
+  if(v.length>=6) v=v.substring(0,5)+'/'+v.substring(5,9);
+  el.value=v;
+}
+
 // ── RESET ──────────────────────────────────────────────────────────────────────
 function reset(){
   document.getElementById('resultCard').classList.remove('visible');
@@ -1558,7 +1945,9 @@ function reset(){
   document.getElementById('dlStatus').textContent='';
   document.getElementById('chatMessages').innerHTML='';
   document.getElementById('prazoResultado').style.display='none';
-  analysisData=null; chatHistory=[]; clearFile(null); setMode('upload');
+  document.getElementById('peticaoOutput').classList.remove('visible');
+  analysisData=null; chatHistory=[]; chatHistoryCompressed=false;
+  clearFile(null); setMode('upload');
   window.scrollTo({top:0,behavior:'smooth'});
 }
 </script>
