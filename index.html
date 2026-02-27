@@ -217,7 +217,7 @@ textarea{resize:vertical;min-height:125px}
       <span class="upload-icon" id="uploadIcon">📄</span>
       <div class="upload-title" id="uploadTitle">Clique aqui ou arraste o arquivo</div>
       <div class="upload-sub" id="uploadSub">Contrato, Petição, Sentença, Notificação, Laudo...</div>
-      <div class="upload-types" id="uploadTypes">PDF · Word (.docx) · Imagem (JPG/PNG) · TXT</div>
+      <div class="upload-types" id="uploadTypes">PDF · Word (.docx) · Imagem (JPG/PNG) · TXT · Até 150MB</div>
       <!-- CORREÇÃO 2: botão de limpar com z-index alto para não conflitar -->
       <button class="upload-clear" id="uploadClear" onclick="clearFile(event)" type="button">✕ Remover</button>
     </div>
@@ -475,9 +475,9 @@ function dropFile(e){
 async function handleFile(file){
   if(!file) return;
 
-  // Validação de tamanho (max 20MB)
-  if(file.size > 20 * 1024 * 1024){
-    alert('Arquivo muito grande. Tamanho máximo: 20MB');
+  // Validação de tamanho (max 150MB)
+  if(file.size > 150 * 1024 * 1024){
+    alert('Arquivo muito grande. Tamanho máximo: 150MB');
     return;
   }
 
@@ -674,8 +674,8 @@ PASSO 2 — COM BASE NA PESQUISA, ESCREVA A ANÁLISE COMPLETA:
 `;
 
   if(currentMode === 'upload'){
-    const max = 14000;
-    const doc = extractedContent.length > max ? extractedContent.substring(0, max) + '\n[Truncado]' : extractedContent;
+    const max = 30000;
+    const doc = extractedContent.length > max ? extractedContent.substring(0, max) + '\n[Documento truncado — primeiras 30.000 chars enviadas para análise]' : extractedContent;
     return `${webSearchInstruction}\n${RULES}\n\nTom da análise: ${ton}\nData de hoje: ${d.data}${extra}\n\nDOCUMENTO PARA ANALISAR:\n═══════════════════════════\n${doc}\n═══════════════════════════\n\n${STRUCTURE}`;
   }
 
@@ -795,7 +795,7 @@ REGRAS INVIOLÁVEIS:
               {inline_data:{mime_type: mimeOk, data: extractedBase64}},
               {text: 'Extraia e transcreva TODO o texto deste documento jurídico na íntegra, mantendo a estrutura original. Não resuma, não interprete — apenas transcreva o conteúdo completo.'}
             ]}],
-            generationConfig: {maxOutputTokens: 6000, temperature: 0}
+            generationConfig: {maxOutputTokens: 12000, temperature: 0}
           })
         }
       );
