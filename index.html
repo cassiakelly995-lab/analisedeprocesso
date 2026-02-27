@@ -140,6 +140,13 @@ textarea{resize:vertical;min-height:125px}
 
 .btn-nova{width:100%;padding:12px;background:transparent;border:1px solid var(--border);border-radius:4px;font-family:'Rajdhani',sans-serif;font-size:.68rem;letter-spacing:.28em;color:var(--muted);cursor:pointer;text-transform:uppercase;transition:all .2s;margin-top:4px}
 .btn-nova:hover{border-color:var(--gold-dark);color:var(--gold)}
+.copy-prompt-card{background:linear-gradient(135deg,rgba(139,105,20,.08),rgba(201,168,76,.04));border:1px solid rgba(201,168,76,.25);border-radius:6px;padding:22px;margin-bottom:18px;position:relative}
+.copy-prompt-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.prompt-preview{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:14px;font-size:12px;color:var(--muted);white-space:pre-wrap;max-height:220px;overflow-y:auto;line-height:1.7;font-family:'Rajdhani',sans-serif;margin:12px 0}
+.btn-copy{width:100%;padding:15px;background:linear-gradient(135deg,rgba(201,168,76,.15),rgba(201,168,76,.08));border:1px solid var(--gold-dark);border-radius:4px;font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.22em;color:var(--gold-light);font-weight:700;cursor:pointer;transition:all .3s;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn-copy:hover{background:linear-gradient(135deg,rgba(201,168,76,.28),rgba(201,168,76,.14));border-color:var(--gold);transform:translateY(-1px);box-shadow:0 6px 20px rgba(201,168,76,.15)}
+.btn-copy.copied{background:linear-gradient(135deg,rgba(46,204,113,.15),rgba(46,204,113,.08));border-color:var(--green);color:var(--green)}
+.copy-hint{font-size:.62rem;color:var(--muted);text-align:center;margin-top:8px;letter-spacing:.08em}
 .disc{background:rgba(201,168,76,.04);border:1px solid rgba(201,168,76,.1);border-radius:4px;padding:11px 14px;margin-bottom:16px;font-size:.69rem;color:var(--muted);line-height:1.65}
 .disc strong{color:var(--gold-dark)}
 .chars{font-size:.6rem;color:var(--muted);text-align:right;margin-top:4px}
@@ -333,6 +340,19 @@ textarea{resize:vertical;min-height:125px}
       <button class="btn-dl pdf"  id="btnPdf"  onclick="dlPDF()">📕 Baixar PDF</button>
     </div>
     <div class="dl-status" id="dlStatus"></div>
+  </div>
+
+  <!-- ── COPIAR PROMPT ─────────────────────────────────────────────────────── -->
+  <div class="copy-prompt-card" id="copyPromptCard">
+    <div class="slabel">📋 Prompt Pronto para Copiar</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:4px">
+      Prompt completo com probabilidade, jurisprudência e estratégia — cole em qualquer IA para aprofundar a análise.
+    </p>
+    <div class="prompt-preview" id="promptPreview"></div>
+    <button class="btn-copy" id="btnCopy" onclick="copyPrompt()">
+      📋 COPIAR PROMPT COMPLETO
+    </button>
+    <div class="copy-hint" id="copyHint">Cole no ChatGPT, Gemini, Claude ou qualquer IA para continuar a análise</div>
   </div>
 
   <button class="btn-nova" onclick="reset()">← NOVA ANÁLISE</button>
@@ -723,6 +743,11 @@ function renderResult(d,text){
     document.getElementById('probClass').style.color='var(--muted)';
   }
   document.getElementById('aiText').textContent=text;
+
+  // Gera e exibe o prompt para copiar
+  const promptCopia = gerarPromptCopia(d, text);
+  document.getElementById('promptPreview').textContent = promptCopia;
+
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -848,6 +873,118 @@ async function dlPDF(){
     document.getElementById('dlStatus').textContent='✓ PDF gerado com sucesso!';
   }catch(e){document.getElementById('dlStatus').textContent='✗ Erro: '+e.message;}
   btn.disabled=false;btn.textContent='📕 Baixar PDF';
+}
+
+// ── GERAR PROMPT PARA COPIAR ──────────────────────────────────────────────────
+function gerarPromptCopia(d, text){
+  const prob = text.match(/Probabilidade\s+Global[:\s*_]*(\d{1,3})\s*%/i);
+  const probValor = prob ? prob[1]+'%' : 'não identificada';
+
+  // Extrair seções relevantes do texto gerado
+  const secoes = {};
+  text.split(/(?=
+## \d+\.)/).forEach(p => {
+    const t = p.trim(); if(!t) return;
+    const titulo = t.split('
+')[0].replace(/^#+\s*\d*\.?\s*/,'').trim().toLowerCase();
+    if(titulo.includes('probabilidade')) secoes.prob = t;
+    if(titulo.includes('jurisprud')) secoes.juris = t;
+    if(titulo.includes('estratégia') || titulo.includes('estrategia') || titulo.includes('próximos')) secoes.estrategia = t;
+    if(titulo.includes('pontos fort')) secoes.fortes = t;
+    if(titulo.includes('pontos frac') || titulo.includes('riscos')) secoes.fracos = t;
+    if(titulo.includes('fundamentos')) secoes.fundamentos = t;
+  });
+
+  const prompt = `Você é um jurista brasileiro especialista. Preciso que você aprofunde e refine a análise jurídica abaixo, mantendo rigor absoluto — NUNCA invente súmulas, acórdãos ou dados que não existam.
+
+═══════════════════════════════════════════
+DADOS DO CASO ANALISADO
+═══════════════════════════════════════════
+Área: ${d.area || 'Não informado'}
+Tipo de Ação: ${d.tipo || 'Não informado'}
+Autor: ${d.autor || 'Não informado'}
+Réu: ${d.reu || 'Não informado'}
+Pedidos: ${d.pedidos || 'Não informado'}
+Tribunal: ${d.tribunal || 'Não informado'}
+Valor da Causa: ${d.valor ? 'R$ '+d.valor : 'Não informado'}
+Data da Análise: ${d.data}
+
+═══════════════════════════════════════════
+RESULTADO DA ANÁLISE ANTERIOR
+═══════════════════════════════════════════
+PROBABILIDADE DE ÊXITO ESTIMADA: ${probValor}
+
+${secoes.prob || ''}
+
+${secoes.juris || ''}
+
+${secoes.fortes || ''}
+
+${secoes.fracos || ''}
+
+${secoes.fundamentos || ''}
+
+${secoes.estrategia || ''}
+
+═══════════════════════════════════════════
+O QUE PRECISO QUE VOCÊ FAÇA AGORA:
+═══════════════════════════════════════════
+
+1. VALIDE a probabilidade de ${probValor} — confirme ou corrija com base nos fatos e jurisprudência real
+
+2. APROFUNDE a jurisprudência:
+   - Pesquise e confirme cada súmula citada acima
+   - Adicione súmulas ou OJs que possam ter sido esquecidas
+   - Para cada uma: número + tribunal + o que determina + aplicação ao caso
+
+3. REFINE a estratégia processual:
+   - Qual a melhor linha de argumentação?
+   - Quais provas são indispensáveis?
+   - Vale a pena tentar acordo? Em que termos?
+   - Quais são os riscos mais graves?
+
+4. ELABORE um esboço da peça processual mais completo com:
+   - Qualificação das partes
+   - Narrativa dos fatos
+   - Fundamentos jurídicos detalhados
+   - Pedidos com base legal
+   - Valor da causa fundamentado
+
+IMPORTANTE: Se não tiver certeza sobre alguma jurisprudência, diga "não localizado" — prefiro honestidade a invenção.`;
+
+  return prompt;
+}
+
+function copyPrompt(){
+  const prompt = document.getElementById('promptPreview').textContent;
+  if(!prompt) return;
+  navigator.clipboard.writeText(prompt).then(()=>{
+    const btn = document.getElementById('btnCopy');
+    const hint = document.getElementById('copyHint');
+    btn.classList.add('copied');
+    btn.textContent = '✓ COPIADO! Cole em qualquer IA agora';
+    hint.textContent = '✅ Prompt copiado — abra o ChatGPT, Gemini ou Claude e cole (Ctrl+V)';
+    hint.style.color = 'var(--green)';
+    setTimeout(()=>{
+      btn.classList.remove('copied');
+      btn.innerHTML = '📋 COPIAR PROMPT COMPLETO';
+      hint.textContent = 'Cole no ChatGPT, Gemini, Claude ou qualquer IA para continuar a análise';
+      hint.style.color = '';
+    }, 4000);
+  }).catch(()=>{
+    // fallback para navegadores que bloqueiam clipboard
+    const ta = document.createElement('textarea');
+    ta.value = prompt;
+    ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+    const btn = document.getElementById('btnCopy');
+    btn.classList.add('copied');
+    btn.textContent = '✓ COPIADO!';
+    setTimeout(()=>{ btn.classList.remove('copied'); btn.innerHTML = '📋 COPIAR PROMPT COMPLETO'; }, 3000);
+  });
 }
 
 // ── RESET ─────────────────────────────────────────────────────────────────────
