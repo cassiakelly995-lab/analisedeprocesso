@@ -647,17 +647,6 @@ async function executar(){
   const iv=setInterval(()=>{document.getElementById('loadingStep').textContent=steps[si++%steps.length];},1800);
 
   try{
-    // Monta o conteúdo — suporte a imagem e PDF via inline_data
-    let parts = [];
-    if(currentMode==='upload' && extractedBase64){
-      parts.push({inline_data:{mime_type: extractedMime, data: extractedBase64}});
-      const ton = TONS[d.tom]||TONS.imparcial;
-      const extra = d.extraContext?`\nInstruções adicionais do usuário: ${d.extraContext}`:'';
-      parts.push({text:`PASSO 1 — PESQUISE NA WEB antes de analisar: busque súmulas e jurisprudência relevante ao conteúdo deste documento.\nPASSO 2 — Analise o documento com base na pesquisa.\n\n${RULES}\n\nTom: ${ton}\nData: ${d.data}${extra}\n\n${STRUCTURE}`});
-    } else {
-      parts.push({text: buildPrompt(d)});
-    }
-
     const SYSTEM_PROMPT = `Você é um jurista brasileiro sênior com 30 anos de experiência nos tribunais. Sua reputação foi construída sobre uma única base: a VERDADE ABSOLUTA.
 
 IDENTIDADE PROFISSIONAL:
@@ -678,7 +667,7 @@ REGRAS INVIOLÁVEIS:
 - Se não tiver dados suficientes para estimar, diga isso claramente
 
 ③ ARTIGOS DE LEI:
-- Pesquise para confirmar que o artigo existe antes de citar
+- Cite apenas artigos que realmente existem na legislação brasileira
 - Formato: "Art. [N] da [Lei/Código]: [o que determina]"
 
 ④ VALORES E INDENIZAÇÕES:
@@ -688,6 +677,41 @@ REGRAS INVIOLÁVEIS:
 ⑤ HONESTIDADE ACIMA DE TUDO:
 - É melhor dizer "não sei" ou "dados insuficientes" do que inventar qualquer dado
 - Sua credibilidade profissional depende de nunca alucinar`;
+
+    // ── PASSO 1: Se PDF/imagem, extrai texto via Gemini sem google_search ────
+    let parts = [];
+    if(currentMode==='upload' && extractedBase64){
+      document.getElementById('loadingStep').textContent = 'Lendo e extraindo texto do arquivo...';
+      const mimeOk = extractedMime.startsWith('image/') ? extractedMime : 'application/pdf';
+      // Chamada separada só para extrair o texto do arquivo
+      const resExtract = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+        {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({
+            contents:[{role:'user', parts:[
+              {inline_data:{mime_type: mimeOk, data: extractedBase64}},
+              {text:'Extraia e transcreva TODO o texto deste documento jurídico na íntegra, mantendo a estrutura original. Não resuma, não interprete — apenas transcreva o conteúdo completo.'}
+            ]}],
+            generationConfig:{maxOutputTokens:6000, temperature:0}
+          })
+        }
+      );
+      if(resExtract.ok){
+        const dataEx = await resExtract.json();
+        const textoExtraido = dataEx.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('')||'';
+        if(textoExtraido){
+          extractedContent = textoExtraido;
+          document.getElementById('extractedTxt').textContent = textoExtraido.substring(0,500)+'…';
+        }
+      }
+    }
+
+    // ── PASSO 2: Monta o prompt com texto extraído ou digitado ───────────────
+    parts = [{text: buildPrompt(d)}];
+
+    document.getElementById('loadingStep').textContent = 'Pesquisando jurisprudência na web...';
 
     const res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
