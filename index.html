@@ -661,16 +661,10 @@ function buildPrompt(d){
   const extra = d.extraContext ? `\nInstruções adicionais do usuário: ${d.extraContext}` : '';
 
   const webSearchInstruction = `
-PASSO 1 — ANTES DE ESCREVER A ANÁLISE, PESQUISE NA WEB:
-Use sua capacidade de busca para encontrar jurisprudência REAL e ATUAL sobre este caso.
-Pesquise especificamente:
-- Súmulas do TST, STJ, STF relacionadas à área "${d.area||'direito'}" e aos pedidos informados
-- Entendimentos recentes dos tribunais superiores sobre o tema
-- Orientações Jurisprudenciais (OJs) do TST se for trabalhista
-- Súmulas vinculantes do STF se aplicável
-Após pesquisar, cite APENAS o que encontrou e confirmou. Se não encontrar súmula específica, diga claramente.
-
-PASSO 2 — COM BASE NA PESQUISA, ESCREVA A ANÁLISE COMPLETA:
+INSTRUÇÃO PRINCIPAL:
+Escreva uma análise jurídica completa e detalhada com base nos dados fornecidos.
+Cite apenas jurisprudência e súmulas que você conhece com certeza que existem.
+Se não tiver certeza sobre alguma súmula, descreva o entendimento sem inventar número.
 `;
 
   if(currentMode === 'upload'){
@@ -750,15 +744,14 @@ async function executar(){
     const SYSTEM_PROMPT = `Você é um jurista brasileiro sênior com 30 anos de experiência nos tribunais. Sua reputação foi construída sobre uma única base: a VERDADE ABSOLUTA.
 
 IDENTIDADE PROFISSIONAL:
-Você é rigoroso, preciso e honesto. Você usa a ferramenta de busca na web SEMPRE antes de citar qualquer jurisprudência, para confirmar que ela realmente existe e está atualizada.
+Você é rigoroso, preciso e honesto. Cite apenas jurisprudência que você conhece com certeza que existe.
 
 REGRAS INVIOLÁVEIS:
 
-① JURISPRUDÊNCIA — USE A BUSCA ANTES DE CITAR:
-- SEMPRE pesquise na web antes de mencionar qualquer súmula ou acórdão
-- Cite APENAS o que você encontrou e confirmou na busca
+① JURISPRUDÊNCIA — SOMENTE O QUE EXISTE:
+- Cite APENAS súmulas e entendimentos que realmente existem
 - Formato obrigatório: "Súmula [N] do [Tribunal]: [o que determina] — Aplicação: [como se aplica ao caso]"
-- Se a busca não retornar resultado claro, escreva: "Não localizei súmula específica consolidada sobre este ponto. O entendimento majoritário dos tribunais é: [descreva]"
+- Se não tiver certeza do número, escreva: "Não há súmula consolidada sobre este ponto. O entendimento majoritário é: [descreva]"
 - NUNCA invente número de súmula, acórdão ou ementa
 
 ② PROBABILIDADE — RACIOCÍNIO OBRIGATÓRIO:
@@ -818,9 +811,9 @@ REGRAS INVIOLÁVEIS:
       const body = {
         system_instruction: {parts:[{text: SYSTEM_PROMPT}]},
         contents: [{role:'user', parts}],
-        generationConfig: {maxOutputTokens: 8000, temperature: 0.2}
+        generationConfig: {maxOutputTokens: 16000, temperature: 0.3}
       };
-      if(comBusca) body.tools = [{google_search: {}}];
+      if(comBusca) body.tools = [{googleSearch: {}}];
       const r = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${apiKey}`,
         { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) }
@@ -832,46 +825,62 @@ REGRAS INVIOLÁVEIS:
       return await r.json();
     }
 
-    // Extrai texto e verifica bloqueios
+    // Extrai texto - busca em TODOS os parts de TODOS os candidates
     function extrairTexto(data) {
-      const candidate = data.candidates?.[0];
-      if(!candidate) return '';
-      const fr = candidate.finishReason;
-      if(fr === 'SAFETY') throw new Error('Conteúdo bloqueado por filtro de segurança. Tente reformular ou use o modo Digitar Dados.');
-      if(fr === 'RECITATION') throw new Error('Bloqueado por política de citação. Use menos texto ou o modo Digitar Dados.');
-      return candidate.content?.parts?.map(p => p.text||'').join('') || '';
+      if(!data) throw new Error('Sem resposta da API');
+      // Varre todos os candidates e todos os parts para pegar qualquer texto
+      let texto = '';
+      const candidates = data.candidates || [];
+      for(const cand of candidates) {
+        const parts = cand?.content?.parts || [];
+        for(const part of parts) {
+          if(part.text) texto += part.text;
+        }
+      }
+      // Se ainda vazio, tenta pegar de grounding/search response
+      if(!texto && data.candidates?.[0]) {
+        const cand = data.candidates[0];
+        // Às vezes o texto vem em groundingMetadata
+        const gm = cand.groundingMetadata;
+        if(gm?.searchEntryPoint?.renderedContent) {
+          texto = gm.searchEntryPoint.renderedContent;
+        }
+      }
+      return texto.trim();
     }
 
     let data, text = '';
 
-    // Tentativa 1: gemini-2.5-flash com busca web
+    // Tentativa 1: gemini-2.5-flash SEM google_search (mais estável)
     try {
       document.getElementById('loadingStep').textContent = 'Analisando com Gemini 2.5 Flash...';
-      data = await chamarAPI('gemini-2.5-flash', true);
+      data = await chamarAPI('gemini-2.5-flash', false);
       text = extrairTexto(data);
+      console.log('T1 ok, chars:', text.length);
     } catch(e1) {
-      console.warn('Tentativa 1 falhou:', e1.message);
-      // Tentativa 2: gemini-2.5-flash sem busca (evita conflitos)
+      console.warn('T1 falhou:', e1.message);
+      // Tentativa 2: gemini-2.0-flash
       try {
-        document.getElementById('loadingStep').textContent = 'Tentando sem busca integrada...';
-        data = await chamarAPI('gemini-2.5-flash', false);
+        document.getElementById('loadingStep').textContent = 'Tentando Gemini 2.0 Flash...';
+        data = await chamarAPI('gemini-2.0-flash', false);
         text = extrairTexto(data);
+        console.log('T2 ok, chars:', text.length);
       } catch(e2) {
-        console.warn('Tentativa 2 falhou:', e2.message);
-        // Tentativa 3: modelo fallback gemini-1.5-flash
+        console.warn('T2 falhou:', e2.message);
+        // Tentativa 3: gemini-1.5-flash (mais compatível)
         try {
-          document.getElementById('loadingStep').textContent = 'Usando modelo alternativo...';
+          document.getElementById('loadingStep').textContent = 'Usando Gemini 1.5 Flash...';
           data = await chamarAPI('gemini-1.5-flash', false);
           text = extrairTexto(data);
+          console.log('T3 ok, chars:', text.length);
         } catch(e3) {
-          throw new Error('Falha em todos os modelos.\n\n• ' + e1.message + '\n• ' + e2.message + '\n• ' + e3.message + '\n\nVerifique se a chave está ativa em aistudio.google.com');
+          throw new Error('Todos os modelos falharam:\n' + e1.message + '\n' + e2.message + '\n' + e3.message);
         }
       }
     }
 
     if(!text) {
-      const diag = JSON.stringify(data).substring(0, 400);
-      throw new Error('Resposta vazia da API.\n\nPossíveis causas:\n• Cota diária atingida\n• Chave inválida ou desativada\n• Documento ilegível ou corrompido\n\nDiagnóstico: ' + diag);
+      throw new Error('A API respondeu mas sem texto.\nVerifique se a chave de API tem acesso ao Gemini em aistudio.google.com');
     }
 
     clearInterval(iv);
