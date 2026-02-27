@@ -871,25 +871,56 @@ function maskData(el){
   el.value=v;
 }
 
-// Feriados nacionais fixos (dia/mês) — sem custo de API
-const FERIADOS_NACIONAIS = [
-  '01/01','21/04','01/05','07/09','12/10','02/11','15/11','25/12',
-  '20/11','24/10' // Consciência Negra e outros recentes
+// ── FERIADOS NACIONAIS FIXOS (dia/mês) ────────────────────────────────────────
+// Apenas feriados NACIONAIS fixos conforme Lei 9.093/95 e legislação vigente
+const FERIADOS_NACIONAIS_FIXOS = [
+  '01/01', // Confraternização Universal
+  '21/04', // Tiradentes
+  '01/05', // Dia do Trabalho
+  '07/09', // Independência do Brasil
+  '12/10', // Nossa Senhora Aparecida
+  '02/11', // Finados
+  '15/11', // Proclamação da República
+  '20/11', // Consciência Negra (Lei 12.519/2011, feriado nacional desde 2023)
+  '25/12', // Natal
 ];
-function ehFeriado(d){
-  const s = String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0');
-  return FERIADOS_NACIONAIS.includes(s);
+
+function ehDiaUtil(d) {
+  // Retorna true se for dia útil (não é sábado, não é domingo, não é feriado nacional fixo)
+  const diaSemana = d.getDay(); // 0=dom, 6=sab
+  if (diaSemana === 0 || diaSemana === 6) return false;
+  const chave = String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0');
+  if (FERIADOS_NACIONAIS_FIXOS.includes(chave)) return false;
+  return true;
 }
-function proximoDiaUtil(d){
+
+// Conta N dias úteis a partir de uma data (sem incluir a data base)
+// Regra CPC art. 219: contam-se apenas os dias úteis
+function adicionarDiasUteis(dataBase, qtdDiasUteis) {
+  const cursor = new Date(dataBase);
+  cursor.setHours(0, 0, 0, 0);
+  let contados = 0;
+  while (contados < qtdDiasUteis) {
+    cursor.setDate(cursor.getDate() + 1); // avança 1 dia
+    if (ehDiaUtil(cursor)) contados++;    // só conta se for útil
+  }
+  return cursor;
+}
+
+// Se o resultado cair num dia não útil, avança para o próximo dia útil
+function proximoDiaUtil(d) {
   const r = new Date(d);
-  while(r.getDay()===0||r.getDay()===6||ehFeriado(r)) r.setDate(r.getDate()+1);
+  r.setHours(0, 0, 0, 0);
+  while (!ehDiaUtil(r)) r.setDate(r.getDate() + 1);
   return r;
 }
+
 function calcularPrazo(){
   const dataStr = document.getElementById('prazoDataAto').value.trim();
   if(!dataStr || dataStr.length<10){ alert('Informe a data no formato DD/MM/AAAA'); return; }
   const [dd,mm,aaaa] = dataStr.split('/');
   const dataAto = new Date(parseInt(aaaa), parseInt(mm)-1, parseInt(dd));
+  dataAto.setHours(0,0,0,0);
   if(isNaN(dataAto.getTime())){ alert('Data inválida'); return; }
 
   let sel = document.getElementById('prazoTipo');
@@ -899,10 +930,9 @@ function calcularPrazo(){
     if(isNaN(dias)||dias<1){ alert('Informe o número de dias'); return; }
   }
 
-  // Calcula vencimento pulando fins de semana e feriados
-  const venc = new Date(dataAto);
-  venc.setDate(venc.getDate() + dias);
-  const vencFinal = proximoDiaUtil(venc);
+  // ── CONTAGEM CORRETA DE DIAS ÚTEIS (CPC art. 219) ────────────────────────
+  // Conta dia útil por dia útil a partir da data do ato (sem incluir o dia do ato)
+  const vencFinal = adicionarDiasUteis(dataAto, dias);
 
   const hoje = new Date(); hoje.setHours(0,0,0,0);
   const diffMs = vencFinal - hoje;
@@ -910,30 +940,47 @@ function calcularPrazo(){
   const fmt = d => d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',weekday:'long'});
 
   let urgClass = diffDias<=3?'urgente':diffDias<=10?'atencao':'ok';
-  let urgTxt = diffDias<0?'⚠ PRAZO VENCIDO':diffDias===0?'⚠ VENCE HOJE':diffDias===1?'⚠ VENCE AMANHÃ':`${diffDias} dias restantes`;
-  const ajustado = vencFinal.getTime()!==venc.getTime();
+  let urgTxt = diffDias<0?'⚠ PRAZO VENCIDO':diffDias===0?'⚠ VENCE HOJE':diffDias===1?'⚠ VENCE AMANHÃ':`Faltam ${diffDias} dias corridos`;
+
+  // Mostra quais feriados nacionais foram pulados no período
+  const feriadosPulados = [];
+  const cursor = new Date(dataAto);
+  cursor.setHours(0,0,0,0);
+  while (cursor <= vencFinal) {
+    cursor.setDate(cursor.getDate() + 1);
+    if (cursor > dataAto && cursor <= vencFinal) {
+      const chave = String(cursor.getDate()).padStart(2,'0') + '/' + String(cursor.getMonth()+1).padStart(2,'0');
+      if (FERIADOS_NACIONAIS_FIXOS.includes(chave) && cursor.getDay()!==0 && cursor.getDay()!==6) {
+        feriadosPulados.push(cursor.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'}));
+      }
+    }
+  }
 
   const res = document.getElementById('prazoResultado');
   res.style.display='block';
   res.innerHTML = `
     <div class="prazo-grid">
       <div class="prazo-card">
-        <div class="prazo-nome">Data do Ato</div>
+        <div class="prazo-nome">Data do Ato / Intimação</div>
         <div class="prazo-data">${dataStr}</div>
         <div class="prazo-dias">${fmt(dataAto)}</div>
       </div>
       <div class="prazo-card">
-        <div class="prazo-nome">Vencimento (${dias} dias)</div>
+        <div class="prazo-nome">Vencimento (${dias} dias úteis)</div>
         <div class="prazo-data">${vencFinal.toLocaleDateString('pt-BR')}</div>
-        <div class="prazo-dias">${fmt(vencFinal)}${ajustado?' <span style="color:var(--yellow)">[ajustado]</span>':''}</div>
+        <div class="prazo-dias">${fmt(vencFinal)}</div>
       </div>
       <div class="prazo-card">
         <div class="prazo-nome">Situação</div>
-        <div class="prazo-data ${urgClass}" style="font-size:1.1rem">${diffDias<0?'VENCIDO':diffDias+'d'}</div>
+        <div class="prazo-data ${urgClass}" style="font-size:1.1rem">${diffDias<0?'VENCIDO':diffDias===0?'HOJE':diffDias+'d'}</div>
         <div class="prazo-dias ${urgClass}">${urgTxt}</div>
       </div>
     </div>
-    <div style="font-size:.58rem;color:var(--muted);margin-top:8px">⚠ Feriados nacionais considerados. Feriados estaduais/municipais e suspensões forenses devem ser verificados manualmente.</div>`;
+    ${feriadosPulados.length ? `<div style="font-size:.6rem;color:var(--yellow);margin-top:8px;background:rgba(243,156,18,.07);border:1px solid rgba(243,156,18,.2);border-radius:3px;padding:7px 10px">⚠ Feriados nacionais não contados: ${feriadosPulados.join(', ')}</div>` : ''}
+    <div style="font-size:.58rem;color:var(--muted);margin-top:8px">
+      ✅ Dias úteis contados conforme CPC art. 219 — fins de semana e feriados nacionais fixos excluídos.<br>
+      ⚠ Feriados estaduais/municipais e suspensões do tribunal (ex: recesso forense) <strong>não estão incluídos</strong> — verifique no site do tribunal.
+    </div>`;
 }
 
 // ── CHECKLIST ──────────────────────────────────────────────────────────────────
@@ -1240,44 +1287,82 @@ const TONS = {
 
 function buildPrompt(d, sumulasVerificadas=[]){
   const ton = TONS[d.tom]||TONS.imparcial;
-  const extra = d.extraContext ? `\nInstruções: ${d.extraContext}` : '';
+  const extra = d.extraContext ? `\nInstruções adicionais do advogado: ${d.extraContext}` : '';
   const cliente = d.cliente ? `\nCliente: ${d.cliente}` : '';
 
-  // Bloco de súmulas verificadas — compacto
+  // ── BLOCO DE SÚMULAS: LISTA FECHADA E EXAUSTIVA ───────────────────────────
   let sumulasBloco = '';
   if(sumulasVerificadas.length > 0){
-    sumulasBloco = `\n\nSÚMULAS AUTORIZADAS (use APENAS estas, proibido citar outras):\n`;
-    sumulasBloco += sumulasVerificadas.map(s => `• ${s.n}: ${s.txt}`).join('\n');
-    sumulasBloco += `\n⛔ NÃO CITE súmulas fora desta lista.`;
+    const lista = sumulasVerificadas.map(s => `  • ${s.n}: "${s.txt}"`).join('\n');
+    sumulasBloco = `
+
+╔══════════════════════════════════════════════════════════════════╗
+║  LISTA FECHADA DE SÚMULAS — ÚNICA FONTE PERMITIDA               ║
+║  VOCÊ SÓ PODE CITAR AS SÚMULAS ABAIXO. NENHUMA OUTRA.          ║
+╚══════════════════════════════════════════════════════════════════╝
+${lista}
+
+🚫 PROIBIÇÃO ABSOLUTA: É COMPLETAMENTE PROIBIDO citar qualquer súmula, OJ, tese, verbete ou precedente vinculante que NÃO esteja na lista acima.
+🚫 NÃO INVENTE: Não existe "Súmula X do STJ" ou "Súmula Y do TST" fora desta lista para este caso.
+🚫 SE NÃO ESTIVER NA LISTA: Escreva exatamente "Não há súmula verificada aplicável a este ponto." — nunca invente um número.
+✅ SOMENTE as súmulas acima estão confirmadas e podem ser citadas com número.`;
   } else {
-    sumulasBloco = `\n\n⛔ Sem súmulas verificadas para esta área. NÃO cite nenhuma súmula por número.`;
+    sumulasBloco = `
+
+╔══════════════════════════════════════════════════════════════════╗
+║  ATENÇÃO: NENHUMA SÚMULA DISPONÍVEL PARA ESTE CASO             ║
+╚══════════════════════════════════════════════════════════════════╝
+🚫 PROIBIÇÃO ABSOLUTA: NÃO cite nenhuma súmula por número (STF, STJ, TST, TNU, TRT ou qualquer outro tribunal).
+🚫 NÃO ESCREVA "Súmula X", "OJ Y", "Tese Z" — você não tem autorização para citar nenhuma.
+✅ Na seção de jurisprudência, escreva apenas: "Não há súmula verificada disponível para esta área neste sistema."
+✅ Você pode mencionar princípios legais gerais (boa-fé, presunção de inocência etc.) sem citar número de súmula.`;
   }
 
-  const instrucao = `Jurista brasileiro sênior. Tom: ${ton}.${cliente}\nData: ${d.data}${extra}${sumulasBloco}
+  const instrucao = `Você é um jurista brasileiro sênior com 30 anos de experiência.
+Tom da análise: ${ton}.${cliente}
+Data: ${d.data}${extra}
+${sumulasBloco}
 
-REGRAS: Nunca invente súmulas. Se não tiver certeza de um artigo, descreva sem citar número. É melhor "não localizado" do que inventar.
+══════════════════════════════════════════════════════════════════
+REGRAS DE INTEGRIDADE — VIOLAÇÃO DESTRÓI A CREDIBILIDADE:
+══════════════════════════════════════════════════════════════════
+1. SÚMULAS: Siga a proibição acima à risca. Zero exceções.
+2. ARTIGOS DE LEI: Cite apenas artigos que você tem CERTEZA ABSOLUTA que existem (ex: art. 477 CLT, art. 186 CC, art. 6° CDC). Se tiver dúvida do número, descreva o conteúdo SEM citar número. Nunca invente número de artigo.
+3. VALORES: Use faixas reais conhecidas. Se não souber, escreva "varia conforme o juízo".
+4. PROBABILIDADE: Justifique cada fator. Nunca atribua percentual sem explicação.
+5. HONESTIDADE: "Não verificado" é MELHOR do que inventar. Sua credibilidade depende disso.
+══════════════════════════════════════════════════════════════════
 
-ESTRUTURA OBRIGATÓRIA:
+ESTRUTURA OBRIGATÓRIA — SIGA EXATAMENTE:
 ## 1. RESUMO EXECUTIVO
+[5 linhas: o que é o caso, probabilidade, força principal, risco principal, recomendação imediata]
+
 ## 2. PROBABILIDADE DE ÊXITO
-**Probabilidade Global: X%** | Classificação: ALTA/MÉDIA/BAIXA
-- ✅ Pontos positivos com peso
-- ❌ Pontos negativos com impacto
+**Probabilidade Global: [X]%**
+Classificação: [ALTA / MÉDIA / BAIXA]
+- ✅ Fator positivo 1: [argumento + fundamento]
+- ✅ Fator positivo 2: [argumento + fundamento]
+- ❌ Fator negativo 1: [fraqueza + impacto]
+- ❌ Fator negativo 2: [fraqueza + impacto]
+- ⚠️ Fator incerto: [o que pode ir para qualquer lado]
+
 ## 3. IDENTIFICAÇÃO DO CASO
-## 4. PONTOS FORTES (mín. 4)
-## 5. PONTOS FRACOS E RISCOS (mín. 3)
-## 6. SÚMULAS E JURISPRUDÊNCIA (use APENAS as autorizadas acima)
-## 7. FUNDAMENTOS LEGAIS (artigos certos)
+## 4. PONTOS FORTES (mínimo 4)
+## 5. PONTOS FRACOS E RISCOS (mínimo 3)
+## 6. SÚMULAS E JURISPRUDÊNCIA APLICÁVEL
+[APENAS as da lista fornecida acima. Se nenhuma se aplicar: "Não há súmula verificada aplicável."]
+## 7. FUNDAMENTOS LEGAIS
+[Artigos com certeza absoluta: número + lei + conteúdo + aplicação ao caso]
 ## 8. ESTIMATIVA DE VALORES E HONORÁRIOS
 ## 9. ESBOÇO DA PEÇA PROCESSUAL
 ## 10. ESTRATÉGIA E PRÓXIMOS PASSOS`;
 
   if(currentMode==='upload'){
     const max=25000;
-    const doc=extractedContent.length>max?extractedContent.substring(0,max)+'\n[Truncado]':extractedContent;
-    return `${instrucao}\n\nDOCUMENTO:\n${doc}`;
+    const doc=extractedContent.length>max?extractedContent.substring(0,max)+'\n[Truncado por tamanho]':extractedContent;
+    return `${instrucao}\n\nDOCUMENTO PARA ANÁLISE:\n════════════════════════\n${doc}\n════════════════════════`;
   }
-  return `${instrucao}\n\nDADOS:\nÁrea: ${d.area||'N/I'}\nTipo: ${d.tipo||'N/I'}\nAutor: ${d.autor||'N/I'}\nRéu: ${d.reu||'N/I'}\nPedidos: ${d.pedidos||'N/I'}\nTribunal: ${d.tribunal||'N/I'}\nValor: ${d.valor?'R$ '+d.valor:'N/I'}\nFatos: ${d.fatos||'N/I'}`;
+  return `${instrucao}\n\nDADOS DO CASO:\nÁrea: ${d.area||'Não informado'}\nTipo de Ação: ${d.tipo||'Não informado'}\nPolo Ativo (Autor): ${d.autor||'Não informado'}\nPolo Passivo (Réu): ${d.reu||'Não informado'}\nPedidos: ${d.pedidos||'Não informado'}\nTribunal: ${d.tribunal||'Não informado'}\nValor da Causa: ${d.valor?'R$ '+d.valor:'Não informado'}\nFatos e Provas: ${d.fatos||'Não informado'}`;
 }
 
 // ── CHAMAR API GEMINI ──────────────────────────────────────────────────────────
@@ -1593,8 +1678,12 @@ async function gerarPeticao(){
   const sumulasAutorizadas = analysisData.sumulasUsadas || [];
   const analiseResumida = analysisData.aiText.substring(0,4000);
 
-  const prompt = `Você é um advogado brasileiro com 20 anos de experiência.
-Com base na análise jurídica abaixo, elabore uma ${nomePeca} profissional e completa.
+  const listaSumulas = sumulasAutorizadas.length > 0
+    ? sumulasAutorizadas.map(s=>`  • ${s.n}: "${s.txt}"`).join('\n')
+    : null;
+
+  const prompt = `Você é um advogado brasileiro com 20 anos de experiência em redação de peças processuais.
+Elabore uma ${nomePeca} com base nos dados abaixo.
 
 DADOS DO CASO:
 Cliente: ${d.cliente||'não informado'}
@@ -1607,17 +1696,27 @@ Tribunal: ${d.tribunal||'não informado'}
 Valor da causa: ${d.valor?'R$ '+d.valor:'não informado'}
 Data: ${d.data}
 
-SÚMULAS AUTORIZADAS (use APENAS estas):
-${sumulasAutorizadas.map(s=>`• ${s.n}: ${s.txt}`).join('\n')||'Nenhuma — não cite súmulas por número.'}
+${listaSumulas ? `╔══════════════════════════════════════════════════════════════╗
+║  SÚMULAS AUTORIZADAS — ÚNICA LISTA PERMITIDA                ║
+║  SÓ CITE ESTAS. NENHUMA OUTRA. JAMAIS INVENTE.             ║
+╚══════════════════════════════════════════════════════════════╝
+${listaSumulas}
 
-ANÁLISE (resumo):
+🚫 É ABSOLUTAMENTE PROIBIDO citar qualquer outra súmula fora desta lista.` :
+`╔══════════════════════════════════════════════════════════════╗
+║  ATENÇÃO: ZERO SÚMULAS AUTORIZADAS PARA ESTE CASO          ║
+╚══════════════════════════════════════════════════════════════╝
+🚫 PROIBIÇÃO TOTAL: NÃO cite nenhuma súmula por número nesta peça.
+🚫 Não escreva "Súmula X do STJ/TST/STF" — nenhuma está autorizada.`}
+
+ANÁLISE BASE (resumo):
 ${analiseResumida}
 
-REGRAS:
-- Formato jurídico formal com qualificação das partes, fatos, fundamentos e pedidos
-- Citar APENAS súmulas da lista acima
-- Linguagem forense brasileira padrão
-- ${tipoPeca==='acordo'?'Formato de proposta extrajudicial clara e objetiva':tipoPeca==='notificacao'?'Notificação extrajudicial formal com prazo de resposta de 10 dias úteis':'Peça processual completa com todas as seções obrigatórias'}
+REGRAS DE INTEGRIDADE:
+1. Súmulas: respeite a proibição acima. Zero exceções.
+2. Artigos de lei: cite apenas os que você tem certeza absoluta que existem e têm o número correto. Se tiver dúvida, descreva o conteúdo sem citar número.
+3. Linguagem forense brasileira padrão — formal, técnica, objetiva.
+4. Formato: ${tipoPeca==='acordo'?'Proposta extrajudicial clara, com valor, condições e prazo de aceitação':tipoPeca==='notificacao'?'Notificação extrajudicial formal, com prazo de 10 dias úteis para resposta, assinatura e AR':'Peça processual completa: endereçamento, qualificação das partes, dos fatos, do direito, dos pedidos e valor da causa'}
 
 Elabore a ${nomePeca} agora:`;
 
@@ -1683,7 +1782,13 @@ async function enviarChat(){
 
   try{
     const resp = await gemini(apiKey, chatHistory,
-      `Jurista brasileiro especialista. Responda APENAS sobre o caso analisado. Seja direto. Não invente jurisprudência.`
+      `Você é um jurista brasileiro especialista respondendo perguntas sobre o caso já analisado.
+REGRAS ABSOLUTAS:
+1. Responda APENAS sobre este caso específico.
+2. NUNCA cite súmulas por número (ex: "Súmula 85 TST") a menos que estejam explicitamente na análise já feita.
+3. Se não tiver certeza de um número de súmula ou artigo, descreva o conteúdo sem citar o número.
+4. "Não verificado neste sistema" é SEMPRE melhor do que inventar.
+5. Seja direto e objetivo.`
     );
     chatHistory.push({role:'model',parts:[{text:resp}]});
     loadDiv.className='chat-msg ai';
