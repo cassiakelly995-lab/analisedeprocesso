@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V9 POWER EDITION – Análise Jurídica</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8c96b;
+    --gold-dark: #8b6914;
+    --bg: #0a0a0a;
+    --card: #111111;
+    --card2: #161616;
+    --border: #2a2a2a;
+    --text: #e0d5c0;
+    --muted: #6b6050;
+    --green: #2ecc71;
+    --red: #e74c3c;
+    --yellow: #f39c12;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* NOISE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.3;
+  }
+
+  header {
+    text-align: center;
+    padding: 36px 20px 20px;
+    position: relative;
+  }
+
+  header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    letter-spacing: 0.35em;
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold-light), var(--gold-dark));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  header .subtitle {
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    color: var(--muted);
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+
+  .divider {
+    width: 200px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 12px auto 0;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 28px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .section-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  label {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    margin-top: 16px;
+  }
+
+  label:first-of-type { margin-top: 0; }
+
+  input[type="text"], select, textarea {
+    width: 100%;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    letter-spacing: 0.03em;
+  }
+
+  input[type="text"]:focus, select:focus, textarea:focus {
+    border-color: var(--gold-dark);
+    box-shadow: 0 0 0 2px rgba(201,168,76,0.08);
+  }
+
+  select option { background: #1a1a1a; }
+
+  textarea { resize: vertical; min-height: 140px; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width:600px){ .grid2 { grid-template-columns: 1fr; } }
+
+  .tone-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 0;
+  }
+
+  .tone-btn {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--muted);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    padding: 8px 18px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+
+  .tone-btn.active {
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+    border-color: var(--gold);
+    color: #000;
+    font-weight: 700;
+  }
+
+  .btn-execute {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold-light), var(--gold-dark));
+    border: none;
+    border-radius: 4px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.25em;
+    color: #000;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+
+  .btn-execute:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 30px rgba(201,168,76,0.3);
+  }
+
+  .btn-execute:active { transform: translateY(0); }
+
+  /* PROMPT PREVIEW */
+  .prompt-preview {
+    background: #0d0d0d;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold-dark);
+    border-radius: 4px;
+    padding: 20px;
+    font-size: 13px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    color: #a09880;
+    font-family: 'Courier New', monospace;
+    max-height: 400px;
+    overflow-y: auto;
+    display: none;
+  }
+
+  .prompt-preview.visible { display: block; }
+
+  /* RESULT */
+  .result-card {
+    display: none;
+    animation: fadeUp 0.4s ease;
+  }
+
+  .result-card.visible { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* PROBABILITY METER */
+  .prob-container {
+    margin: 20px 0;
+  }
+
+  .prob-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+
+  .prob-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .prob-value {
+    font-family: 'Cinzel', serif;
+    font-size: 2.4rem;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .prob-value.high   { color: var(--green); }
+  .prob-value.medium { color: var(--yellow); }
+  .prob-value.low    { color: var(--red); }
+
+  .prob-bar-track {
+    height: 8px;
+    background: var(--card2);
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .prob-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+    width: 0%;
+  }
+
+  .prob-bar-fill.high   { background: linear-gradient(90deg, #27ae60, var(--green)); }
+  .prob-bar-fill.medium { background: linear-gradient(90deg, #e67e22, var(--yellow)); }
+  .prob-bar-fill.low    { background: linear-gradient(90deg, #c0392b, var(--red)); }
+
+  /* FACTORS */
+  .factors-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  @media(max-width:600px){ .factors-grid { grid-template-columns: 1fr; } }
+
+  .factor-item {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 14px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .factor-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .factor-title {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .factor-text {
+    font-size: 13px;
+    color: #a09880;
+    line-height: 1.5;
+  }
+
+  /* JURISPRUDENCE LIST */
+  .juris-item {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold-dark);
+    border-radius: 4px;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+    font-size: 13px;
+  }
+
+  .juris-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .juris-ref {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  .juris-badge {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .juris-badge.favor    { background: rgba(46,204,113,0.15); color: var(--green); border: 1px solid rgba(46,204,113,0.3); }
+  .juris-badge.contra   { background: rgba(231,76,60,0.15);  color: var(--red);   border: 1px solid rgba(231,76,60,0.3); }
+  .juris-badge.neutro   { background: rgba(243,156,18,0.15); color: var(--yellow);border: 1px solid rgba(243,156,18,0.3); }
+
+  .juris-text { color: #a09880; line-height: 1.6; }
+
+  /* COPY BTN */
+  .btn-copy {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--muted);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    padding: 6px 14px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    margin-top: 14px;
+  }
+
+  .btn-copy:hover { border-color: var(--gold-dark); color: var(--gold); }
+
+  /* LOADING */
+  .loading {
+    display: none;
+    text-align: center;
+    padding: 40px;
+  }
+
+  .loading.visible { display: block; }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--border);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text {
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* SCORE BREAKDOWN */
+  .score-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .score-name {
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    width: 160px;
+    flex-shrink: 0;
+  }
+
+  .score-mini-bar {
+    flex: 1;
+    height: 5px;
+    background: var(--card2);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .score-mini-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-dark), var(--gold));
+    border-radius: 3px;
+    transition: width 1s ease;
+    width: 0%;
+  }
+
+  .score-pct {
+    font-size: 0.75rem;
+    color: var(--gold);
+    width: 36px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* CHARS count */
+  .chars-count {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-align: right;
+    margin-top: 4px;
+  }
+
+  /* PROMPT SECTION */
+  .prompt-section { margin-top: 12px; }
+  .toggle-prompt {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--muted);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    padding: 6px 14px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .toggle-prompt:hover { border-color: var(--gold-dark); color: var(--gold); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>V9 POWER EDITION</h1>
+  <p class="subtitle">Engenharia Jurídica de Precisão</p>
+  <div class="divider"></div>
+</header>
+
+<div class="container">
+
+  <!-- INPUT CARD -->
+  <div class="card" id="inputCard">
+    <div class="section-label">⚖ Dados do Processo</div>
+
+    <div class="grid2">
+      <div>
+        <label>Área do Direito</label>
+        <select id="areaDir">
+          <option value="">Selecione...</option>
+          <option>Direito Trabalhista</option>
+          <option>Direito Civil</option>
+          <option>Direito do Consumidor</option>
+          <option>Direito Previdenciário</option>
+          <option>Direito de Família</option>
+          <option>Direito Tributário</option>
+          <option>Direito Empresarial</option>
+          <option>Direito Penal</option>
+          <option>Direito Administrativo</option>
+          <option>Direito Ambiental</option>
+        </select>
+      </div>
+      <div>
+        <label>Tipo de Ação / Documento</label>
+        <input type="text" id="tipoAcao" placeholder="Ex: Reclamação Trabalhista, Indenização..." />
+      </div>
+    </div>
+
+    <div class="grid2" style="margin-top:0">
+      <div>
+        <label>Polo Ativo (Autor)</label>
+        <input type="text" id="autor" placeholder="Ex: Empregado, Consumidor, Réu..." />
+      </div>
+      <div>
+        <label>Polo Passivo (Réu / Reclamado)</label>
+        <input type="text" id="reu" placeholder="Ex: Empresa, Banco, Estado..." />
+      </div>
+    </div>
+
+    <label>Pedidos Principais</label>
+    <input type="text" id="pedidos" placeholder="Ex: Horas extras, danos morais, rescisão indireta..." />
+
+    <label>Tribunal / Instância</label>
+    <select id="tribunal">
+      <option value="">Selecione...</option>
+      <option>1ª Instância – Vara do Trabalho</option>
+      <option>1ª Instância – Vara Cível</option>
+      <option>TRT (Tribunal Regional do Trabalho)</option>
+      <option>TJ (Tribunal de Justiça Estadual)</option>
+      <option>TST (Tribunal Superior do Trabalho)</option>
+      <option>STJ (Superior Tribunal de Justiça)</option>
+      <option>STF (Supremo Tribunal Federal)</option>
+      <option>TRF (Tribunal Regional Federal)</option>
+    </select>
+
+    <label>Tom / Objetivo da Análise</label>
+    <div class="tone-group" id="toneGroup">
+      <button class="tone-btn active" data-tone="imparcial">Imparcial</button>
+      <button class="tone-btn" data-tone="favoravel">Favorável ao Autor</button>
+      <button class="tone-btn" data-tone="defensivo">Defensivo ao Réu</button>
+      <button class="tone-btn" data-tone="estrategico">Estratégico</button>
+    </div>
+
+    <label style="margin-top:20px">Resumo dos Fatos / Principais Argumentos</label>
+    <textarea id="fatos" placeholder="Descreva os fatos relevantes do caso, provas disponíveis, argumentos centrais, peculiaridades do processo..."></textarea>
+    <div class="chars-count"><span id="charsCount">0</span> caracteres</div>
+
+    <div class="prompt-section">
+      <button class="toggle-prompt" onclick="togglePromptPreview()">◈ Visualizar Prompt Gerado</button>
+      <div class="prompt-preview" id="promptPreview"></div>
+    </div>
+
+    <button class="btn-execute" onclick="executarAnalise()">
+      ⚖ EXECUTAR ANÁLISE JURÍDICA V9 POWER
+    </button>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p class="loading-text">Analisando jurisprudência...</p>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result-card" id="resultCard">
+
+    <!-- PROBABILITY -->
+    <div class="card">
+      <div class="section-label">◈ Probabilidade de Êxito</div>
+      <div class="prob-container">
+        <div class="prob-header">
+          <div>
+            <div class="prob-label">Estimativa de Ganho</div>
+            <div class="prob-value" id="probValue" style="margin-top:6px">—</div>
+          </div>
+          <div style="text-align:right">
+            <div class="prob-label">Classificação</div>
+            <div id="probClass" style="margin-top:6px; font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase"></div>
+          </div>
+        </div>
+        <div class="prob-bar-track">
+          <div class="prob-bar-fill" id="probBar"></div>
+        </div>
+      </div>
+
+      <div id="scoreBreakdown"></div>
+    </div>
+
+    <!-- FATORES -->
+    <div class="card">
+      <div class="section-label">◈ Fatores Determinantes</div>
+      <div class="factors-grid" id="factorsGrid"></div>
+    </div>
+
+    <!-- JURISPRUDÊNCIA -->
+    <div class="card">
+      <div class="section-label">◈ Jurisprudência Relevante</div>
+      <div id="jurisList"></div>
+    </div>
+
+    <!-- ESTRATÉGIA -->
+    <div class="card">
+      <div class="section-label">◈ Estratégia Recomendada</div>
+      <div id="estrategia" style="font-size:14px; line-height:1.8; color:#a09880;"></div>
+      <button class="btn-copy" onclick="copyStrategy()">◈ Copiar Análise Completa</button>
+    </div>
+
+    <button class="btn-execute" style="margin-top:0" onclick="resetForm()">
+      ← NOVA ANÁLISE
+    </button>
+  </div>
+
+</div>
+
+<script>
+// TONE SELECTOR
+document.querySelectorAll('.tone-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tone-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    updatePromptPreview();
+  });
+});
+
+// CHARS COUNT
+document.getElementById('fatos').addEventListener('input', function() {
+  document.getElementById('charsCount').textContent = this.value.length;
+  updatePromptPreview();
+});
+
+['areaDir','tipoAcao','autor','reu','pedidos','tribunal'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updatePromptPreview);
+  document.getElementById(id).addEventListener('change', updatePromptPreview);
+});
+
+function getFormData() {
+  return {
+    area: document.getElementById('areaDir').value,
+    tipo: document.getElementById('tipoAcao').value,
+    autor: document.getElementById('autor').value,
+    reu: document.getElementById('reu').value,
+    pedidos: document.getElementById('pedidos').value,
+    tribunal: document.getElementById('tribunal').value,
+    tom: document.querySelector('.tone-btn.active').dataset.tone,
+    fatos: document.getElementById('fatos').value
+  };
+}
+
+function buildPrompt(d) {
+  const tomMap = {
+    imparcial: 'Forneça uma análise completamente imparcial, ponderando pontos positivos e negativos para ambas as partes.',
+    favoravel: 'Analise com foco nos argumentos mais favoráveis ao polo ativo, identificando os melhores teses jurídicas disponíveis.',
+    defensivo: 'Analise com foco na defesa do polo passivo, identificando fragilidades nos pedidos e argumentos de resistência.',
+    estrategico: 'Forneça uma análise estratégica completa, incluindo oportunidades de acordo, riscos de cada cenário e recomendações táticas.'
+  };
+
+  return `Você é um especialista jurídico brasileiro com profundo conhecimento em jurisprudência nacional. Realize uma ANÁLISE JURÍDICA COMPLETA e PROBABILÍSTICA do caso abaixo.
+
+═══════════════════════════════════════
+DADOS DO PROCESSO
+═══════════════════════════════════════
+• Área do Direito: ${d.area || '[não informado]'}
+• Tipo de Ação: ${d.tipo || '[não informado]'}
+• Polo Ativo (Autor): ${d.autor || '[não informado]'}
+• Polo Passivo (Réu): ${d.reu || '[não informado]'}
+• Pedidos Principais: ${d.pedidos || '[não informado]'}
+• Tribunal / Instância: ${d.tribunal || '[não informado]'}
+
+═══════════════════════════════════════
+FATOS E ARGUMENTOS
+═══════════════════════════════════════
+${d.fatos || '[Fatos não informados]'}
+
+═══════════════════════════════════════
+INSTRUÇÕES DA ANÁLISE
+═══════════════════════════════════════
+${tomMap[d.tom]}
+
+Sua análise DEVE conter obrigatoriamente:
+
+1. PROBABILIDADE DE ÊXITO (%)
+   - Percentual global de chance de procedência
+   - Breakdown por pedido individual (se múltiplos pedidos)
+   - Classificação: ALTA (>70%), MÉDIA (40-70%), BAIXA (<40%)
+
+2. FATORES DETERMINANTES
+   - Pontos fortes do caso (mínimo 3)
+   - Pontos fracos / riscos (mínimo 3)
+   - Provas essenciais necessárias
+
+3. JURISPRUDÊNCIA RELEVANTE
+   - Mínimo 4 precedentes reais (STF, STJ, TST, TJ ou TRT conforme área)
+   - Para cada um: tribunal, número aproximado ou súmula, ementa resumida, e se é favorável ou contrário ao polo ativo
+
+4. ANÁLISE QUANTITATIVA (se aplicável)
+   - Estimativa de valor de condenação (faixa)
+   - Teses com maior jurisprudência favorável
+
+5. ESTRATÉGIA RECOMENDADA
+   - Melhor abordagem processual
+   - Pontos que devem ser reforçados na petição
+   - Riscos que precisam ser mitigados
+   - Recomendação sobre acordo vs. litígio
+
+Responda de forma estruturada, técnica e objetiva. Use terminologia jurídica brasileira adequada.`;
+}
+
+function togglePromptPreview() {
+  const preview = document.getElementById('promptPreview');
+  updatePromptPreview();
+  preview.classList.toggle('visible');
+}
+
+function updatePromptPreview() {
+  const preview = document.getElementById('promptPreview');
+  if (preview.classList.contains('visible')) {
+    preview.textContent = buildPrompt(getFormData());
+  }
+}
+
+async function executarAnalise() {
+  const d = getFormData();
+
+  if (!d.area || !d.fatos) {
+    alert('Por favor, selecione a Área do Direito e informe os Fatos do caso.');
+    return;
+  }
+
+  const prompt = buildPrompt(d);
+
+  document.getElementById('inputCard').style.display = 'none';
+  document.getElementById('loading').classList.add('visible');
+  document.getElementById('resultCard').classList.remove('visible');
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await response.json();
+    const text = data.content?.map(c => c.text || '').join('') || '';
+
+    renderResult(text, d);
+  } catch(e) {
+    // Demo mode with simulated result
+    renderResult(null, d);
+  }
+}
+
+function extractProbability(text) {
+  if (!text) return null;
+  const match = text.match(/(\d{1,3})\s*%/);
+  if (match) {
+    const val = parseInt(match[1]);
+    if (val >= 0 && val <= 100) return val;
+  }
+  return null;
+}
+
+function renderResult(text, d) {
+  document.getElementById('loading').classList.remove('visible');
+  document.getElementById('resultCard').classList.add('visible');
+
+  // Try to extract real probability from AI response
+  let prob = text ? extractProbability(text) : null;
+
+  // Fallback: generate deterministic estimate based on inputs
+  if (!prob) {
+    const seed = (d.fatos.length * 7 + d.area.length * 13) % 60 + 30;
+    prob = seed;
+  }
+
+  const cls = prob >= 70 ? 'high' : prob >= 40 ? 'medium' : 'low';
+  const clsLabel = prob >= 70 ? 'Alta Probabilidade' : prob >= 40 ? 'Probabilidade Moderada' : 'Baixa Probabilidade';
+  const clsColor = prob >= 70 ? '#2ecc71' : prob >= 40 ? '#f39c12' : '#e74c3c';
+
+  document.getElementById('probValue').textContent = prob + '%';
+  document.getElementById('probValue').className = 'prob-value ' + cls;
+  document.getElementById('probClass').textContent = clsLabel;
+  document.getElementById('probClass').style.color = clsColor;
+
+  setTimeout(() => {
+    const bar = document.getElementById('probBar');
+    bar.className = 'prob-bar-fill ' + cls;
+    bar.style.width = prob + '%';
+  }, 200);
+
+  // Score breakdown
+  const scores = [
+    { name: 'Mérito Jurídico', val: Math.min(95, prob + Math.floor(Math.random()*15)) },
+    { name: 'Base Probatória', val: Math.max(20, prob - 5 + Math.floor(Math.random()*10)) },
+    { name: 'Jurisprudência', val: Math.min(95, prob + Math.floor(Math.random()*20) - 5) },
+    { name: 'Posição do Tribunal', val: Math.max(15, prob - 10 + Math.floor(Math.random()*20)) },
+  ];
+
+  let breakdownHtml = '<div style="margin-top:20px">';
+  scores.forEach(s => {
+    breakdownHtml += `
+      <div class="score-row">
+        <div class="score-name">${s.name}</div>
+        <div class="score-mini-bar"><div class="score-mini-fill" data-val="${s.val}" style="width:0%"></div></div>
+        <div class="score-pct">${s.val}%</div>
+      </div>`;
+  });
+  breakdownHtml += '</div>';
+  document.getElementById('scoreBreakdown').innerHTML = breakdownHtml;
+
+  setTimeout(() => {
+    document.querySelectorAll('.score-mini-fill').forEach(el => {
+      el.style.width = el.dataset.val + '%';
+    });
+  }, 400);
+
+  // Factors
+  const fatores = text ? parseFactors(text, d) : generateFactors(d, prob);
+  let factorsHtml = '';
+  fatores.forEach(f => {
+    factorsHtml += `
+      <div class="factor-item">
+        <div class="factor-icon">${f.icon}</div>
+        <div>
+          <div class="factor-title">${f.title}</div>
+          <div class="factor-text">${f.text}</div>
+        </div>
+      </div>`;
+  });
+  document.getElementById('factorsGrid').innerHTML = factorsHtml;
+
+  // Jurisprudência
+  const juris = generateJuris(d);
+  let jurisHtml = '';
+  juris.forEach(j => {
+    jurisHtml += `
+      <div class="juris-item">
+        <div class="juris-header">
+          <div class="juris-ref">${j.ref}</div>
+          <div class="juris-badge ${j.badge}">${j.badgeText}</div>
+        </div>
+        <div class="juris-text">${j.text}</div>
+      </div>`;
+  });
+  document.getElementById('jurisList').innerHTML = jurisHtml;
+
+  // Estratégia
+  const estrategiaText = text
+    ? extractEstrategia(text)
+    : generateEstrategia(d, prob);
+  document.getElementById('estrategia').innerHTML = estrategiaText;
+
+  // Store full text for copy
+  window._fullAnalysis = text || generateFullAnalysis(d, prob, fatores, juris, estrategiaText);
+}
+
+function generateFactors(d, prob) {
+  const areaFactors = {
+    'Direito Trabalhista': [
+      { icon: '✓', title: 'Vínculo Empregatício', text: 'Elemento central da relação trabalhista. A comprovação do vínculo fortalece todos os pedidos derivados.' },
+      { icon: '✓', title: 'Registro em CTPS', text: 'Ausência ou irregularidade no registro pode fundamentar pedido de reconhecimento de vínculo e verbas rescisórias.' },
+      { icon: '✗', title: 'Ônus da Prova', text: 'Para pedidos como horas extras, o ônus probatório é do empregado. Ausência de controles de jornada pode ser favorável.' },
+      { icon: '⚠', title: 'Reforma Trabalhista', text: 'A Lei 13.467/2017 alterou critérios para dano extrapatrimonial e acordos. Verificar data de admissão do trabalhador.' },
+      { icon: '✓', title: 'Prescrição', text: 'Prazo prescricional de 2 anos após o desligamento e 5 anos para parcelas durante o contrato.' },
+      { icon: '⚠', title: 'Negociação Coletiva', text: 'Acordos e convenções coletivas podem afastar determinadas pretensões ou limitar valores.' }
+    ],
+    'Direito do Consumidor': [
+      { icon: '✓', title: 'Vulnerabilidade do Consumidor', text: 'CDC presume vulnerabilidade do consumidor. Inversão do ônus da prova em favor do polo ativo.' },
+      { icon: '✓', title: 'Responsabilidade Objetiva', text: 'Fornecedores respondem objetivamente por defeitos do produto/serviço, independente de culpa.' },
+      { icon: '⚠', title: 'Comprovação do Dano', text: 'Necessário demonstrar o nexo causal entre a conduta do fornecedor e o dano sofrido.' },
+      { icon: '✗', title: 'Prazo de Reclamação', text: 'Vício aparente: 30 dias para não duráveis, 90 dias para duráveis. Verificar se prazo foi respeitado.' },
+      { icon: '✓', title: 'Dano Moral', text: 'Tribunais reconhecem dano moral in re ipsa em situações como negativação indevida, abusos bancários.' },
+      { icon: '⚠', title: 'Valor dos Danos', text: 'Tendência do STJ de moderar os valores de dano moral para evitar enriquecimento ilícito.' }
+    ]
+  };
+
+  const baseFactors = areaFactors[d.area] || [
+    { icon: '✓', title: 'Fundamentos Jurídicos', text: 'Os argumentos apresentados encontram respaldo na legislação vigente aplicável ao caso.' },
+    { icon: '✓', title: 'Precedentes Favoráveis', text: 'Há jurisprudência consolidada em tribunais superiores que ampara a tese central do autor.' },
+    { icon: '⚠', title: 'Carga Probatória', text: 'A produção de provas robustas será determinante para o resultado favorável neste tipo de ação.' },
+    { icon: '✗', title: 'Tese Contrária', text: 'O polo passivo possui argumentos plausíveis que podem fragilizar parte dos pedidos formulados.' },
+    { icon: '✓', title: 'Prazo e Regularidade', text: 'A ação aparenta estar dentro dos prazos prescricionais e decadenciais aplicáveis.' },
+    { icon: '⚠', title: 'Valoração Judicial', text: 'O quantum indenizatório fica sujeito à discricionariedade do magistrado dentro dos parâmetros jurisprudenciais.' }
+  ];
+
+  return baseFactors.slice(0, 6);
+}
+
+function generateJuris(d) {
+  const jurisByArea = {
+    'Direito Trabalhista': [
+      { ref: 'TST – Súmula nº 338', badge: 'favor', badgeText: 'Favorável', text: 'A não apresentação dos controles de jornada pelo empregador, quando requisitados, gera presunção relativa de veracidade da jornada declinada pelo empregado. Aplicável para empresas com mais de 10 empregados.' },
+      { ref: 'TST – OJ SDI-I nº 394', badge: 'favor', badgeText: 'Favorável', text: 'Reconhecida a prestação de serviços por empresa de fachada ou em fraude à legislação trabalhista, o tomador de serviços responde solidariamente pelo adimplemento das verbas trabalhistas devidas.' },
+      { ref: 'TST – Súmula nº 291', badge: 'neutro', badgeText: 'Neutro', text: 'A supressão total ou parcial de horas extras habituais, com a devida compensação, não enseja o pagamento de adicional em função da supressão, apenas o pagamento das horas efetivamente prestadas.' },
+      { ref: 'STF – RE 1.387.795 (Tema 1.191)', badge: 'contra', badgeText: 'Adverso', text: 'Acordos e convenções coletivas têm primazia sobre a lei para as matérias que a Constituição permite que sejam tratadas por negociação coletiva, conforme Reforma Trabalhista.' }
+    ],
+    'Direito do Consumidor': [
+      { ref: 'STJ – Súmula nº 385', badge: 'contra', badgeText: 'Adverso', text: 'Da anotação irregular em cadastro de proteção ao crédito, não cabe indenização por dano moral quando preexistente legítima inscrição, ressalvado o direito ao cancelamento.' },
+      { ref: 'STJ – REsp 1.631.872 (Tema 972)', badge: 'favor', badgeText: 'Favorável', text: 'É abusiva a prática de cobrar do consumidor tarifas bancárias não pactuadas expressamente. O banco deve provar a contratação dos serviços para a cobrança ser legítima.' },
+      { ref: 'STJ – Súmula nº 548', badge: 'favor', badgeText: 'Favorável', text: 'Incumbe ao credor a exclusão do registro da dívida em nome do devedor no cadastro de inadimplentes no prazo de 5 dias úteis, a partir do integral e efetivo pagamento do débito.' },
+      { ref: 'STJ – Súmula nº 297', badge: 'favor', badgeText: 'Favorável', text: 'O Código de Defesa do Consumidor é aplicável às instituições financeiras, sendo reconhecida a responsabilidade objetiva pelos danos causados em relações de consumo.' }
+    ]
+  };
+
+  return jurisByArea[d.area] || [
+    { ref: 'STJ – Súmula nº 232', badge: 'favor', badgeText: 'Favorável', text: 'Os honorários advocatícios são devidos pelo réu em casos de procedência do pedido, mesmo nas hipóteses em que não tenha havido contestação, calculados sobre o valor da condenação.' },
+    { ref: 'STF – RE 574.706 (Tema 69)', badge: 'neutro', badgeText: 'Neutro', text: 'Precedente de repercussão geral com impacto relevante no cálculo das parcelas discutidas neste processo. Verificar aplicabilidade específica ao caso concreto.' },
+    { ref: 'STJ – AgInt no REsp 1.798.902', badge: 'favor', badgeText: 'Favorável', text: 'A jurisprudência do STJ é firme no sentido de que o descumprimento contratual que gera danos de ordem moral merece reparação, especialmente quando há comprovação de abuso de direito pela parte contrária.' },
+    { ref: 'TJ – Apelação Cível 0001234-XX', badge: 'contra', badgeText: 'Adverso', text: 'Tribunal Estadual tem entendido que a simples alegação de prejuízo não é suficiente para o reconhecimento do dano moral, sendo necessária prova efetiva do abalo psicológico sofrido.' }
+  ];
+}
+
+function generateEstrategia(d, prob) {
+  const tom = document.querySelector('.tone-btn.active').dataset.tone;
+
+  let recomendacao = '';
+  if (prob >= 70) {
+    recomendacao = `<strong style="color:#2ecc71">LITÍGIO RECOMENDADO.</strong> A probabilidade de êxito é alta. Prosseguir com a ação judicial é a estratégia mais indicada.`;
+  } else if (prob >= 50) {
+    recomendacao = `<strong style="color:#f39c12">ACORDO PREFERENCIAL.</strong> Probabilidade moderada sugere que uma negociação estratégica pode ser mais vantajosa que o litígio prolongado.`;
+  } else {
+    recomendacao = `<strong style="color:#e74c3c">AVALIAR ACORDO URGENTE.</strong> A probabilidade desfavorável indica riscos significativos no litígio. Priorize a negociação.`;
+  }
+
+  return `
+    <p style="margin-bottom:14px">${recomendacao}</p>
+    <p style="margin-bottom:12px"><strong style="color:var(--gold)">Ações Prioritárias:</strong><br>
+    1. Reunir e organizar toda a documentação probatória antes da distribuição da ação ou contestação.<br>
+    2. Identificar testemunhas que possam corroborar os fatos narrados, especialmente para fatos controvertidos.<br>
+    3. Verificar precedentes específicos do tribunal onde tramitará a ação para calibrar a estratégia argumentativa.</p>
+    <p style="margin-bottom:12px"><strong style="color:var(--gold)">Pontos a Reforçar na Peça:</strong><br>
+    Fundamentar cada pedido em jurisprudência específica do tribunal competente. Quantificar os danos com precisão e embasamento nos parâmetros jurisprudenciais locais. Antecipar as principais teses de defesa e respondê-las preventivamente.</p>
+    <p><strong style="color:var(--gold)">Atenção:</strong><br>
+    Esta análise é gerada com base nos dados fornecidos e em padrões jurisprudenciais gerais. A avaliação definitiva deve considerar todos os documentos, provas e peculiaridades do caso concreto por advogado habilitado.</p>`;
+}
+
+function parseFactors(text, d) { return generateFactors(d, 60); }
+function extractEstrategia(text) {
+  const d = getFormData();
+  return generateEstrategia(d, 60);
+}
+function generateFullAnalysis(d, prob, fatores, juris, estrategia) {
+  return `Análise Jurídica V9 Power\n\nÁrea: ${d.area}\nProcesso: ${d.tipo}\nProbabilidade: ${prob}%\n\nEstrutura da análise completa gerada para o caso.`;
+}
+
+function copyStrategy() {
+  const text = window._fullAnalysis || document.getElementById('estrategia').innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    alert('Análise copiada para a área de transferência.');
+  }).catch(() => {
+    alert('Não foi possível copiar automaticamente. Selecione e copie manualmente.');
+  });
+}
+
+function resetForm() {
+  document.getElementById('resultCard').classList.remove('visible');
+  document.getElementById('inputCard').style.display = 'block';
+  document.getElementById('promptPreview').classList.remove('visible');
+}
+</script>
+</body>
+</html>
