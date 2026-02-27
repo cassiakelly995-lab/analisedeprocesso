@@ -7,216 +7,265 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <style>
 :root{
   --gold:#c9a84c;--gold-light:#e8c96b;--gold-dark:#8b6914;
-  --bg:#080808;--card:#101010;--card2:#161616;--border:#222;
+  --bg:#080808;--card:#101010;--card2:#161616;--border:#252525;
   --text:#e0d5c0;--muted:#6b6050;--green:#2ecc71;--red:#e74c3c;--yellow:#f39c12;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;line-height:1.6;min-height:100vh;overflow-x:hidden}
-
-/* Grain overlay */
 body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.4}
-
-/* Gold line top */
 body::before{content:'';position:fixed;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent 0%,var(--gold-dark) 20%,var(--gold-light) 50%,var(--gold-dark) 80%,transparent 100%);z-index:100}
 
-header{text-align:center;padding:50px 20px 24px;position:relative}
-header::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:300px;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dark),var(--gold),var(--gold-dark),transparent)}
-.logo-text{font-family:'Cinzel',serif;font-size:clamp(1.6rem,5vw,2.8rem);letter-spacing:.4em;background:linear-gradient(135deg,var(--gold-dark) 0%,var(--gold-light) 40%,var(--gold) 60%,var(--gold-dark) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:inline-block}
+header{text-align:center;padding:46px 20px 24px}
+header::after{content:'';display:block;width:300px;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dark),var(--gold),var(--gold-dark),transparent);margin:0 auto}
+.logo-text{font-family:'Cinzel',serif;font-size:clamp(1.6rem,5vw,2.8rem);letter-spacing:.4em;background:linear-gradient(135deg,var(--gold-dark),var(--gold-light),var(--gold),var(--gold-dark));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:inline-block}
 .logo-sub{font-size:.65rem;letter-spacing:.4em;color:var(--muted);margin-top:6px;text-transform:uppercase}
-.logo-badge{display:inline-block;font-size:.55rem;letter-spacing:.25em;color:var(--gold-dark);border:1px solid var(--gold-dark);padding:2px 12px;margin-top:8px;text-transform:uppercase;border-radius:2px}
+.logo-badge{display:inline-block;font-size:.55rem;letter-spacing:.25em;color:var(--gold-dark);border:1px solid var(--gold-dark);padding:2px 12px;margin-top:8px;border-radius:2px;text-transform:uppercase}
 
-.container{max-width:960px;margin:0 auto;padding:32px 20px 80px;position:relative;z-index:1}
+.container{max-width:960px;margin:0 auto;padding:28px 20px 80px;position:relative;z-index:1}
 
-/* Card */
-.card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:32px;margin-bottom:24px;position:relative;overflow:hidden;transition:border-color .3s}
+.card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:28px;margin-bottom:20px;position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dark),var(--gold),var(--gold-dark),transparent)}
-.card:hover{border-color:#333}
 
-.section-label{font-size:.6rem;letter-spacing:.35em;color:var(--gold);text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:12px;font-weight:700}
+.section-label{font-size:.6rem;letter-spacing:.35em;color:var(--gold);text-transform:uppercase;margin-bottom:18px;display:flex;align-items:center;gap:12px;font-weight:700}
 .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
 
-label{display:block;font-size:.62rem;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;margin-bottom:5px;margin-top:18px}
+label{display:block;font-size:.62rem;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;margin-bottom:5px;margin-top:16px}
 label:first-of-type{margin-top:0}
-input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;padding:12px 14px;outline:none;transition:border-color .2s,box-shadow .2s;letter-spacing:.04em}
-input:focus,select:focus,textarea:focus{border-color:var(--gold-dark);box-shadow:0 0 0 2px rgba(139,105,20,.12)}
+input[type=text],select,textarea{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;padding:11px 14px;outline:none;transition:border-color .2s,box-shadow .2s;letter-spacing:.03em}
+input[type=text]:focus,select:focus,textarea:focus{border-color:var(--gold-dark);box-shadow:0 0 0 2px rgba(139,105,20,.1)}
 select option{background:#161616}
-textarea{resize:vertical;min-height:180px}
+textarea{resize:vertical;min-height:130px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:620px){.grid2{grid-template-columns:1fr}}
 
-/* Tone buttons */
-.tone-group{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
-.tone-btn{background:var(--card2);border:1px solid var(--border);border-radius:3px;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:.62rem;letter-spacing:.2em;padding:8px 16px;cursor:pointer;text-transform:uppercase;transition:all .2s}
+/* ── UPLOAD ZONE ─────────────────────────────────────────── */
+.upload-zone{border:2px dashed var(--border);border-radius:6px;padding:32px 20px;text-align:center;cursor:pointer;transition:all .25s;background:var(--card2);position:relative;overflow:hidden}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--gold-dark);background:rgba(139,105,20,.06)}
+.upload-zone.has-file{border-color:var(--gold);border-style:solid;background:rgba(201,168,76,.06)}
+.upload-icon{font-size:2.4rem;margin-bottom:10px;display:block;opacity:.6}
+.upload-title{font-size:.85rem;letter-spacing:.15em;color:var(--text);font-weight:600;text-transform:uppercase}
+.upload-sub{font-size:.7rem;color:var(--muted);margin-top:5px;letter-spacing:.05em}
+.upload-types{font-size:.62rem;color:var(--gold-dark);margin-top:8px;letter-spacing:.12em;text-transform:uppercase}
+.upload-file-name{font-size:.78rem;color:var(--gold);margin-top:10px;letter-spacing:.08em;font-weight:600}
+.upload-file-size{font-size:.65rem;color:var(--muted);margin-top:3px}
+#fileInput{display:none}
+.upload-clear{display:none;background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.3);color:#e09090;font-size:.62rem;letter-spacing:.15em;padding:5px 14px;border-radius:3px;cursor:pointer;margin-top:10px;text-transform:uppercase;transition:all .2s}
+.upload-clear:hover{background:rgba(231,76,60,.25)}
+.upload-progress{display:none;margin-top:12px}
+.upload-progress-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.upload-progress-fill{height:100%;background:linear-gradient(90deg,var(--gold-dark),var(--gold));width:0%;transition:width .3s}
+.upload-progress-text{font-size:.62rem;color:var(--muted);margin-top:5px;letter-spacing:.08em}
+
+/* Extracted text preview */
+.extracted-preview{display:none;background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:14px;margin-top:14px}
+.extracted-preview-label{font-size:.6rem;letter-spacing:.25em;color:var(--gold-dark);text-transform:uppercase;margin-bottom:8px}
+.extracted-preview-text{font-size:12px;color:var(--muted);line-height:1.6;max-height:120px;overflow-y:auto;white-space:pre-wrap;word-break:break-word}
+.extracted-chars{font-size:.6rem;color:var(--muted);margin-top:6px;letter-spacing:.08em}
+
+/* Mode toggle */
+.mode-toggle{display:flex;gap:0;margin-bottom:20px;border:1px solid var(--border);border-radius:4px;overflow:hidden}
+.mode-btn{flex:1;padding:11px;background:var(--card2);border:none;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:.68rem;letter-spacing:.2em;cursor:pointer;transition:all .2s;text-transform:uppercase;font-weight:600}
+.mode-btn.active{background:linear-gradient(135deg,var(--gold-dark),rgba(201,168,76,.5));color:var(--gold-light);border-color:var(--gold-dark)}
+.mode-btn:first-child{border-right:1px solid var(--border)}
+
+/* Tone */
+.tone-group{display:flex;gap:8px;flex-wrap:wrap}
+.tone-btn{background:var(--card2);border:1px solid var(--border);border-radius:3px;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:.62rem;letter-spacing:.2em;padding:8px 14px;cursor:pointer;text-transform:uppercase;transition:all .2s}
 .tone-btn:hover{border-color:var(--gold-dark);color:var(--gold-dark)}
 .tone-btn.active{background:linear-gradient(135deg,var(--gold-dark),var(--gold));border-color:var(--gold);color:#000;font-weight:700}
 
-/* Execute button */
-.btn-execute{width:100%;padding:18px;background:linear-gradient(135deg,#6b4f0a,var(--gold),#6b4f0a);border:none;border-radius:4px;font-family:'Cinzel',serif;font-size:.8rem;letter-spacing:.3em;color:#000;font-weight:700;cursor:pointer;transition:all .3s;text-transform:uppercase;margin-top:20px;position:relative;overflow:hidden}
-.btn-execute::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 0%,rgba(255,255,255,.08) 50%,transparent 100%);transform:translateX(-100%);transition:transform .5s}
-.btn-execute:hover::before{transform:translateX(100%)}
-.btn-execute:hover{transform:translateY(-1px);box-shadow:0 10px 40px rgba(201,168,76,.25)}
-.btn-execute:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+/* Execute */
+.btn-execute{width:100%;padding:17px;background:linear-gradient(135deg,#6b4f0a,var(--gold),#6b4f0a);border:none;border-radius:4px;font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:.3em;color:#000;font-weight:700;cursor:pointer;transition:all .3s;text-transform:uppercase;margin-top:18px;overflow:hidden;position:relative}
+.btn-execute::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(255,255,255,.1),transparent);transform:translateX(-100%);transition:.5s}
+.btn-execute:hover::after{transform:translateX(100%)}
+.btn-execute:hover{transform:translateY(-1px);box-shadow:0 10px 35px rgba(201,168,76,.22)}
+.btn-execute:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
 
 /* Loading */
-.loading{display:none;text-align:center;padding:70px 20px}
+.loading{display:none;text-align:center;padding:64px 20px}
 .loading.visible{display:block}
-.spinner-ring{width:56px;height:56px;margin:0 auto 20px;position:relative}
+.spinner-ring{width:52px;height:52px;margin:0 auto 18px;position:relative}
 .spinner-ring::before,.spinner-ring::after{content:'';position:absolute;inset:0;border-radius:50%;border:2px solid transparent}
 .spinner-ring::before{border-top-color:var(--gold);animation:spin .9s linear infinite}
-.spinner-ring::after{border-bottom-color:var(--gold-dark);animation:spin 1.4s linear infinite reverse;inset:6px}
+.spinner-ring::after{border-bottom-color:var(--gold-dark);animation:spin 1.5s linear infinite reverse;inset:7px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading-title{font-size:.7rem;letter-spacing:.3em;color:var(--muted);text-transform:uppercase}
-.loading-step{font-size:.62rem;letter-spacing:.2em;color:var(--gold-dark);margin-top:10px;min-height:20px}
+.loading-title{font-size:.68rem;letter-spacing:.3em;color:var(--muted);text-transform:uppercase}
+.loading-step{font-size:.62rem;letter-spacing:.18em;color:var(--gold-dark);margin-top:9px;min-height:20px}
 
 /* Result */
 .result-card{display:none}
 .result-card.visible{display:block;animation:fadeUp .5s ease}
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 
 /* Probability */
-.prob-value{font-family:'Cinzel',serif;font-size:3.5rem;font-weight:900;line-height:1;letter-spacing:-.02em}
+.prob-grid{display:grid;grid-template-columns:140px 1fr;gap:24px;align-items:start}
+@media(max-width:500px){.prob-grid{grid-template-columns:1fr}}
+.prob-value{font-family:'Cinzel',serif;font-size:3.8rem;font-weight:900;line-height:1}
 .prob-value.high{color:var(--green)}.prob-value.medium{color:var(--yellow)}.prob-value.low{color:var(--red)}
-.prob-bar-track{height:6px;background:var(--card2);border-radius:3px;overflow:hidden;border:1px solid var(--border);margin:16px 0 4px}
+.prob-bar-track{height:5px;background:var(--card2);border-radius:3px;overflow:hidden;border:1px solid var(--border);margin:14px 0 3px}
 .prob-bar-fill{height:100%;border-radius:3px;transition:width 1.2s cubic-bezier(.16,1,.3,1);width:0%}
 .prob-bar-fill.high{background:linear-gradient(90deg,#1e8449,var(--green))}.prob-bar-fill.medium{background:linear-gradient(90deg,#b7770d,var(--yellow))}.prob-bar-fill.low{background:linear-gradient(90deg,#922b21,var(--red))}
 
 .score-row{display:flex;align-items:center;gap:12px;margin-bottom:9px}
-.score-name{font-size:.62rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;width:170px;flex-shrink:0}
+.score-name{font-size:.62rem;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;width:165px;flex-shrink:0}
 .score-mini-bar{flex:1;height:4px;background:var(--card2);border-radius:2px;overflow:hidden}
 .score-mini-fill{height:100%;background:linear-gradient(90deg,var(--gold-dark),var(--gold-light));border-radius:2px;transition:width 1.1s ease;width:0%}
-.score-pct{font-size:.7rem;color:var(--gold);width:36px;text-align:right;flex-shrink:0;font-family:'Cinzel',serif}
+.score-pct{font-size:.7rem;color:var(--gold);width:34px;text-align:right;font-family:'Cinzel',serif}
 
-/* AI text */
-.ai-result-text{font-size:14px;line-height:1.85;color:#a09880;white-space:pre-wrap;font-family:'Rajdhani',sans-serif}
-
-/* Disclaimer */
-.disclaimer{background:rgba(201,168,76,.05);border:1px solid rgba(201,168,76,.15);border-radius:4px;padding:14px 18px;margin-bottom:24px;font-size:.72rem;letter-spacing:.05em;color:var(--muted);line-height:1.6}
-.disclaimer strong{color:var(--gold-dark)}
+/* Full text */
+.ai-result-text{font-size:13.5px;line-height:1.85;color:#a09880;white-space:pre-wrap;font-family:'Rajdhani',sans-serif}
 
 /* Download */
-.download-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.download-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
 @media(max-width:500px){.download-grid{grid-template-columns:1fr}}
-.btn-dl{width:100%;padding:16px;border:none;border-radius:4px;font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.2em;font-weight:700;cursor:pointer;transition:all .3s;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn-dl{width:100%;padding:15px;border:none;border-radius:4px;font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.2em;font-weight:700;cursor:pointer;transition:all .3s;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:9px}
 .btn-dl.word{background:linear-gradient(135deg,#0f2a52,#1a4a8a);color:#fff;border:1px solid #1a4a8a}
 .btn-dl.pdf{background:linear-gradient(135deg,#4a0f0f,#8a1a1a);color:#fff;border:1px solid #8a1a1a}
-.btn-dl:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.5)}
+.btn-dl:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.5)}
 .btn-dl:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
-.download-status{font-size:.65rem;letter-spacing:.15em;color:var(--muted);text-align:center;padding:10px 0 0;text-transform:uppercase;min-height:24px}
+.dl-status{font-size:.63rem;letter-spacing:.12em;color:var(--muted);text-align:center;padding:8px 0 0;min-height:22px;text-transform:uppercase}
 
-.btn-nova{width:100%;padding:14px;background:transparent;border:1px solid var(--border);border-radius:4px;font-family:'Rajdhani',sans-serif;font-size:.72rem;letter-spacing:.3em;color:var(--muted);cursor:pointer;text-transform:uppercase;transition:all .2s;margin-top:4px}
+.btn-nova{width:100%;padding:13px;background:transparent;border:1px solid var(--border);border-radius:4px;font-family:'Rajdhani',sans-serif;font-size:.7rem;letter-spacing:.3em;color:var(--muted);cursor:pointer;text-transform:uppercase;transition:all .2s;margin-top:4px}
 .btn-nova:hover{border-color:var(--gold-dark);color:var(--gold)}
 
-.chars-info{font-size:.62rem;color:var(--muted);text-align:right;margin-top:5px;letter-spacing:.05em}
+.disclaimer{background:rgba(201,168,76,.04);border:1px solid rgba(201,168,76,.12);border-radius:4px;padding:12px 16px;margin-bottom:20px;font-size:.71rem;color:var(--muted);line-height:1.65;letter-spacing:.04em}
+.disclaimer strong{color:var(--gold-dark)}
+
+.chars-info{font-size:.62rem;color:var(--muted);text-align:right;margin-top:4px;letter-spacing:.05em}
 .chars-info span{color:var(--gold-dark)}
 
-/* Prob header grid */
-.prob-grid{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:start}
-@media(max-width:500px){.prob-grid{grid-template-columns:1fr}}
-.prob-label-small{font-size:.6rem;letter-spacing:.25em;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
-.prob-class{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;margin-top:4px;font-weight:700}
-
-/* Warn banner */
-.warn-banner{background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.2);border-radius:4px;padding:12px 16px;margin-bottom:20px;font-size:.72rem;color:#e09090;letter-spacing:.06em;line-height:1.6}
+.hidden{display:none!important}
 </style>
 </head>
 <body>
 
 <header>
   <div class="logo-text">V9 POWER EDITION</div>
-  <div class="logo-sub">Engenharia Jurídica · Análise por IA · Download Word &amp; PDF</div>
-  <div class="logo-badge">Zero Alucinação · Máxima Precisão</div>
+  <div class="logo-sub">Engenharia Jurídica · Análise por IA · Upload de Documentos</div>
+  <div class="logo-badge">Zero Alucinação · Análise de Documentos · Word &amp; PDF</div>
 </header>
 
 <div class="container">
 
-<!-- DISCLAIMER -->
 <div class="disclaimer">
-  <strong>⚠ IMPORTANTE:</strong> Esta IA analisa juridicamente com base nos fatos que você informa. Ela <strong>NÃO inventa jurisprudências, números ou dados</strong> — quando não há dados concretos, ela diz claramente. A análise <strong>não substitui orientação de advogado habilitado</strong>. Probabilidades são estimativas analíticas, não garantias.
+  <strong>⚖ V9 POWER:</strong> Faça upload do seu documento jurídico ou preencha os dados manualmente. A IA analisa o conteúdo real e <strong>NUNCA inventa dados</strong> — jurisprudências são citadas como entendimentos gerais consolidados, não números fabricados. Não substitui advogado.
 </div>
 
 <!-- INPUT CARD -->
 <div class="card" id="inputCard">
-  <div class="section-label">⚖ Dados do Processo</div>
 
-  <div class="grid2">
-    <div>
-      <label>Área do Direito *</label>
-      <select id="areaDir">
-        <option value="">Selecione...</option>
-        <option>Direito Trabalhista</option>
-        <option>Direito Civil</option>
-        <option>Direito do Consumidor</option>
-        <option>Direito Previdenciário</option>
-        <option>Direito de Família</option>
-        <option>Direito Tributário</option>
-        <option>Direito Empresarial</option>
-        <option>Direito Penal</option>
-        <option>Direito Administrativo</option>
-        <option>Direito Ambiental</option>
-        <option>Direito Digital / Tecnologia</option>
-        <option>Direito Bancário</option>
-      </select>
-    </div>
-    <div>
-      <label>Tipo de Ação / Peça</label>
-      <input type="text" id="tipoAcao" placeholder="Ex: Reclamação Trabalhista, Indenização..."/>
-    </div>
+  <!-- MODE TOGGLE -->
+  <div class="section-label">◈ Modo de Análise</div>
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="modeUpload" onclick="setMode('upload')">📎 Anexar Documento</button>
+    <button class="mode-btn" id="modeManual" onclick="setMode('manual')">✏️ Digitar Dados</button>
   </div>
 
-  <div class="grid2">
-    <div>
-      <label>Polo Ativo (Autor / Reclamante)</label>
-      <input type="text" id="autor" placeholder="Ex: Empregado, Consumidor, João Silva..."/>
+  <!-- ── UPLOAD SECTION ─────────────────── -->
+  <div id="uploadSection">
+    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
+      <span class="upload-icon" id="uploadIcon">📄</span>
+      <div class="upload-title" id="uploadTitle">Arraste ou clique para anexar</div>
+      <div class="upload-sub" id="uploadSub">Contrato, Petição, Sentença, Notificação, Laudo...</div>
+      <div class="upload-types">PDF · Word (.docx / .doc) · Imagem (JPG, PNG) · TXT</div>
+      <div class="upload-file-name" id="uploadFileName"></div>
+      <div class="upload-file-size" id="uploadFileSize"></div>
+      <button class="upload-clear" id="uploadClear" onclick="clearFile(event)">✕ Remover arquivo</button>
     </div>
-    <div>
-      <label>Polo Passivo (Réu / Reclamado)</label>
-      <input type="text" id="reu" placeholder="Ex: Empresa XYZ Ltda, Banco ABC..."/>
+    <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.webp" onchange="handleFile(this.files[0])">
+
+    <div class="upload-progress" id="uploadProgress">
+      <div class="upload-progress-bar"><div class="upload-progress-fill" id="progressFill"></div></div>
+      <div class="upload-progress-text" id="progressText">Lendo arquivo...</div>
     </div>
+
+    <div class="extracted-preview" id="extractedPreview">
+      <div class="extracted-preview-label">◈ Prévia do Conteúdo Extraído</div>
+      <div class="extracted-preview-text" id="extractedText"></div>
+      <div class="extracted-chars">Total extraído: <span id="extractedChars">0</span> caracteres</div>
+    </div>
+
+    <!-- Optional extra context for upload mode -->
+    <label style="margin-top:18px">Instruções ou Contexto Adicional <span style="color:var(--muted);font-size:.9em">(opcional)</span></label>
+    <textarea id="extraContext" placeholder="Ex: Analise especialmente a cláusula de multa. Foco no risco para o credor. Verificar prescrição..." style="min-height:80px"></textarea>
   </div>
 
-  <label>Pedidos Principais</label>
-  <input type="text" id="pedidos" placeholder="Ex: Horas extras, danos morais, rescisão indireta, FGTS, horas sobreaviso..."/>
-
-  <label>Tribunal / Instância</label>
-  <select id="tribunal">
-    <option value="">Selecione...</option>
-    <option>1ª Instância – Vara do Trabalho</option>
-    <option>1ª Instância – Vara Cível</option>
-    <option>1ª Instância – JEF (Juizado Especial Federal)</option>
-    <option>TRT (Tribunal Regional do Trabalho)</option>
-    <option>TJ (Tribunal de Justiça Estadual)</option>
-    <option>TST (Tribunal Superior do Trabalho)</option>
-    <option>STJ (Superior Tribunal de Justiça)</option>
-    <option>STF (Supremo Tribunal Federal)</option>
-    <option>TRF (Tribunal Regional Federal)</option>
-  </select>
-
-  <div class="grid2">
-    <div>
-      <label>Valor Estimado da Causa (R$)</label>
-      <input type="text" id="valorCausa" placeholder="Ex: 50.000,00"/>
+  <!-- ── MANUAL SECTION ─────────────────── -->
+  <div id="manualSection" class="hidden">
+    <div class="grid2">
+      <div>
+        <label>Área do Direito *</label>
+        <select id="areaDir">
+          <option value="">Selecione...</option>
+          <option>Direito Trabalhista</option>
+          <option>Direito Civil</option>
+          <option>Direito do Consumidor</option>
+          <option>Direito Previdenciário</option>
+          <option>Direito de Família</option>
+          <option>Direito Tributário</option>
+          <option>Direito Empresarial</option>
+          <option>Direito Penal</option>
+          <option>Direito Administrativo</option>
+          <option>Direito Ambiental</option>
+          <option>Direito Digital / Tecnologia</option>
+          <option>Direito Bancário</option>
+        </select>
+      </div>
+      <div>
+        <label>Tipo de Ação / Peça</label>
+        <input type="text" id="tipoAcao" placeholder="Ex: Reclamação Trabalhista, Indenização..."/>
+      </div>
     </div>
-    <div>
-      <label>Estado / UF</label>
-      <input type="text" id="uf" placeholder="Ex: SP, RJ, MG..."/>
+    <div class="grid2">
+      <div>
+        <label>Polo Ativo (Autor / Reclamante)</label>
+        <input type="text" id="autor" placeholder="Ex: Empregado, Consumidor..."/>
+      </div>
+      <div>
+        <label>Polo Passivo (Réu / Reclamado)</label>
+        <input type="text" id="reu" placeholder="Ex: Empresa XYZ, Banco ABC..."/>
+      </div>
     </div>
+    <label>Pedidos Principais</label>
+    <input type="text" id="pedidos" placeholder="Ex: Horas extras, danos morais, FGTS, rescisão indireta..."/>
+    <div class="grid2">
+      <div>
+        <label>Tribunal / Instância</label>
+        <select id="tribunal">
+          <option value="">Selecione...</option>
+          <option>1ª Instância – Vara do Trabalho</option>
+          <option>1ª Instância – Vara Cível</option>
+          <option>TRT (Tribunal Regional do Trabalho)</option>
+          <option>TJ (Tribunal de Justiça Estadual)</option>
+          <option>TST (Tribunal Superior do Trabalho)</option>
+          <option>STJ (Superior Tribunal de Justiça)</option>
+          <option>STF (Supremo Tribunal Federal)</option>
+          <option>TRF (Tribunal Regional Federal)</option>
+        </select>
+      </div>
+      <div>
+        <label>Valor Est. da Causa (R$)</label>
+        <input type="text" id="valorCausa" placeholder="Ex: 50.000,00"/>
+      </div>
+    </div>
+    <label>Fatos, Provas e Argumentos *</label>
+    <textarea id="fatos" placeholder="Descreva os fatos, provas disponíveis, documentos, histórico do caso..."></textarea>
+    <div class="chars-info"><span id="charsCount">0</span> caracteres</div>
   </div>
 
-  <label>Tom da Análise</label>
-  <div class="tone-group" id="toneGroup">
+  <!-- COMMON: Tone selector -->
+  <label style="margin-top:20px">Tom da Análise</label>
+  <div class="tone-group">
     <button class="tone-btn active" data-tone="imparcial">Imparcial</button>
     <button class="tone-btn" data-tone="favoravel">Favorável ao Autor</button>
     <button class="tone-btn" data-tone="defensivo">Defensivo ao Réu</button>
     <button class="tone-btn" data-tone="estrategico">Estratégico</button>
   </div>
-
-  <label>Fatos, Provas e Argumentos do Caso *</label>
-  <textarea id="fatos" placeholder="Descreva detalhadamente:&#10;• O que aconteceu (cronologia dos fatos)&#10;• Provas disponíveis (contratos, prints, e-mails, fotos, testemunhas)&#10;• Documentos em mãos&#10;• Peculiaridades relevantes&#10;• Tentativas anteriores de resolução&#10;&#10;Quanto mais detalhes, mais precisa será a análise."></textarea>
-  <div class="chars-info"><span id="charsCount">0</span> caracteres · mínimo recomendado: 300</div>
 
   <button class="btn-execute" id="btnExecutar" onclick="executarAnalise()">
     ⚖ EXECUTAR ANÁLISE JURÍDICA V9 POWER
@@ -227,62 +276,73 @@ textarea{resize:vertical;min-height:180px}
 <div class="loading" id="loading">
   <div class="spinner-ring"></div>
   <p class="loading-title">Executando Engenharia V9 Power</p>
-  <p class="loading-step" id="loadingStep">Inicializando análise jurídica...</p>
+  <p class="loading-step" id="loadingStep">Inicializando análise...</p>
 </div>
 
 <!-- RESULTADO -->
 <div class="result-card" id="resultCard">
 
-  <!-- PROBABILIDADE -->
   <div class="card">
     <div class="section-label">◈ Probabilidade de Êxito</div>
     <div class="prob-grid">
       <div>
-        <div class="prob-label-small">Estimativa Global</div>
+        <div style="font-size:.58rem;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;margin-bottom:5px">Estimativa Global</div>
         <div class="prob-value" id="probValue">—</div>
-        <div class="prob-class" id="probClass"></div>
+        <div id="probClass" style="font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;margin-top:4px;font-weight:700"></div>
       </div>
-      <div style="padding-top:4px">
+      <div style="padding-top:2px">
         <div class="prob-bar-track"><div class="prob-bar-fill" id="probBar"></div></div>
         <div id="scoreBreakdown"></div>
       </div>
     </div>
-    <div style="margin-top:12px;font-size:.65rem;color:var(--muted);letter-spacing:.08em">
-      * Probabilidade estimada com base nos fatos informados e parâmetros gerais de jurisprudência. Não constitui garantia de resultado.
+    <div style="margin-top:10px;font-size:.63rem;color:var(--muted);letter-spacing:.07em">
+      * Estimativa analítica baseada nos dados fornecidos. Não constitui garantia de resultado processual.
     </div>
   </div>
 
-  <!-- ANÁLISE COMPLETA -->
   <div class="card">
     <div class="section-label">◈ Análise Jurídica Completa</div>
     <div class="ai-result-text" id="aiFullText"></div>
   </div>
 
-  <!-- DOWNLOAD -->
   <div class="card">
     <div class="section-label">◈ Download do Documento Completo</div>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:4px">Documento profissional com capa, análise completa, fundamentação e estratégia.</p>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:2px">Documento profissional com capa, análise completa, fundamentação e estratégia.</p>
     <div class="download-grid">
       <button class="btn-dl word" id="btnWord" onclick="downloadWord()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM9.5 18l-2-7-2 7H4l-2.5-9h1.8l1.7 6.8 2-6.8h1.5l2 6.8 1.7-6.8H14l-2.5 9H9.5z"/></svg>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5z"/></svg>
         Baixar Word (.docx)
       </button>
       <button class="btn-dl pdf" id="btnPdf" onclick="downloadPDF()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM11 17H9v-5h2c1.1 0 2 .9 2 2v1c0 1.1-.9 2-2 2zm-1-4v3h1c.55 0 1-.45 1-1v-1c0-.55-.45-1-1-1h-1zm5 4h-1v-5h1v5zm3 0h-2v-5h1v4h1v1z"/></svg>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5z"/></svg>
         Baixar PDF
       </button>
     </div>
-    <div class="download-status" id="downloadStatus"></div>
+    <div class="dl-status" id="dlStatus"></div>
   </div>
 
   <button class="btn-nova" onclick="resetForm()">← NOVA ANÁLISE</button>
+</div>
 
-</div><!-- /result-card -->
 </div><!-- /container -->
 
 <script>
 // ── STATE ──────────────────────────────────────────────────────────────────────
+let currentMode = 'upload';
+let uploadedFile = null;
+let extractedContent = ''; // full extracted text
+let extractedBase64 = '';  // for images / pdf (base64)
+let extractedMediaType = '';
 let analysisData = null;
+
+// ── MODE TOGGLE ────────────────────────────────────────────────────────────────
+function setMode(mode){
+  currentMode = mode;
+  document.getElementById('modeUpload').classList.toggle('active', mode === 'upload');
+  document.getElementById('modeManual').classList.toggle('active', mode === 'manual');
+  document.getElementById('uploadSection').classList.toggle('hidden', mode === 'manual');
+  document.getElementById('manualSection').classList.toggle('hidden', mode === 'upload');
+}
 
 // ── TONE SELECTOR ──────────────────────────────────────────────────────────────
 document.querySelectorAll('.tone-btn').forEach(b => {
@@ -296,120 +356,313 @@ document.getElementById('fatos').addEventListener('input', function(){
   document.getElementById('charsCount').textContent = this.value.length;
 });
 
-// ── GET FORM DATA ──────────────────────────────────────────────────────────────
-function getFormData(){
-  return {
-    area:     document.getElementById('areaDir').value,
-    tipo:     document.getElementById('tipoAcao').value.trim(),
-    autor:    document.getElementById('autor').value.trim(),
-    reu:      document.getElementById('reu').value.trim(),
-    pedidos:  document.getElementById('pedidos').value.trim(),
-    tribunal: document.getElementById('tribunal').value,
-    valor:    document.getElementById('valorCausa').value.trim(),
-    uf:       document.getElementById('uf').value.trim(),
-    tom:      document.querySelector('.tone-btn.active').dataset.tone,
-    fatos:    document.getElementById('fatos').value.trim(),
-    data:     new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'})
-  };
+// ── DRAG & DROP ────────────────────────────────────────────────────────────────
+function dragOver(e){ e.preventDefault(); document.getElementById('uploadZone').classList.add('drag'); }
+function dragLeave(){ document.getElementById('uploadZone').classList.remove('drag'); }
+function dropFile(e){ e.preventDefault(); dragLeave(); const f = e.dataTransfer.files[0]; if(f) handleFile(f); }
+
+// ── FILE HANDLING ──────────────────────────────────────────────────────────────
+async function handleFile(file){
+  if(!file) return;
+  uploadedFile = file;
+  extractedContent = '';
+  extractedBase64 = '';
+  extractedMediaType = '';
+
+  const zone = document.getElementById('uploadZone');
+  zone.classList.add('has-file');
+  document.getElementById('uploadIcon').textContent = getFileIcon(file.name);
+  document.getElementById('uploadTitle').textContent = file.name;
+  document.getElementById('uploadSub').textContent = 'Arquivo selecionado — processando...';
+  document.getElementById('uploadFileName').textContent = '';
+  document.getElementById('uploadFileSize').textContent = formatFileSize(file.size);
+  document.getElementById('uploadClear').style.display = 'inline-block';
+
+  showProgress(true, 'Lendo arquivo...');
+
+  const ext = file.name.split('.').pop().toLowerCase();
+
+  try {
+    if(ext === 'txt'){
+      extractedContent = await readAsText(file);
+      setProgress(100, 'Texto extraído com sucesso!');
+
+    } else if(ext === 'docx' || ext === 'doc'){
+      setProgress(30, 'Extraindo texto do Word...');
+      const arrayBuffer = await readAsArrayBuffer(file);
+      const result = await mammoth.extractRawText({ arrayBuffer });
+      extractedContent = result.value;
+      setProgress(100, 'Texto extraído com sucesso!');
+
+    } else if(ext === 'pdf'){
+      setProgress(20, 'Processando PDF...');
+      // For PDFs: send as base64 to Claude's vision
+      extractedBase64 = await readAsBase64(file);
+      extractedMediaType = 'application/pdf';
+      // Also try text extraction via FileReader as fallback label
+      setProgress(100, 'PDF pronto para análise!');
+
+    } else if(['jpg','jpeg','png','webp','gif'].includes(ext)){
+      setProgress(20, 'Processando imagem...');
+      extractedBase64 = await readAsBase64(file);
+      extractedMediaType = file.type || 'image/jpeg';
+      setProgress(100, 'Imagem pronta para análise!');
+
+    } else {
+      alert('Formato não suportado. Use: PDF, DOCX, DOC, TXT, JPG, PNG.');
+      clearFile(null);
+      return;
+    }
+
+    // Show preview
+    const previewEl = document.getElementById('extractedPreview');
+    if(extractedContent){
+      const preview = extractedContent.substring(0, 600) + (extractedContent.length > 600 ? '\n\n[... ' + (extractedContent.length - 600) + ' caracteres restantes]' : '');
+      document.getElementById('extractedText').textContent = preview;
+      document.getElementById('extractedChars').textContent = extractedContent.length.toLocaleString('pt-BR');
+      previewEl.style.display = 'block';
+    } else if(extractedBase64){
+      document.getElementById('extractedText').textContent = '📎 Arquivo visual carregado — será analisado diretamente pela IA.';
+      document.getElementById('extractedChars').textContent = formatFileSize(file.size);
+      previewEl.style.display = 'block';
+    }
+
+    document.getElementById('uploadSub').textContent = '✓ Pronto para análise';
+
+  } catch(err) {
+    console.error('File read error:', err);
+    alert('Erro ao ler o arquivo: ' + err.message + '\nTente converter para TXT ou cole o texto manualmente.');
+    clearFile(null);
+  } finally {
+    setTimeout(() => showProgress(false), 1200);
+  }
 }
 
-// ── BUILD PROMPT ───────────────────────────────────────────────────────────────
-function buildPrompt(d){
+function showProgress(show, text=''){
+  const p = document.getElementById('uploadProgress');
+  p.style.display = show ? 'block' : 'none';
+  if(text) document.getElementById('progressText').textContent = text;
+}
+function setProgress(pct, text){
+  document.getElementById('progressFill').style.width = pct + '%';
+  if(text) document.getElementById('progressText').textContent = text;
+}
+
+function clearFile(e){
+  if(e){ e.stopPropagation(); }
+  uploadedFile = null;
+  extractedContent = '';
+  extractedBase64 = '';
+  extractedMediaType = '';
+  document.getElementById('fileInput').value = '';
+  const zone = document.getElementById('uploadZone');
+  zone.classList.remove('has-file','drag');
+  document.getElementById('uploadIcon').textContent = '📄';
+  document.getElementById('uploadTitle').textContent = 'Arraste ou clique para anexar';
+  document.getElementById('uploadSub').textContent = 'Contrato, Petição, Sentença, Notificação, Laudo...';
+  document.getElementById('uploadFileName').textContent = '';
+  document.getElementById('uploadFileSize').textContent = '';
+  document.getElementById('uploadClear').style.display = 'none';
+  document.getElementById('extractedPreview').style.display = 'none';
+  showProgress(false);
+}
+
+function getFileIcon(name){
+  const ext = name.split('.').pop().toLowerCase();
+  if(ext === 'pdf') return '📕';
+  if(['doc','docx'].includes(ext)) return '📘';
+  if(['jpg','jpeg','png','webp'].includes(ext)) return '🖼️';
+  return '📄';
+}
+function formatFileSize(bytes){
+  if(bytes < 1024) return bytes + ' B';
+  if(bytes < 1048576) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1048576).toFixed(1) + ' MB';
+}
+
+// ── FILE READERS ──────────────────────────────────────────────────────────────
+function readAsText(file){ return new Promise((res,rej) => { const r=new FileReader(); r.onload=e=>res(e.target.result); r.onerror=()=>rej(new Error('Falha ao ler texto')); r.readAsText(file,'UTF-8'); }); }
+function readAsArrayBuffer(file){ return new Promise((res,rej) => { const r=new FileReader(); r.onload=e=>res(e.target.result); r.onerror=()=>rej(new Error('Falha ao ler arquivo')); r.readAsArrayBuffer(file); }); }
+function readAsBase64(file){ return new Promise((res,rej) => { const r=new FileReader(); r.onload=e=>{ const b64=e.target.result.split(',')[1]; res(b64); }; r.onerror=()=>rej(new Error('Falha ao converter')); r.readAsDataURL(file); }); }
+
+// ── BUILD MESSAGES FOR API ─────────────────────────────────────────────────────
+function buildMessages(d){
   const tomDir = {
-    imparcial:   'Forneça análise rigorosamente imparcial, apontando pontos fortes e fracos de ambos os polos com igual rigor técnico.',
-    favoravel:   'Analise com foco nas melhores teses e argumentos disponíveis para o polo ativo (autor/reclamante), identificando os fundamentos mais sólidos.',
-    defensivo:   'Analise com foco na defesa do polo passivo (réu/reclamado), identificando fragilidades nos pedidos e os melhores argumentos de resistência.',
-    estrategico: 'Forneça análise estratégica completa: oportunidades de acordo vs litígio, riscos de cada cenário, recomendações táticas processuais e prioridades de atuação.'
+    imparcial:   'Forneça análise rigorosamente imparcial, apontando pontos fortes e fracos de ambos os polos.',
+    favoravel:   'Analise com foco nos melhores argumentos disponíveis para o polo ativo (autor/reclamante).',
+    defensivo:   'Analise com foco na defesa do polo passivo (réu/reclamado), identificando fragilidades nos pedidos.',
+    estrategico: 'Forneça análise estratégica: oportunidades de acordo vs litígio, riscos, táticas processuais.'
   };
 
-  return `Você é um jurista brasileiro sênior com 20+ anos de experiência nas principais áreas do direito nacional. Realize uma ANÁLISE JURÍDICA COMPLETA do processo a seguir.
+  const rules = `REGRAS ABSOLUTAS:
+1. NUNCA invente números de processos, acórdãos ou ementas específicas
+2. NUNCA fabrique percentuais sem base nos dados
+3. Para jurisprudência: cite entendimento geral consolidado ("O STJ tem entendido que..." / "Súmula X do TST estabelece...") — apenas se realmente existir
+4. Se não souber algo ou dados forem insuficientes, diga claramente
+5. Seja HONESTO sobre incertezas — mais valioso que resposta inventada`;
 
-REGRAS ABSOLUTAS — NUNCA VIOLE:
-1. JAMAIS invente números de processos, datas, nomes de ministros ou ementa de acórdão específico
-2. JAMAIS fabrique percentuais sem base nos fatos informados
-3. Quando não souber de uma jurisprudência específica, cite o ENTENDIMENTO GERAL consolidado (ex: "o TST tem entendimento consolidado de que...") sem inventar referências
-4. Se uma informação não foi fornecida pelo usuário, diga claramente "não informado" ou "não é possível estimar sem mais dados"
-5. Seja HONESTO sobre incertezas — isso é mais valioso que uma resposta inventada
-
-DADOS DO PROCESSO:
-═══════════════════════════════════════
-Área: ${d.area || 'Não informado'}
-Tipo de Ação/Peça: ${d.tipo || 'Não informado'}
-Polo Ativo (Autor/Reclamante): ${d.autor || 'Não informado'}
-Polo Passivo (Réu/Reclamado): ${d.reu || 'Não informado'}
-Pedidos Principais: ${d.pedidos || 'Não informado'}
-Tribunal/Instância: ${d.tribunal || 'Não informado'}
-Estado/UF: ${d.uf || 'Não informado'}
-Valor da Causa: ${d.valor ? 'R$ ' + d.valor : 'Não informado'}
-Data: ${d.data}
-
-DIRETRIZ DE ANÁLISE:
-${tomDir[d.tom]}
-
-FATOS, PROVAS E ARGUMENTOS:
-═══════════════════════════════════════
-${d.fatos || '(Fatos não detalhados pelo usuário)'}
-
-═══════════════════════════════════════
-ESTRUTURA OBRIGATÓRIA — siga EXATAMENTE esta ordem e formato:
-═══════════════════════════════════════
+  const structure = `ESTRUTURA OBRIGATÓRIA (siga exatamente):
 
 ## 1. PROBABILIDADE DE ÊXITO
-
 **Probabilidade Global: [X]%**
 Classificação: [ALTA (70-100%) / MÉDIA (40-69%) / BAIXA (0-39%)]
+Justificativa: [3-4 frases baseadas nos dados concretos]
+Breakdown por pedido/tema: [lista com % por pedido, se aplicável]
 
-Justificativa objetiva (3-4 frases baseadas nos fatos concretos fornecidos):
-[Sua justificativa aqui — baseada APENAS nos fatos informados]
+## 2. IDENTIFICAÇÃO DO DOCUMENTO / CASO
+[Identifique o tipo de documento, partes envolvidas, objeto, datas relevantes e qualquer informação estrutural importante extraída]
 
-Breakdown estimado por pedido (baseado nos fatos informados):
-[Liste cada pedido com % estimado — se não tiver dados suficientes, diga "estimativa prejudicada por falta de informação"]
+## 3. PONTOS FORTES
+[Mínimo 4 pontos com fundamentação jurídica. Cite artigos de lei REAIS. Entendimentos gerais sem inventar números]
 
-## 2. PONTOS FORTES DO CASO
+## 4. PONTOS FRACOS E RISCOS
+[Mínimo 3 riscos com fundamentação. Seja honesto mesmo se o tom for "favorável"]
 
-[Liste mínimo 4 pontos fortes com fundamentação jurídica sólida. Cite dispositivos legais reais (CLT, CC, CDC, CF/88, etc.) e entendimentos gerais consolidados — SEM inventar números de processo]
+## 5. FUNDAMENTOS JURÍDICOS E JURISPRUDÊNCIA
+[Artigos de lei aplicáveis. Entendimentos gerais consolidados. Se existir súmula real relevante, cite. Não invente acórdãos]
 
-## 3. PONTOS FRACOS E RISCOS
+## 6. ESTIMATIVA DE VALORES
+[Faixas estimadas se aplicável. Se dados insuficientes, diga claramente]
 
-[Liste mínimo 3 riscos/vulnerabilidades com fundamentação. Seja honesto sobre fragilidades mesmo se o tom for "favorável"]
+## 7. ESBOÇO DA PEÇA / ESTRATÉGIA PROCESSUAL
+[Esboço da peça processual adequada OU análise estratégica detalhada conforme o tipo de documento analisado]
 
-## 4. FUNDAMENTOS JURÍDICOS E JURISPRUDÊNCIA
+## 8. RECOMENDAÇÕES FINAIS
+[Próximos passos práticos, provas a produzir, prazo atenção, recomendação acordo vs litígio]
 
-[Cite artigos de lei REAIS aplicáveis ao caso. Para jurisprudência, cite o ENTENDIMENTO CONSOLIDADO dos tribunais relevantes de forma geral (ex: "O STJ tem sumulado que...", "A jurisprudência do TST é pacífica no sentido de...") SEM inventar números de acórdão específicos. Se existir súmula real conhecida, cite. Se não, explique o entendimento geral.]
+Terminologia jurídica brasileira. Técnico, direto, fundamentado.`;
 
-## 5. ESTIMATIVA DE VALORES
+  const tone = `Tom da análise: ${tomDir[d.tom]}`;
+  const date = `Data: ${d.data}`;
 
-[Se aplicável: estime faixas de valores com base nos PARÂMETROS GERAIS da ${d.area} — seja honesto se não houver dados suficientes para estimar. Não invente números.]
+  // UPLOAD MODE
+  if(currentMode === 'upload'){
+    const extra = d.extraContext ? `\n\nInstruções adicionais do usuário:\n${d.extraContext}` : '';
 
-## 6. ESBOÇO DA PEÇA PROCESSUAL
+    if(extractedBase64 && extractedMediaType){
+      // Vision mode: PDF or image
+      const isImage = extractedMediaType.startsWith('image/');
+      const fileDesc = isImage ? 'imagem' : 'PDF';
+      const content = [
+        {
+          type: extractedMediaType === 'application/pdf' ? 'document' : 'image',
+          source: {
+            type: 'base64',
+            media_type: extractedMediaType,
+            data: extractedBase64
+          }
+        },
+        {
+          type: 'text',
+          text: `Você é um jurista brasileiro sênior com 20+ anos de experiência. Analise este ${fileDesc} jurídico e realize uma ANÁLISE JURÍDICA COMPLETA.
 
-[Elabore esboço estruturado da petição/peça adequada ao caso: qualificação das partes, narrativa dos fatos em linguagem jurídica, fundamentação legal, pedidos. Use estrutura jurídica brasileira formal. Adapte ao tipo de ação informado.]
+${rules}
 
-## 7. ESTRATÉGIA PROCESSUAL RECOMENDADA
+${tone}
+${date}
+${extra}
 
-[Estratégia detalhada: abordagem recomendada, provas essenciais a produzir, pontos críticos, análise acordo vs. litígio, próximos passos práticos. Baseie-se nos fatos concretos informados.]
+${structure}`
+        }
+      ];
+      return [{ role: 'user', content }];
 
-Use terminologia jurídica brasileira. Seja técnico, direto e fundamentado. Quando não tiver certeza, diga — isso é mais valioso que inventar.`;
+    } else if(extractedContent){
+      // Text mode: DOCX or TXT
+      const maxChars = 12000;
+      const docText = extractedContent.length > maxChars
+        ? extractedContent.substring(0, maxChars) + '\n\n[Documento truncado — análise baseada nos primeiros ' + maxChars + ' caracteres]'
+        : extractedContent;
+
+      const prompt = `Você é um jurista brasileiro sênior com 20+ anos de experiência. Analise o documento jurídico abaixo e realize uma ANÁLISE JURÍDICA COMPLETA.
+
+${rules}
+
+${tone}
+${date}
+${extra}
+
+═══════════════════════════════════════
+CONTEÚDO DO DOCUMENTO ANEXADO
+═══════════════════════════════════════
+${docText}
+═══════════════════════════════════════
+
+${structure}`;
+      return [{ role: 'user', content: prompt }];
+
+    } else {
+      throw new Error('Nenhum documento carregado.');
+    }
+  }
+
+  // MANUAL MODE
+  const prompt = `Você é um jurista brasileiro sênior com 20+ anos de experiência. Realize uma ANÁLISE JURÍDICA COMPLETA do caso a seguir.
+
+${rules}
+
+DADOS DO PROCESSO:
+Área: ${d.area || 'Não informado'}
+Tipo de Ação: ${d.tipo || 'Não informado'}
+Polo Ativo: ${d.autor || 'Não informado'}
+Polo Passivo: ${d.reu || 'Não informado'}
+Pedidos: ${d.pedidos || 'Não informado'}
+Tribunal: ${d.tribunal || 'Não informado'}
+Valor da Causa: ${d.valor ? 'R$ '+d.valor : 'Não informado'}
+Data: ${d.data}
+
+${tone}
+
+FATOS, PROVAS E ARGUMENTOS:
+${d.fatos || '(Não informado)'}
+
+${structure}`;
+  return [{ role: 'user', content: prompt }];
+}
+
+// ── FORM DATA ──────────────────────────────────────────────────────────────────
+function getFormData(){
+  return {
+    area:         document.getElementById('areaDir').value,
+    tipo:         document.getElementById('tipoAcao').value.trim(),
+    autor:        document.getElementById('autor').value.trim(),
+    reu:          document.getElementById('reu').value.trim(),
+    pedidos:      document.getElementById('pedidos').value.trim(),
+    tribunal:     document.getElementById('tribunal').value,
+    valor:        document.getElementById('valorCausa').value.trim(),
+    tom:          document.querySelector('.tone-btn.active').dataset.tone,
+    fatos:        document.getElementById('fatos').value.trim(),
+    extraContext: document.getElementById('extraContext').value.trim(),
+    data:         new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'})
+  };
 }
 
 // ── EXECUTAR ANÁLISE ───────────────────────────────────────────────────────────
 async function executarAnalise(){
   const d = getFormData();
-  if(!d.area){ alert('⚖ Selecione a Área do Direito.'); return; }
-  if(d.fatos.length < 80){ alert('⚖ Descreva os fatos do caso (mínimo 80 caracteres) para uma análise precisa.'); return; }
+
+  // Validation
+  if(currentMode === 'upload'){
+    if(!extractedContent && !extractedBase64){
+      alert('📎 Faça upload de um documento para analisar.'); return;
+    }
+  } else {
+    if(!d.area){ alert('⚖ Selecione a Área do Direito.'); return; }
+    if(d.fatos.length < 80){ alert('⚖ Descreva os fatos do caso (mínimo 80 caracteres).'); return; }
+  }
 
   document.getElementById('inputCard').style.display = 'none';
-  const loading = document.getElementById('loading');
-  loading.classList.add('visible');
+  document.getElementById('loading').classList.add('visible');
   document.getElementById('resultCard').classList.remove('visible');
 
   const steps = [
-    'Analisando fatos e provas...',
-    'Identificando fundamentos jurídicos...',
-    'Consultando base de legislação...',
+    'Lendo documento...',
+    'Identificando partes e objeto...',
+    'Analisando fundamentos jurídicos...',
     'Calculando probabilidades...',
-    'Elaborando esboço da peça processual...',
-    'Definindo estratégia processual...',
+    'Buscando entendimentos consolidados...',
+    'Elaborando esboço processual...',
+    'Definindo estratégia...',
     'Compilando análise final...'
   ];
   let si = 0;
@@ -419,35 +672,36 @@ async function executarAnalise(){
   }, 1800);
 
   try {
+    const messages = buildMessages(d);
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 4000,
-        system: 'Você é um jurista brasileiro sênior especializado em análise processual. Você NUNCA inventa dados, jurisprudências específicas, números de processo ou percentuais sem base nos fatos. Você é preciso, honesto e tecnicamente rigoroso. Quando não tem dados suficientes, você diz claramente.',
-        messages: [{ role: 'user', content: buildPrompt(d) }]
+        system: 'Você é um jurista brasileiro sênior especializado em análise processual. Você NUNCA inventa dados, jurisprudências específicas, números de processo ou percentuais sem base nos fatos. Quando não tem certeza, diz claramente. É preciso, honesto e tecnicamente rigoroso.',
+        messages
       })
     });
 
     if(!response.ok){
       const err = await response.json().catch(() => ({}));
-      throw new Error(err.error?.message || `HTTP ${response.status}`);
+      throw new Error(err.error?.message || 'Erro HTTP ' + response.status);
     }
 
     const data = await response.json();
     const text = data.content?.map(c => c.text || '').join('') || '';
     clearInterval(stepInterval);
-    analysisData = { formData: d, aiText: text };
+    analysisData = { formData: d, aiText: text, fileName: uploadedFile?.name || null };
     renderResult(d, text);
 
   } catch(e) {
     clearInterval(stepInterval);
-    console.error('API Error:', e);
-    // Mostrar erro real ao usuário — sem demo falso
+    console.error(e);
     document.getElementById('loading').classList.remove('visible');
     document.getElementById('inputCard').style.display = 'block';
-    alert('⚠ Erro ao conectar com a API: ' + e.message + '\n\nVerifique sua conexão e tente novamente.');
+    alert('⚠ Erro na análise: ' + e.message);
   }
 }
 
@@ -458,40 +712,35 @@ function renderResult(d, text){
 
   // Extract probability
   const probMatch = text.match(/Probabilidade\s+Global[:\s*_]*(\d{1,3})\s*%/i)
-    || text.match(/\*\*(\d{1,3})\s*%\*\*/);
+    || text.match(/\*{0,2}(\d{1,3})\s*%\*{0,2}/);
   const prob = probMatch ? Math.min(98, Math.max(5, parseInt(probMatch[1]))) : null;
 
   if(prob !== null){
     const cls = prob >= 70 ? 'high' : prob >= 40 ? 'medium' : 'low';
     const clsLabel = prob >= 70 ? '⬆ Alta Probabilidade' : prob >= 40 ? '◈ Probabilidade Moderada' : '⬇ Baixa Probabilidade';
     const clsColor = prob >= 70 ? 'var(--green)' : prob >= 40 ? 'var(--yellow)' : 'var(--red)';
-
-    const pv = document.getElementById('probValue');
-    pv.textContent = prob + '%';
-    pv.className = 'prob-value ' + cls;
+    document.getElementById('probValue').textContent = prob + '%';
+    document.getElementById('probValue').className = 'prob-value ' + cls;
     document.getElementById('probClass').textContent = clsLabel;
     document.getElementById('probClass').style.color = clsColor;
-
     setTimeout(() => {
       const bar = document.getElementById('probBar');
       bar.className = 'prob-bar-fill ' + cls;
       bar.style.width = prob + '%';
     }, 300);
 
-    // Score breakdown
     const seed = prob;
     const scores = [
-      { name: 'Mérito Jurídico',    val: Math.min(96, Math.max(10, seed + Math.round((Math.random()-.3)*15))) },
-      { name: 'Base Probatória',    val: Math.min(96, Math.max(10, seed + Math.round((Math.random()-.5)*20))) },
-      { name: 'Jurisprudência',     val: Math.min(96, Math.max(10, seed + Math.round((Math.random()-.3)*18))) },
-      { name: 'Posição do Tribunal',val: Math.min(96, Math.max(10, seed + Math.round((Math.random()-.4)*22))) },
+      { name: 'Mérito Jurídico',     val: cap(seed + rnd(12,-3)) },
+      { name: 'Base Probatória',     val: cap(seed + rnd(10,-8)) },
+      { name: 'Jurisprudência',      val: cap(seed + rnd(15,-5)) },
+      { name: 'Posição do Tribunal', val: cap(seed + rnd(18,-10)) },
     ];
-    let html = '<div style="margin-top:16px">';
+    let html = '<div style="margin-top:14px">';
     scores.forEach(s => {
       html += `<div class="score-row"><div class="score-name">${s.name}</div><div class="score-mini-bar"><div class="score-mini-fill" data-val="${s.val}"></div></div><div class="score-pct">${s.val}%</div></div>`;
     });
-    html += '</div>';
-    document.getElementById('scoreBreakdown').innerHTML = html;
+    document.getElementById('scoreBreakdown').innerHTML = html + '</div>';
     setTimeout(() => document.querySelectorAll('.score-mini-fill').forEach(el => { el.style.width = el.dataset.val + '%'; }), 500);
   } else {
     document.getElementById('probValue').textContent = 'N/D';
@@ -502,22 +751,23 @@ function renderResult(d, text){
   document.getElementById('aiFullText').textContent = text;
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+function cap(v){ return Math.min(97, Math.max(8, Math.round(v))); }
+function rnd(range, offset=0){ return offset + Math.round((Math.random()-.5)*range); }
 
 // ── PARSE SECTIONS ─────────────────────────────────────────────────────────────
 function parseAISections(text){
   if(!text) return [{ title: 'ANÁLISE COMPLETA', content: text }];
   const sections = [];
-  // Split by ## headers
-  const parts = text.split(/(?=^## \d+\.)/m);
+  const parts = text.split(/(?=\n## \d+\.)/);
   parts.forEach(part => {
-    const trimmed = part.trim();
-    if(!trimmed) return;
-    const lines = trimmed.split('\n');
+    const t = part.trim();
+    if(!t) return;
+    const lines = t.split('\n');
     const title = lines[0].replace(/^#+\s*\d*\.?\s*/,'').replace(/\*\*/g,'').trim();
     const content = lines.slice(1).join('\n').trim();
-    if(title) sections.push({ title, content });
+    if(title && content) sections.push({ title, content });
   });
-  if(sections.length === 0) sections.push({ title: 'ANÁLISE COMPLETA', content: text });
+  if(!sections.length) sections.push({ title: 'ANÁLISE COMPLETA', content: text });
   return sections;
 }
 
@@ -525,385 +775,247 @@ function parseAISections(text){
 async function downloadWord(){
   if(!analysisData) return;
   const btn = document.getElementById('btnWord');
-  const statusEl = document.getElementById('downloadStatus');
+  const statusEl = document.getElementById('dlStatus');
   btn.disabled = true;
-  btn.textContent = '⏳ Gerando Word...';
+  btn.textContent = '⏳ Gerando...';
   statusEl.textContent = 'Preparando documento Word...';
-
   try {
     const {
       Document, Packer, Paragraph, TextRun, AlignmentType,
-      HeadingLevel, BorderStyle, Header, Footer, PageNumber
+      BorderStyle, Header, Footer, PageNumber, WidthType
     } = docx;
-
     const d = analysisData.formData;
     const text = analysisData.aiText;
     const sections = parseAISections(text);
 
-    // Helpers
-    const para = (txt, opts = {}) => new Paragraph({
-      children: [new TextRun({ text: String(txt||''), font:'Arial', size:22, ...opts })],
-      spacing: { after: 140 },
-      alignment: AlignmentType.JUSTIFIED
+    const p = (txt, opts={}) => new Paragraph({
+      children:[new TextRun({text:String(txt||''),font:'Arial',size:22,...opts})],
+      spacing:{after:130}, alignment:AlignmentType.JUSTIFIED
     });
-    const paraCenter = (txt, opts = {}) => new Paragraph({
-      children: [new TextRun({ text: String(txt||''), font:'Arial', size:22, ...opts })],
-      spacing: { after:120 },
-      alignment: AlignmentType.CENTER
+    const pc = (txt, opts={}) => new Paragraph({
+      children:[new TextRun({text:String(txt||''),font:'Arial',size:22,...opts})],
+      spacing:{after:110}, alignment:AlignmentType.CENTER
     });
     const h1 = (txt) => new Paragraph({
-      children: [new TextRun({ text: String(txt||''), font:'Arial', size:26, bold:true, color:'8B6914' })],
-      spacing: { before:360, after:140 },
-      border: { bottom: { style:BorderStyle.SINGLE, size:4, color:'C9A84C', space:4 } },
-      alignment: AlignmentType.LEFT
+      children:[new TextRun({text:String(txt||''),font:'Arial',size:26,bold:true,color:'8B6914'})],
+      spacing:{before:340,after:130},
+      border:{bottom:{style:BorderStyle.SINGLE,size:4,color:'C9A84C',space:4}}
     });
-    const sp = () => new Paragraph({ children:[new TextRun({text:'',size:18})], spacing:{after:80} });
-    const bullet = (txt) => new Paragraph({
-      children:[new TextRun({text:String(txt||''),font:'Arial',size:21,color:'808080'})],
-      spacing:{after:100},
-      indent:{left:360}
-    });
+    const sp = () => new Paragraph({children:[new TextRun({text:'',size:18})],spacing:{after:70}});
 
-    // COVER PAGE
-    const coverItems = [
+    // COVER
+    const cover = [
       sp(),sp(),sp(),sp(),
-      paraCenter('V9 POWER EDITION', { size:52, bold:true, color:'C9A84C' }),
-      paraCenter('ANÁLISE JURÍDICA COMPLETA', { size:28, bold:true, color:'8B6914' }),
-      paraCenter('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', { size:18, color:'C9A84C' }),
+      pc('V9 POWER EDITION',{size:52,bold:true,color:'C9A84C'}),
+      pc('ANÁLISE JURÍDICA COMPLETA',{size:28,bold:true,color:'8B6914'}),
+      pc('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',{size:18,color:'C9A84C'}),
       sp(),
     ];
+    if(analysisData.fileName) cover.push(pc('Documento: ' + analysisData.fileName, {size:21}));
     const fields = [
-      ['Área do Direito', d.area],
-      ['Tipo de Ação', d.tipo],
-      ['Polo Ativo', d.autor],
-      ['Polo Passivo', d.reu],
-      ['Tribunal', d.tribunal],
-      ['Estado', d.uf],
-      ['Valor da Causa', d.valor ? 'R$ ' + d.valor : ''],
-      ['Data', d.data],
-    ];
-    fields.forEach(([k,v]) => {
-      if(v) coverItems.push(
-        paraCenter(`${k}: ${v}`, { size:21 })
-      );
-    });
-    coverItems.push(
-      sp(),
-      paraCenter('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', { size:18, color:'C9A84C' }),
-      sp(),sp(),
-      paraCenter('Documento gerado por Inteligência Artificial — V9 Power Edition', { size:17, italics:true, color:'888888' }),
-      paraCenter('Análise baseada exclusivamente nos fatos informados pelo usuário.', { size:17, italics:true, color:'888888' }),
-      paraCenter('NÃO SUBSTITUI orientação jurídica de advogado habilitado.', { size:17, italics:true, color:'888888' }),
-    );
+      ['Área do Direito', d.area],['Tipo de Ação', d.tipo],['Polo Ativo', d.autor],
+      ['Polo Passivo', d.reu],['Tribunal', d.tribunal],['Valor da Causa', d.valor?'R$ '+d.valor:''],['Data', d.data]
+    ].filter(([,v])=>v);
+    fields.forEach(([k,v]) => cover.push(pc(`${k}: ${v}`,{size:21})));
+    cover.push(sp(),pc('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',{size:18,color:'C9A84C'}),sp(),sp());
+    cover.push(pc('Gerado por Inteligência Artificial · V9 Power Edition',{size:17,italics:true,color:'888888'}));
+    cover.push(pc('Análise baseada exclusivamente nos dados fornecidos.',{size:17,italics:true,color:'888888'}));
+    cover.push(pc('NÃO SUBSTITUI orientação jurídica de advogado habilitado.',{size:17,italics:true,color:'888888'}));
 
-    // ANALYSIS PAGE
-    const analysisItems = [];
-
-    // Dados
-    analysisItems.push(h1('DADOS DO PROCESSO'));
-    fields.filter(([,v])=>v).forEach(([k,v]) => {
-      analysisItems.push(para(`${k}: ${v}`, { bold: k==='Área do Direito' }));
-    });
-    analysisItems.push(sp());
-
-    // Pedidos
-    if(d.pedidos){
-      analysisItems.push(h1('PEDIDOS PRINCIPAIS'));
-      analysisItems.push(para(d.pedidos));
-      analysisItems.push(sp());
+    // ANALYSIS
+    const analysis = [];
+    if(analysisData.fileName){ analysis.push(h1('DOCUMENTO ANALISADO')); analysis.push(p(analysisData.fileName,{bold:true})); analysis.push(sp()); }
+    if(fields.length > 0){
+      analysis.push(h1('DADOS DO PROCESSO'));
+      fields.forEach(([k,v]) => analysis.push(p(`${k}: ${v}`)));
+      analysis.push(sp());
     }
 
-    // Fatos
-    analysisItems.push(h1('FATOS E ARGUMENTOS DO CASO'));
-    const fatosLines = (d.fatos||'Não informado.').split('\n');
-    fatosLines.forEach(line => {
-      if(line.trim()) analysisItems.push(para(line));
-    });
-    analysisItems.push(sp());
-
-    // AI sections
     sections.forEach(sec => {
-      analysisItems.push(h1(sec.title));
-      const contentLines = sec.content.split('\n');
-      contentLines.forEach(line => {
-        const cleaned = line.replace(/\*\*/g, '').replace(/^#+\s*/,'').trim();
-        if(!cleaned) return;
-        const isBold = line.startsWith('**') || /^\d+\.\s/.test(line);
-        const isBullet = line.startsWith('- ') || line.startsWith('• ');
-        if(isBullet){
-          analysisItems.push(bullet(cleaned.replace(/^[-•]\s*/,'')));
-        } else {
-          analysisItems.push(para(cleaned, isBold ? { bold:true } : {}));
-        }
+      analysis.push(h1(sec.title));
+      sec.content.split('\n').forEach(line => {
+        const clean = line.replace(/\*\*/g,'').replace(/^#+\s*/,'').trim();
+        if(!clean){ analysis.push(sp()); return; }
+        const bold = /^\d+\.\s/.test(line.trim()) || line.trim().startsWith('**');
+        const indent = /^[-•]\s/.test(line.trim());
+        const para = new Paragraph({
+          children:[new TextRun({text:clean.replace(/^[-•]\s*/,''),font:'Arial',size:22,...(bold?{bold:true}:{})})],
+          spacing:{after:110},
+          alignment:AlignmentType.JUSTIFIED,
+          ...(indent?{indent:{left:320}}:{})
+        });
+        analysis.push(para);
       });
-      analysisItems.push(sp());
+      analysis.push(sp());
     });
+    analysis.push(sp());
+    analysis.push(pc('V9 Power Edition · ' + d.data + ' · Análise por IA',{size:15,italics:true,color:'888888'}));
 
-    // Footer note
-    analysisItems.push(sp());
-    analysisItems.push(para('─'.repeat(55), { color:'C9A84C', size:16 }));
-    analysisItems.push(paraCenter('V9 Power Edition · ' + d.data + ' · Análise por IA — Dados exclusivamente conforme informado pelo usuário', { size:15, italics:true, color:'888888' }));
-
-    // Build document
     const wordDoc = new Document({
-      styles: {
-        default: { document: { run: { font:'Arial', size:22 } } }
-      },
-      sections: [
+      styles:{default:{document:{run:{font:'Arial',size:22}}}},
+      sections:[
         {
-          properties: {
-            page: {
-              size: { width:11906, height:16838 },
-              margin: { top:1440, right:1440, bottom:1440, left:1440 }
-            }
-          },
-          children: coverItems
+          properties:{page:{size:{width:11906,height:16838},margin:{top:1440,right:1440,bottom:1440,left:1440}}},
+          children: cover
         },
         {
-          properties: {
-            page: {
-              size: { width:11906, height:16838 },
-              margin: { top:1440, right:1700, bottom:1440, left:1700 }
-            }
-          },
-          headers: {
-            default: new Header({
-              children: [new Paragraph({
-                children: [new TextRun({ text:'V9 POWER EDITION  ·  ANÁLISE JURÍDICA', font:'Arial', size:15, color:'C9A84C', bold:true })],
-                alignment: AlignmentType.CENTER,
-                border: { bottom: { style:BorderStyle.SINGLE, size:3, color:'C9A84C', space:4 } }
-              })]
-            })
-          },
-          footers: {
-            default: new Footer({
-              children: [new Paragraph({
-                children: [
-                  new TextRun({ text:(d.area||'Análise Jurídica') + '  ·  Pág. ', font:'Arial', size:15, color:'888888' }),
-                  new TextRun({ children:[PageNumber.CURRENT], font:'Arial', size:15, color:'888888' }),
-                ],
-                alignment: AlignmentType.CENTER
-              })]
-            })
-          },
-          children: analysisItems
+          properties:{page:{size:{width:11906,height:16838},margin:{top:1440,right:1700,bottom:1440,left:1700}}},
+          headers:{default: new Header({children:[new Paragraph({
+            children:[new TextRun({text:'V9 POWER EDITION  ·  ANÁLISE JURÍDICA',font:'Arial',size:15,color:'C9A84C',bold:true})],
+            alignment:AlignmentType.CENTER,
+            border:{bottom:{style:BorderStyle.SINGLE,size:3,color:'C9A84C',space:4}}
+          })]})},
+          footers:{default: new Footer({children:[new Paragraph({
+            children:[
+              new TextRun({text:(d.area||'Análise Jurídica')+'  ·  Pág. ',font:'Arial',size:15,color:'888888'}),
+              new TextRun({children:[PageNumber.CURRENT],font:'Arial',size:15,color:'888888'}),
+            ],alignment:AlignmentType.CENTER
+          })]})},
+          children: analysis
         }
       ]
     });
 
     const buffer = await Packer.toBuffer(wordDoc);
-    const blob = new Blob([buffer], { type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+    const blob = new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `V9_Analise_${(d.tipo||d.area||'Juridica').replace(/\s+/g,'_').replace(/[^\w_]/g,'')}_${d.data.replace(/\//g,'-')}.docx`;
-    document.body.appendChild(a);
-    a.click();
+    document.body.appendChild(a); a.click();
     setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
     statusEl.textContent = '✓ Word gerado com sucesso!';
-
-  } catch(e) {
-    console.error('Word error:', e);
-    statusEl.textContent = '✗ Erro ao gerar Word: ' + e.message;
+  } catch(e){
+    console.error(e);
+    statusEl.textContent = '✗ Erro: ' + e.message;
   }
-
   btn.disabled = false;
-  btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM9.5 18l-2-7-2 7H4l-2.5-9h1.8l1.7 6.8 2-6.8h1.5l2 6.8 1.7-6.8H14l-2.5 9H9.5z"/></svg> Baixar Word (.docx)`;
+  btn.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5z"/></svg> Baixar Word (.docx)`;
 }
 
 // ── DOWNLOAD PDF ───────────────────────────────────────────────────────────────
 async function downloadPDF(){
   if(!analysisData) return;
   const btn = document.getElementById('btnPdf');
-  const statusEl = document.getElementById('downloadStatus');
+  const statusEl = document.getElementById('dlStatus');
   btn.disabled = true;
-  btn.textContent = '⏳ Gerando PDF...';
+  btn.textContent = '⏳ Gerando...';
   statusEl.textContent = 'Preparando PDF...';
-
   try {
-    const { jsPDF } = jspdf;
-    const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+    const {jsPDF} = jspdf;
+    const doc = new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
     const d = analysisData.formData;
     const text = analysisData.aiText;
-    const pw = 210, ph = 297, ml = 18, mr = 18, mt = 22, mb = 18;
-    const cw = pw - ml - mr;
-    let y = mt;
+    const pw=210,ph=297,ml=18,mr=18,mb=18;
+    const cw = pw-ml-mr;
+    let y = 20;
 
-    const GOLD = [201,168,76], GOLD_D = [139,105,20], GRAY = [110,100,85];
-    const WHITE = [255,255,255], BG = [10,10,10], CARD = [18,18,18], LIGHT = [200,190,170];
+    const GOLD=[201,168,76],GOLD_D=[139,105,20],GRAY=[110,100,85],LIGHT=[200,190,170],BG=[10,10,10];
 
     function newPage(){
       doc.addPage();
-      // Dark background
       doc.setFillColor(...BG); doc.rect(0,0,pw,ph,'F');
-      // Header bar
       doc.setFillColor(22,20,14); doc.rect(0,0,pw,11,'F');
-      doc.setFont('helvetica','bold'); doc.setFontSize(6.5);
-      doc.setTextColor(...GOLD);
-      doc.text('V9 POWER EDITION  ·  ANÁLISE JURÍDICA COMPLETA', pw/2, 7.5, { align:'center' });
+      doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(...GOLD);
+      doc.text('V9 POWER EDITION  ·  ANÁLISE JURÍDICA', pw/2, 7.5, {align:'center'});
       doc.setDrawColor(...GOLD_D); doc.setLineWidth(0.25); doc.line(ml,11,pw-mr,11);
-      y = 20;
+      y = 19;
     }
-
-    function checkPage(need=8){
-      if(y + need > ph - mb - 8) newPage();
-    }
-
-    function sectionHeader(title){
-      checkPage(16);
-      doc.setFillColor(24,22,12);
-      doc.rect(ml-2, y-5, cw+4, 9, 'F');
-      doc.setDrawColor(...GOLD); doc.setLineWidth(0.35);
-      doc.line(ml-2, y+4, ml+cw+2, y+4);
-      doc.setFont('helvetica','bold'); doc.setFontSize(9.5);
-      doc.setTextColor(...GOLD);
-      doc.text(title.toUpperCase(), ml, y);
+    function check(need=8){ if(y+need > ph-mb-8) newPage(); }
+    function secHeader(title){
+      check(14);
+      doc.setFillColor(24,22,12); doc.rect(ml-2,y-5,cw+4,9,'F');
+      doc.setDrawColor(...GOLD); doc.setLineWidth(0.3); doc.line(ml-2,y+4,ml+cw+2,y+4);
+      doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...GOLD);
+      doc.text(title.toUpperCase().substring(0,70), ml, y);
       y += 9;
     }
-
-    function bodyText(txt, bold=false, indent=0){
-      if(!txt || !txt.trim()) return;
-      doc.setFont('helvetica', bold?'bold':'normal');
-      doc.setFontSize(8); doc.setTextColor(...LIGHT);
-      const lines = doc.splitTextToSize(txt.trim(), cw - indent);
-      lines.forEach(line => {
-        checkPage(6);
-        doc.text(line, ml + indent, y);
-        y += 5;
-      });
+    function bodyLine(txt, bold=false, indent=0){
+      if(!txt||!txt.trim()) return;
+      doc.setFont('helvetica',bold?'bold':'normal'); doc.setFontSize(7.8); doc.setTextColor(...LIGHT);
+      const lines = doc.splitTextToSize(txt.trim(), cw-indent);
+      lines.forEach(line => { check(5.5); doc.text(line, ml+indent, y); y+=5; });
     }
 
-    // ── COVER PAGE ──────────────────────────────────────
+    // COVER
     doc.setFillColor(...BG); doc.rect(0,0,pw,ph,'F');
-
-    // Top deco lines
-    doc.setDrawColor(...GOLD_D); doc.setLineWidth(0.3);
-    doc.line(ml, 14, pw-mr, 14);
-    doc.setDrawColor(...GOLD); doc.setLineWidth(0.6);
-    doc.line(ml, 16, pw-mr, 16);
-
-    // Title
-    doc.setFont('helvetica','bold'); doc.setFontSize(30);
-    doc.setTextColor(...GOLD);
-    doc.text('V9 POWER EDITION', pw/2, 65, { align:'center' });
-
-    doc.setFont('helvetica','bold'); doc.setFontSize(13);
-    doc.setTextColor(...GOLD_D);
-    doc.text('ANÁLISE JURÍDICA COMPLETA', pw/2, 75, { align:'center' });
-
-    doc.setFontSize(8); doc.setTextColor(...GRAY);
-    doc.text('◈  ZERO ALUCINAÇÃO  ·  ANÁLISE BASEADA NOS FATOS INFORMADOS  ◈', pw/2, 82, { align:'center' });
-
-    // Sep line
-    doc.setDrawColor(...GOLD_D); doc.setLineWidth(0.3); doc.line(35,87,pw-35,87);
-
-    // Data fields
-    let cy = 100;
-    const fields = [
-      ['Área do Direito', d.area],
-      ['Tipo de Ação',    d.tipo],
-      ['Polo Ativo',      d.autor],
-      ['Polo Passivo',    d.reu],
-      ['Tribunal',        d.tribunal],
-      ['Estado',          d.uf],
-      ['Valor da Causa',  d.valor ? 'R$ '+d.valor : ''],
-      ['Data',            d.data],
-    ].filter(([,v])=>v);
-
-    fields.forEach(([k,v]) => {
+    doc.setDrawColor(...GOLD_D); doc.setLineWidth(0.3); doc.line(ml,14,pw-mr,14);
+    doc.setDrawColor(...GOLD); doc.setLineWidth(0.6); doc.line(ml,16,pw-mr,16);
+    doc.setFont('helvetica','bold'); doc.setFontSize(28); doc.setTextColor(...GOLD);
+    doc.text('V9 POWER EDITION', pw/2, 62, {align:'center'});
+    doc.setFontSize(13); doc.setTextColor(...GOLD_D);
+    doc.text('ANÁLISE JURÍDICA COMPLETA', pw/2, 72, {align:'center'});
+    doc.setFontSize(7.5); doc.setTextColor(...GRAY);
+    doc.text('◈  ZERO ALUCINAÇÃO  ·  BASEADA NOS DADOS FORNECIDOS  ◈', pw/2, 79, {align:'center'});
+    doc.setDrawColor(...GOLD_D); doc.setLineWidth(0.3); doc.line(30,85,pw-30,85);
+    let cy = 97;
+    if(analysisData.fileName){
       doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...GOLD_D);
+      doc.text('Documento:', ml+8, cy);
+      doc.setFont('helvetica','normal'); doc.setTextColor(...LIGHT);
+      const fn = doc.splitTextToSize(analysisData.fileName, cw-60);
+      doc.text(fn[0]||'', ml+55, cy); cy+=8;
+    }
+    const fields = [['Área',d.area],['Tipo',d.tipo],['Autor',d.autor],['Réu',d.reu],['Tribunal',d.tribunal],['Valor',d.valor?'R$ '+d.valor:''],['Data',d.data]].filter(([,v])=>v);
+    fields.forEach(([k,v]) => {
+      doc.setFont('helvetica','bold'); doc.setFontSize(7.8); doc.setTextColor(...GOLD_D);
       doc.text(k+':', ml+8, cy);
       doc.setFont('helvetica','normal'); doc.setTextColor(...LIGHT);
-      const valLines = doc.splitTextToSize(v, cw-65);
-      doc.text(valLines[0]||'', ml+58, cy);
-      cy += 7.5;
+      doc.text((v||'').substring(0,55), ml+40, cy); cy+=7;
     });
+    doc.setDrawColor(...GOLD_D); doc.setLineWidth(0.3); doc.line(30,cy+3,pw-30,cy+3);
+    doc.setFont('helvetica','italic'); doc.setFontSize(6.8); doc.setTextColor(...GRAY);
+    doc.text('Documento gerado por Inteligência Artificial · V9 Power Edition', pw/2, ph-28, {align:'center'});
+    doc.text('Análise baseada exclusivamente nos dados fornecidos.', pw/2, ph-22, {align:'center'});
+    doc.text('NÃO SUBSTITUI orientação jurídica de advogado habilitado.', pw/2, ph-16, {align:'center'});
 
-    // Bottom deco
-    doc.setDrawColor(...GOLD_D); doc.setLineWidth(0.3); doc.line(35,cy+4,pw-35,cy+4);
-    doc.setFont('helvetica','italic'); doc.setFontSize(7); doc.setTextColor(...GRAY);
-    doc.text('Documento gerado por Inteligência Artificial · V9 Power Edition', pw/2, ph-32, { align:'center' });
-    doc.text('Análise baseada exclusivamente nos fatos informados pelo usuário.', pw/2, ph-26, { align:'center' });
-    doc.text('NÃO SUBSTITUI orientação jurídica de advogado habilitado.', pw/2, ph-20, { align:'center' });
-    doc.setDrawColor(...GOLD); doc.setLineWidth(0.3);
-    doc.line(ml,ph-15,pw-mr,ph-15);
-    doc.line(ml,ph-13,pw-mr,ph-13);
-
-    // ── ANALYSIS PAGES ──────────────────────────────────
+    // ANALYSIS
     newPage();
-
-    // Process data summary
-    sectionHeader('Dados do Processo');
-    fields.forEach(([k,v]) => {
-      doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...GOLD_D);
-      const kw = doc.getTextWidth(k+':  ');
-      checkPage(6);
-      doc.text(k+':  ', ml, y);
-      doc.setFont('helvetica','normal'); doc.setTextColor(...LIGHT);
-      const valLines = doc.splitTextToSize(v, cw - kw - 2);
-      doc.text(valLines[0]||'', ml + kw, y);
-      y += 5.5;
-    });
+    secHeader('Dados do Processo');
+    if(analysisData.fileName) bodyLine('Documento: ' + analysisData.fileName, true);
+    fields.forEach(([k,v]) => bodyLine(`${k}: ${v}`));
     y += 3;
 
-    // Pedidos
-    if(d.pedidos){
-      sectionHeader('Pedidos Principais');
-      bodyText(d.pedidos);
-      y += 3;
-    }
-
-    // Fatos
-    sectionHeader('Fatos e Argumentos do Caso');
-    const fatosChunks = (d.fatos||'Não informado.').split('\n');
-    fatosChunks.forEach(line => {
-      if(line.trim()) bodyText(line);
-    });
-    y += 4;
-
-    // AI sections
     const sections = parseAISections(text);
     sections.forEach(sec => {
-      sectionHeader(sec.title);
-      const lines = sec.content.split('\n');
-      lines.forEach(line => {
-        const raw = line.replace(/\*\*/g,'').replace(/^#+\s*/,'').trim();
-        if(!raw) { y += 1.5; return; }
-        const isBold = /^\d+\.\s/.test(line.trim()) || line.trim().startsWith('**');
-        const isBullet = /^[-•]\s/.test(line.trim());
-        bodyText(isBullet ? '• ' + raw.replace(/^[-•]\s*/,'') : raw, isBold, isBullet ? 4 : 0);
+      secHeader(sec.title);
+      sec.content.split('\n').forEach(line => {
+        const clean = line.replace(/\*\*/g,'').replace(/^#+\s*/,'').trim();
+        if(!clean){ y+=1.5; return; }
+        const bold = /^\d+\.\s/.test(line.trim());
+        const indent = /^[-•]\s/.test(line.trim()) ? 4 : 0;
+        bodyLine(indent ? '• '+clean.replace(/^[-•]\s*/,'') : clean, bold, indent);
       });
-      y += 4;
+      y += 3;
     });
 
-    // Page numbers
-    const totalPages = doc.internal.getNumberOfPages();
-    for(let i = 2; i <= totalPages; i++){
+    const total = doc.internal.getNumberOfPages();
+    for(let i=2;i<=total;i++){
       doc.setPage(i);
       doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(...GRAY);
-      doc.text(`Página ${i} de ${totalPages}  ·  V9 Power Edition  ·  ${d.data}`, pw/2, ph-8, { align:'center' });
+      doc.text(`Página ${i} de ${total}  ·  V9 Power  ·  ${d.data}`, pw/2, ph-7, {align:'center'});
     }
 
     const fname = `V9_Analise_${(d.tipo||d.area||'Juridica').replace(/\s+/g,'_').replace(/[^\w_]/g,'')}_${d.data.replace(/\//g,'-')}.pdf`;
     doc.save(fname);
     statusEl.textContent = '✓ PDF gerado com sucesso!';
-
-  } catch(e) {
-    console.error('PDF error:', e);
-    statusEl.textContent = '✗ Erro ao gerar PDF: ' + e.message;
+  } catch(e){
+    console.error(e);
+    statusEl.textContent = '✗ Erro: ' + e.message;
   }
-
   btn.disabled = false;
-  btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM11 17H9v-5h2c1.1 0 2 .9 2 2v1c0 1.1-.9 2-2 2zm-1-4v3h1c.55 0 1-.45 1-1v-1c0-.55-.45-1-1-1h-1zm5 4h-1v-6h1v6zm3 0h-2v-5h1v4h1v1z"/></svg> Baixar PDF`;
+  btn.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5z"/></svg> Baixar PDF`;
 }
 
 // ── RESET ──────────────────────────────────────────────────────────────────────
 function resetForm(){
   document.getElementById('resultCard').classList.remove('visible');
   document.getElementById('inputCard').style.display = 'block';
-  document.getElementById('downloadStatus').textContent = '';
+  document.getElementById('dlStatus').textContent = '';
   analysisData = null;
-  window.scrollTo({ top:0, behavior:'smooth' });
+  clearFile(null);
+  setMode('upload');
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 </script>
 </body>
