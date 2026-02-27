@@ -163,12 +163,12 @@ textarea{resize:vertical;min-height:125px}
   <div class="apikey-wrap">
     <div class="apikey-help">
       Necessária apenas uma vez — fica salva no seu navegador. Obtenha grátis em
-      <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a>
-      → API Keys → Create Key.
+      <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>
+      → Get API Key → Create API key.
     </div>
     <div class="apikey-row">
       <input class="apikey-input" id="apiKeyInput" type="password"
-        placeholder="sk-ant-api03-..." oninput="checkKey()" autocomplete="off" spellcheck="false"/>
+        placeholder="AIza..." oninput="checkKey()" autocomplete="off" spellcheck="false"/>
       <button class="apikey-eye" id="apiKeyEye" onclick="toggleEye()">👁</button>
     </div>
     <div class="apikey-status" id="apiKeyStatus"></div>
@@ -363,12 +363,12 @@ function checkKey(){
   const k = document.getElementById('apiKeyInput').value.trim();
   const st = document.getElementById('apiKeyStatus');
   if(!k){ st.textContent=''; st.className='apikey-status'; return; }
-  if(k.startsWith('sk-ant-') && k.length > 30){
+  if(k.startsWith('AIza') && k.length > 20){
     st.textContent = '✓ Chave válida — salva no seu navegador';
     st.className = 'apikey-status ok';
     try{ localStorage.setItem('v9_apikey', k); }catch(e){}
   } else {
-    st.textContent = '✗ Formato inválido — deve começar com  sk-ant-';
+    st.textContent = '✗ Formato inválido — deve começar com AIza';
     st.className = 'apikey-status err';
   }
 }
@@ -525,29 +525,22 @@ const TONS={
   estrategico:'Análise estratégica: acordo vs litígio, riscos, táticas processuais.'
 };
 
-function buildMessages(d){
+function buildPrompt(d){
   const ton = TONS[d.tom]||TONS.imparcial;
   const extra = d.extraContext?`\nInstruções adicionais: ${d.extraContext}`:'';
   if(currentMode==='upload'){
-    if(extractedBase64){
-      const isImg = extractedMime.startsWith('image/');
-      return [{role:'user',content:[
-        {type:isImg?'image':'document',source:{type:'base64',media_type:extractedMime,data:extractedBase64}},
-        {type:'text',text:`Você é um jurista brasileiro sênior. Analise este ${isImg?'imagem':'PDF'} jurídico.\n\n${RULES}\n\nTom: ${ton}\nData: ${d.data}${extra}\n\n${STRUCTURE}`}
-      ]}];
-    }
     const max=14000;
     const doc=extractedContent.length>max?extractedContent.substring(0,max)+'\n[Truncado]':extractedContent;
-    return [{role:'user',content:`Você é um jurista brasileiro sênior. Analise o documento jurídico abaixo.\n\n${RULES}\n\nTom: ${ton}\nData: ${d.data}${extra}\n\n═══\n${doc}\n═══\n\n${STRUCTURE}`}];
+    return `Você é um jurista brasileiro sênior. Analise o documento jurídico abaixo.\n\n${RULES}\n\nTom: ${ton}\nData: ${d.data}${extra}\n\n═══\n${doc}\n═══\n\n${STRUCTURE}`;
   }
-  return [{role:'user',content:`Você é um jurista brasileiro sênior. ANÁLISE JURÍDICA COMPLETA do caso abaixo.\n\n${RULES}\n\nÁrea: ${d.area||'?'}\nTipo: ${d.tipo||'?'}\nAutor: ${d.autor||'?'}\nRéu: ${d.reu||'?'}\nPedidos: ${d.pedidos||'?'}\nTribunal: ${d.tribunal||'?'}\nValor: ${d.valor?'R$ '+d.valor:'?'}\nData: ${d.data}\nTom: ${ton}${extra}\n\nFATOS:\n${d.fatos||'(Não informado)'}\n\n${STRUCTURE}`}];
+  return `Você é um jurista brasileiro sênior. ANÁLISE JURÍDICA COMPLETA do caso abaixo.\n\n${RULES}\n\nÁrea: ${d.area||'?'}\nTipo: ${d.tipo||'?'}\nAutor: ${d.autor||'?'}\nRéu: ${d.reu||'?'}\nPedidos: ${d.pedidos||'?'}\nTribunal: ${d.tribunal||'?'}\nValor: ${d.valor?'R$ '+d.valor:'?'}\nData: ${d.data}\nTom: ${ton}${extra}\n\nFATOS:\n${d.fatos||'(Não informado)'}\n\n${STRUCTURE}`;
 }
 
 // ── EXECUTAR ──────────────────────────────────────────────────────────────────
 async function executar(){
   const apiKey = document.getElementById('apiKeyInput').value.trim();
-  if(!apiKey||!apiKey.startsWith('sk-ant-')){
-    alert('🔑 Cole sua chave de API primeiro!\n\nObtanha grátis em:\nconsole.anthropic.com → API Keys → Create Key');
+  if(!apiKey||!apiKey.startsWith('AIza')){
+    alert('🔑 Cole sua chave de API primeiro!\n\nObtenha grátis em:\naistudio.google.com → Get API Key → Create API key');
     document.getElementById('apiKeyInput').focus(); return;
   }
   const d={
@@ -575,25 +568,33 @@ async function executar(){
   const iv=setInterval(()=>{document.getElementById('loadingStep').textContent=steps[si++%steps.length];},1800);
 
   try{
-    const messages=buildMessages(d);
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key':apiKey,
-        'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-access':'true'
-      },
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:4000,
-        system:'Você é um jurista brasileiro sênior. NUNCA inventa dados, jurisprudências específicas ou percentuais sem base nos fatos. Quando não tem certeza, diz claramente.',
-        messages
-      })
-    });
+    // Monta o conteúdo — suporte a imagem e PDF via inline_data
+    let parts = [];
+    if(currentMode==='upload' && extractedBase64){
+      parts.push({inline_data:{mime_type: extractedMime, data: extractedBase64}});
+      const ton = TONS[d.tom]||TONS.imparcial;
+      const extra = d.extraContext?`\nInstruções adicionais: ${d.extraContext}`:'';
+      parts.push({text:`Você é um jurista brasileiro sênior. Analise este documento jurídico.\n\n${RULES}\n\nTom: ${ton}\nData: ${d.data}${extra}\n\n${STRUCTURE}`});
+    } else {
+      parts.push({text: buildPrompt(d)});
+    }
+
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          system_instruction: {parts:[{text:'Você é um jurista brasileiro sênior. NUNCA inventa dados, jurisprudências específicas ou percentuais sem base nos fatos. Quando não tem certeza, diz claramente.'}]},
+          contents: [{role:'user', parts}],
+          generationConfig: {maxOutputTokens: 4000, temperature: 0.3}
+        })
+      }
+    );
     if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||'Erro '+res.status);}
-    const data=await res.json();
-    const text=data.content?.map(c=>c.text||'').join('')||'';
+    const data = await res.json();
+    const text = data.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('')||'';
+    if(!text) throw new Error('Resposta vazia da API');
     clearInterval(iv);
     analysisData={formData:d,aiText:text,fileName:uploadedFile?.name||null};
     renderResult(d,text);
