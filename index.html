@@ -482,41 +482,69 @@ function rBuffer(f){ return new Promise((s,r)=>{const x=new FileReader();x.onloa
 function rB64(f){ return new Promise((s,r)=>{const x=new FileReader();x.onload=e=>s(e.target.result.split(',')[1]);x.onerror=()=>r(new Error('Falha'));x.readAsDataURL(f);}); }
 
 // ── PROMPT ────────────────────────────────────────────────────────────────────
-const RULES=`REGRAS ABSOLUTAS — NUNCA VIOLE:
-1. NUNCA invente números de processos, acórdãos ou ementas específicas
-2. NUNCA fabrique percentuais sem base nos dados concretos
-3. Para jurisprudência: cite entendimento geral consolidado SEM inventar referências
-4. Se dados insuficientes, diga claramente
-5. Seja HONESTO sobre incertezas`;
+const RULES=`REGRAS ABSOLUTAS — NUNCA VIOLE SOB NENHUMA CIRCUNSTÂNCIA:
 
-const STRUCTURE=`ESTRUTURA OBRIGATÓRIA:
+1. PROBABILIDADE: O percentual DEVE ser explicado fator por fator. Diga EXATAMENTE o que pesou positiva e negativamente para chegar naquele número. NUNCA solte um número sem justificativa detalhada.
+
+2. JURISPRUDÊNCIA — REGRA DE OURO:
+   - Cite APENAS súmulas e entendimentos que realmente existem (ex: Súmula 331 TST, Súmula 7 STJ)
+   - Se não tiver certeza do número, descreva o ENTENDIMENTO CONSOLIDADO sem inventar número
+   - NUNCA invente número de acórdão, processo ou ementa específica
+   - Para cada súmula citada informe: número + tribunal + o que determina + como se aplica ao caso
+   - Se não houver súmula específica, escreva: "Não há súmula consolidada sobre este ponto — o entendimento majoritário é [descreva]"
+
+3. NUNCA ALUCINE: Se não souber, diga "dados insuficientes" ou "não há entendimento consolidado". É MELHOR admitir limitação do que inventar qualquer dado.
+
+4. ARTIGOS DE LEI: Cite apenas artigos que realmente existem. Confirme mentalmente antes de citar CLT, CC, CDC, CF/88, etc.
+
+5. VALORES: Nunca invente faixas de indenização sem base real. Use "varia conforme o juízo" ou parâmetros reais conhecidos.`;
+
+const STRUCTURE=`ESTRUTURA OBRIGATÓRIA — SIGA EXATAMENTE:
 
 ## 1. PROBABILIDADE DE ÊXITO
 **Probabilidade Global: [X]%**
-Classificação: [ALTA / MÉDIA / BAIXA]
-Justificativa: [3-4 frases baseadas nos dados]
-Breakdown por pedido: [% por pedido]
+Classificação: [ALTA acima de 70% / MÉDIA entre 40-70% / BAIXA abaixo de 40%]
 
-## 2. IDENTIFICAÇÃO DO DOCUMENTO / CASO
-[Tipo, partes, objeto, datas relevantes]
+**Por que esse percentual? Detalhe cada fator:**
+- ✅ Fator positivo 1: [argumento + quanto pesa na probabilidade]
+- ✅ Fator positivo 2: [argumento + quanto pesa na probabilidade]
+- ❌ Fator negativo 1: [fraqueza + quanto reduz a probabilidade]
+- ❌ Fator negativo 2: [fraqueza + quanto reduz a probabilidade]
+- ⚠️ Fator incerto: [o que pode ir para qualquer lado e por quê]
+
+**Probabilidade por pedido:**
+- [Pedido 1]: [X]% — porque [razão objetiva baseada nos fatos]
+- [Pedido 2]: [X]% — porque [razão objetiva baseada nos fatos]
+
+## 2. IDENTIFICAÇÃO DO CASO
+[Tipo de ação, partes, objeto principal, datas relevantes do documento]
 
 ## 3. PONTOS FORTES
-[Mínimo 4 pontos com artigos de lei reais]
+[Mínimo 4 pontos. Para cada: qual o argumento + qual lei ou princípio sustenta]
 
 ## 4. PONTOS FRACOS E RISCOS
-[Mínimo 3 riscos com fundamentação]
+[Mínimo 3 riscos. Para cada: qual o problema + por que pode prejudicar]
 
-## 5. FUNDAMENTOS JURÍDICOS E JURISPRUDÊNCIA
-[Artigos reais + entendimentos consolidados. Súmulas reais se existirem]
+## 5. JURISPRUDÊNCIA APLICÁVEL
+ATENÇÃO: Liste APENAS o que realmente existe. Para cada item:
+- Súmula/Entendimento: [número se souber, ou "entendimento consolidado"]
+- Tribunal: [TST / STJ / STF / TRT / etc.]
+- O que determina: [explicação clara em português simples]
+- Como se aplica aqui: [conexão direta com o caso analisado]
 
-## 6. ESTIMATIVA DE VALORES
-[Faixas estimadas ou "dados insuficientes para estimar"]
+Se não houver súmula, escreva o entendimento majoritário SEM inventar referência.
 
-## 7. ESBOÇO DA PEÇA PROCESSUAL
-[Petição/peça com estrutura jurídica formal brasileira]
+## 6. FUNDAMENTOS LEGAIS
+[Artigos reais: número do artigo + nome da lei + o que determina + aplicação ao caso]
 
-## 8. ESTRATÉGIA E RECOMENDAÇÕES
-[Próximos passos, provas, prazos, acordo vs litígio]`;
+## 7. ESTIMATIVA DE VALORES
+[Com base real: faixas praticadas. Sem base suficiente: "não é possível estimar com os dados fornecidos"]
+
+## 8. ESBOÇO DA PEÇA PROCESSUAL
+[Estrutura formal brasileira: qualificação, fatos, direito, pedidos, valor da causa]
+
+## 9. ESTRATÉGIA E PRÓXIMOS PASSOS
+[Acordo vs litígio, provas necessárias, prazos críticos, riscos processuais]`;
 
 const TONS={
   imparcial:'Análise rigorosamente imparcial, pontos fortes e fracos de ambos os polos.',
@@ -585,7 +613,26 @@ async function executar(){
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
-          system_instruction: {parts:[{text:'Você é um jurista brasileiro sênior. NUNCA inventa dados, jurisprudências específicas ou percentuais sem base nos fatos. Quando não tem certeza, diz claramente.'}]},
+          system_instruction: {parts:[{text:`Você é um jurista brasileiro sênior com 30 anos de experiência. Suas respostas são sua reputação profissional.
+
+COMPROMISSO ABSOLUTO COM A VERDADE:
+- Você NUNCA inventa súmulas, acórdãos, números de processo ou ementas
+- Você NUNCA fabrica percentuais sem explicar cada fator que os compõe
+- Quando citar jurisprudência, você APENAS cita o que realmente existe e é amplamente conhecido
+- Se não souber o número exato de uma súmula, você descreve o entendimento sem inventar número
+- Quando não tiver dados suficientes, você diz claramente "dados insuficientes para esta análise"
+- Você prefere parecer limitado a parecer inventivo — a honestidade é inegociável
+
+SOBRE PROBABILIDADE:
+- Cada percentual deve ser justificado fator por fator
+- Explique o que pesou positivamente, o que pesou negativamente e o que é incerto
+- Nunca jogue um número sem raciocínio explícito
+
+SOBRE JURISPRUDÊNCIA:
+- Cite apenas súmulas reais com número correto (Súmula 331 TST, Súmula 7 STJ, etc.)
+- Para cada súmula: diga o que ela determina e como se aplica ao caso
+- Se não houver súmula específica, descreva o entendimento majoritário sem inventar referência
+- É preferível dizer "não há súmula consolidada" a inventar uma`}]},
           contents: [{role:'user', parts}],
           generationConfig: {maxOutputTokens: 4000, temperature: 0.3}
         })
