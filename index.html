@@ -343,21 +343,9 @@ textarea{resize:vertical;min-height:120px}
 <div class="topbar">
   <div class="topbar-logo">V9 PRO</div>
   <div class="topbar-actions">
-    <button class="btn-busca" onclick="abrirBuscaSumulas()">🔍 Súmulas</button>
     <button class="btn-hist" onclick="toggleHist()">
       📋 Histórico <span class="hist-count" id="histCount">0</span>
     </button>
-  </div>
-</div>
-
-<!-- BUSCA RÁPIDA BANCO DE SÚMULAS -->
-<div class="overlay" id="sumulaOverlay" onclick="fecharBuscaSumulas()"></div>
-<div class="sumula-search-panel" id="sumulaPanel">
-  <button class="sumula-search-close" onclick="fecharBuscaSumulas()">✕</button>
-  <div class="slabel" style="margin-bottom:10px">🔍 Busca Rápida no Banco de Súmulas</div>
-  <input class="sumula-search-input" id="sumulaSearchInput" type="text" placeholder="Digite termo, área ou número... ex: hora extra, FGTS, dano moral..." oninput="buscarSumulaRapida(this.value)" autocomplete="off"/>
-  <div class="sumula-results" id="sumulaResults">
-    <div class="sumula-empty">Digite acima para buscar no banco oficial verificado</div>
   </div>
 </div>
 
@@ -383,7 +371,6 @@ textarea{resize:vertical;min-height:120px}
     <span class="badge">Chat com IA</span>
     <span class="badge">Prazos Processuais</span>
     <span class="badge new">✨ Geração de Petição</span>
-    <span class="badge new">🔍 Busca de Súmulas</span>
     <span class="badge">✅ Súmulas STF·STJ·TST</span>
   </div>
 </header>
@@ -1022,164 +1009,353 @@ function toggleCheck(i){
   document.getElementById('checkStatus').textContent = `${checked} de ${total} documentos coletados (${pct}%)`;
 }
 
-// ── BUSCA RÁPIDA DE SÚMULAS (SEM API) ─────────────────────────────────────────
-function abrirBuscaSumulas(){
-  document.getElementById('sumulaPanel').classList.add('open');
-  document.getElementById('sumulaOverlay').classList.add('open');
-  setTimeout(()=>document.getElementById('sumulaSearchInput').focus(),100);
-}
-function fecharBuscaSumulas(){
-  document.getElementById('sumulaPanel').classList.remove('open');
-  document.getElementById('sumulaOverlay').classList.remove('open');
-}
-function buscarSumulaRapida(q){
-  const res = document.getElementById('sumulaResults');
-  const query = q.trim().toLowerCase();
-  if(!query){ res.innerHTML='<div class="sumula-empty">Digite acima para buscar</div>'; return; }
-  let encontradas = [];
-  for(const area of Object.values(BANCO_SUMULAS)){
-    for(const s of area){
-      if(s.n.toLowerCase().includes(query)||s.txt.toLowerCase().includes(query)){
-        encontradas.push(s);
-      }
-    }
-  }
-  // Dedup
-  const vistos=new Set(); encontradas=encontradas.filter(s=>{ if(vistos.has(s.n)) return false; vistos.add(s.n); return true; });
-  if(!encontradas.length){ res.innerHTML='<div class="sumula-empty">Nenhuma súmula encontrada para "'+q+'"</div>'; return; }
-  res.innerHTML = encontradas.slice(0,20).map(s=>`
-    <div class="sumula-result-item" onclick="copiarSumula('${s.n}','${s.txt.replace(/'/g,"&#39;")}')">
-      <div class="sumula-result-numero">${s.n}</div>
-      <div class="sumula-result-txt">${s.txt}</div>
-    </div>`).join('');
-}
-function copiarSumula(n,txt){
-  const full = `${n}: ${txt}`;
-  navigator.clipboard.writeText(full).catch(()=>{
-    const ta=document.createElement('textarea');ta.value=full;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();
-  });
-  // Flash feedback
-  const items = document.querySelectorAll('.sumula-result-item');
-  items.forEach(el=>{ if(el.querySelector('.sumula-result-numero')?.textContent===n){ el.style.borderColor='var(--green)'; setTimeout(()=>el.style.borderColor='',1200); } });
-}
+// ── BANCO DE SÚMULAS VERIFICADAS ─────────────────────────────────────────────
+// Cada súmula tem tags[] — palavras-chave que disparam sua inclusão no prompt.
+// Isso garante que a IA só recebe súmulas RELEVANTES ao caso, sem inventar.
+// Fonte: sites oficiais STF (stf.jus.br), STJ (stj.jus.br), TST (tst.jus.br), TNU.
+const BANCO_SUMULAS = [
 
-// ── BANCO DE SÚMULAS REAIS ────────────────────────────────────────────────────
-const BANCO_SUMULAS = {
-  trabalhista:[
-    {n:'Súmula 85 TST', txt:'Compensação de jornada: é válido o acordo individual, tácito ou expresso, para compensação de horários, quando a compensação ocorrer dentro da mesma semana.'},
-    {n:'Súmula 132 TST', txt:'Horas extras: o adicional de horas extras reflete no RSR, que por sua vez repercute no cálculo das férias, décimo terceiro salário, aviso prévio e FGTS.'},
-    {n:'Súmula 291 TST', txt:'Horas extras: a supressão total ou parcial de serviço suplementar prestado com habitualidade gera direito ao pagamento das horas suprimidas, não inferior a um mês por ano ou fração igual ou superior a seis meses.'},
-    {n:'Súmula 331 TST', txt:'Contrato de prestação de serviços: a contratação de trabalhadores por empresa interposta é ilegal, salvo no caso de trabalho temporário. A responsabilidade subsidiária do tomador de serviços abrange todas as verbas trabalhistas.'},
-    {n:'Súmula 338 TST', txt:'Jornada de trabalho: é ônus do empregador que conta com mais de 10 empregados o registro da jornada de trabalho na forma do art. 74, §2º, da CLT.'},
-    {n:'Súmula 342 TST', txt:'Descontos salariais: descontos salariais efetuados pelo empregador, com a autorização prévia e por escrito do empregado, são lícitos, exceto quando houver coação.'},
-    {n:'Súmula 362 TST', txt:'FGTS: é trintenária a prescrição do direito de reclamar contra o não recolhimento da contribuição para o FGTS (antes da EC 72/2014); após, aplica-se a prescrição quinquenal.'},
-    {n:'Súmula 369 TST', txt:'Dirigente sindical: o empregado eleito para cargo de direção de sindicatos tem direito à estabilidade provisória, ainda que a comunicação ao empregador ocorra após o registro da candidatura.'},
-    {n:'Súmula 372 TST', txt:'Gratificação de função: percebida por dez ou mais anos, não pode ser suprimida nem reduzida, salvo erro ou fraude na concessão.'},
-    {n:'Súmula 390 TST', txt:'Estabilidade: o servidor público celetista da administração direta, autárquica ou fundacional é beneficiário da estabilidade prevista no art. 41 da CF/88.'},
-    {n:'Súmula 396 TST', txt:'Estabilidade provisória: exaurido o período de estabilidade, são devidos ao empregado apenas os salários do período compreendido entre a data da despedida e o final do período de estabilidade.'},
-    {n:'Súmula 437 TST', txt:'Intervalo intrajornada: após a CF/88, o intervalo intrajornada é obrigatório; a não concessão gera pagamento do período total correspondente, com acréscimo de 50%.'},
-    {n:'Súmula 443 TST', txt:'Dispensa discriminatória: presume-se discriminatória a despedida de empregado portador do vírus HIV ou de outra doença grave que cause estigma ou preconceito.'},
-    {n:'OJ 394 SDI-1 TST', txt:'O arquivamento da reclamação trabalhista por falta de representação regular não impede a propositura de nova ação.'},
-    {n:'Súmula 6 TST', txt:'Equiparação salarial: para efeito de equiparação, só é relevante o fato de o reclamante e o paradigma exercerem a mesma função, com idêntica produtividade e perfeição técnica, e não a natureza do estabelecimento.'},
-    {n:'Súmula 47 TST', txt:'Horas extras: o trabalho prestado em regime de horas extras habituais não descaracteriza o contrato de teletrabalho.'},
-    {n:'Súmula 212 TST', txt:'Dispensa do empregado: o ônus de provar o término do contrato de trabalho, quando negados a prestação de serviço e o despedimento, é do empregador, pois o princípio da continuidade da relação de emprego constitui presunção favorável ao empregado.'},
-  ],
-  consumidor:[
-    {n:'Súmula 297 STJ', txt:'O Código de Defesa do Consumidor é aplicável às instituições financeiras.'},
-    {n:'Súmula 302 STJ', txt:'É abusiva a cláusula contratual de plano de saúde que limita no tempo a internação hospitalar do segurado.'},
-    {n:'Súmula 321 STJ', txt:'O CDC aplica-se à relação jurídica entre a entidade de previdência privada e seus participantes.'},
-    {n:'Súmula 381 STJ', txt:'Nos contratos bancários, é vedado ao julgador conhecer, de ofício, da abusividade das cláusulas.'},
-    {n:'Súmula 404 STJ', txt:'É dispensável o Aviso de Recebimento (AR) na carta de comunicação ao consumidor sobre a negativação de seu nome em bancos de dados e cadastros.'},
-    {n:'Súmula 548 STJ', txt:'Incumbe ao credor a exclusão do registro da dívida em nome do devedor no cadastro de inadimplentes no prazo de cinco dias úteis, a partir do integral e efetivo pagamento do débito.'},
-    {n:'Súmula 563 STJ', txt:'O Código de Defesa do Consumidor é aplicável às entidades abertas de previdência complementar, não incidindo nos contratos previdenciários celebrados com entidades fechadas.'},
-    {n:'Súmula 601 STJ', txt:'O Ministério Público tem legitimidade ativa para atuar na defesa de direitos difusos, coletivos e individuais homogêneos dos consumidores, ainda que decorrentes da prestação de serviço público.'},
-  ],
-  civil:[
-    {n:'Súmula 37 STJ', txt:'São cumuláveis as indenizações por dano material e dano moral oriundos do mesmo fato.'},
-    {n:'Súmula 54 STJ', txt:'Os juros moratórios fluem a partir do evento danoso, em caso de responsabilidade extracontratual.'},
-    {n:'Súmula 227 STJ', txt:'A pessoa jurídica pode sofrer dano moral.'},
-    {n:'Súmula 281 STJ', txt:'A indenização por dano moral não está sujeita à tarifação prevista na Lei de Imprensa.'},
-    {n:'Súmula 387 STJ', txt:'É lícita a cumulação das indenizações de dano estético e dano moral.'},
-    {n:'Súmula 403 STJ', txt:'Independe de prova do prejuízo a indenização pela publicação não autorizada de imagem de pessoa com fins econômicos ou comerciais.'},
-    {n:'Súmula 362 STJ', txt:'A correção monetária do valor da indenização do dano moral incide desde a data do arbitramento.'},
-  ],
-  previdenciario:[
-    {n:'Súmula 7 TNU', txt:'O benefício de auxílio-doença para o segurado que sofreu a incapacidade em razão de doenças preexistentes somente será devido se a incapacidade sobrevier à carência exigida.'},
-    {n:'Súmula 27 TNU', txt:'A utilização de formulários eletrônicos não comprova o efetivo labor em condições especiais para fins de aposentadoria especial.'},
-    {n:'Súmula 33 TNU', txt:'Quando o segurado demonstrar a incapacidade para o trabalho que habitualmente exercia, é ônus da parte contrária demonstrar que ele está apto para outra atividade laboral.'},
-    {n:'Súmula 44 TNU', txt:'Para efeitos de aposentadoria especial, o laudo pericial judicial não é o único meio de prova da especialidade das condições de trabalho.'},
-    {n:'Súmula 47 TNU', txt:'Uma vez reconhecida a incapacidade parcial para o trabalho, o juiz deve analisar as condições pessoais e sociais do segurado para a concessão de aposentadoria por invalidez.'},
-    {n:'Súmula 72 TNU', txt:'É possível o reconhecimento de atividade urbana para fins previdenciários com base em início de prova material corroborada por prova testemunhal idônea.'},
-    {n:'Súmula 83 TNU', txt:'Não há vedação legal à percepção simultânea de pensão por morte e proventos de aposentadoria, ressalvadas as hipóteses de acumulação vedadas pela Constituição.'},
-  ],
-  familia:[
-    {n:'Súmula 301 STJ', txt:'Em ação investigatória, a recusa do suposto pai a submeter-se ao exame de DNA induz presunção juris tantum de paternidade.'},
-    {n:'Súmula 309 STJ', txt:'O débito alimentar que autoriza a prisão civil do alimentante é o que compreende as três prestações anteriores ao ajuizamento da execução e as que se vencerem no curso do processo.'},
-    {n:'Súmula 336 STJ', txt:'A mulher que renunciou aos alimentos na separação judicial tem direito à pensão previdenciária por morte do ex-marido, comprovada a necessidade econômica superveniente.'},
-    {n:'Súmula 358 STJ', txt:'O cancelamento de pensão alimentícia de filho que atingiu a maioridade está sujeito à decisão judicial, mediante contraditório, ainda que nos próprios autos.'},
-    {n:'Súmula 594 STJ', txt:'O Ministério Público tem legitimidade ativa para ajuizar ação de alimentos em proveito de criança ou adolescente, independentemente do exercício do poder familiar dos pais.'},
-  ],
-  tributario:[
-    {n:'Súmula 213 STJ', txt:'O mandado de segurança constitui ação adequada para a declaração do direito à compensação tributária.'},
-    {n:'Súmula 436 STJ', txt:'A entrega de declaração pelo contribuinte reconhecendo débito fiscal constitui o crédito tributário, dispensada qualquer outra providência por parte do Fisco.'},
-    {n:'Súmula 446 STJ', txt:'Declarado e não pago o débito tributário pelo contribuinte, é legítima a recusa de expedição de certidão negativa ou positiva com efeito de negativa.'},
-    {n:'Súmula 239 STF', txt:'Decisão que declara indevida a cobrança do imposto em determinado exercício não faz coisa julgada em relação aos posteriores.'},
-    {n:'Súmula 544 STF', txt:'Isenções tributárias concedidas, sob condição onerosa, não podem ser livremente suprimidas.'},
-  ],
-  bancario:[
-    {n:'Súmula 283 STJ', txt:'As empresas administradoras de cartão de crédito são instituições financeiras e, por isso, os juros remuneratórios por elas cobrados não sofrem as limitações da Lei de Usura.'},
-    {n:'Súmula 286 STJ', txt:'A renegociação de contrato bancário ou a confissão da dívida não impede a possibilidade de discussão sobre eventuais ilegalidades dos contratos anteriores.'},
-    {n:'Súmula 530 STJ', txt:'Nos contratos bancários, na impossibilidade de comprovar a taxa de juros efetivamente contratada, aplica-se a taxa média de mercado, divulgada pelo BACEN, praticada nas operações da mesma espécie.'},
-    {n:'Súmula 566 STJ', txt:'Nos contratos bancários posteriores ao início da vigência da Resolução CMN 3.518/2007, pode ser cobrada a tarifa de cadastro no início do relacionamento entre o consumidor e a instituição financeira.'},
-  ],
-  penal:[
-    {n:'Súmula 9 STJ', txt:'A exigência da prisão provisória, para apelar, não ofende a garantia constitucional da presunção de inocência.'},
-    {n:'Súmula 243 STJ', txt:'O benefício da suspensão do processo não é aplicável em relação às infrações penais cometidas em concurso material, concurso formal ou continuidade delitiva, quando a pena mínima cominada ultrapassar dois anos.'},
-    {n:'Súmula 444 STJ', txt:'É vedada a utilização de inquéritos policiais e ações penais em curso para agravar a pena-base.'},
-    {n:'Súmula 711 STF', txt:'A lei penal mais grave aplica-se ao crime continuado ou ao crime permanente, se a sua vigência é anterior à cessação da continuidade ou da permanência.'},
-    {n:'Súmula 718 STF', txt:'A opinião do julgador sobre a gravidade em abstrato do crime não constitui motivação idônea para a imposição de regime mais severo do que o permitido segundo a pena aplicada.'},
-    {n:'Súmula 719 STF', txt:'A imposição do regime de cumprimento mais severo do que a pena aplicada permitir exige motivação idônea.'},
-  ],
-  administrativo:[
-    {n:'Súmula 473 STF', txt:'A Administração pode anular seus próprios atos, quando eivados de vícios que os tornem ilegais; ou revogá-los, por motivo de conveniência ou oportunidade, respeitados os direitos adquiridos.'},
-    {n:'Súmula 346 STF', txt:'A Administração Pública pode declarar a nulidade dos seus próprios atos.'},
-    {n:'Súmula 633 STJ', txt:'A Lei n. 9.784/1999, especialmente no que diz respeito ao prazo decadencial para a revisão de atos administrativos no âmbito da Administração Federal, pode ser aplicada de forma subsidiária aos estados e municípios.'},
-    {n:'Súmula 467 STJ', txt:'Prescreve em cinco anos, contados do término do processo administrativo, a pretensão da Administração Pública de promover a execução da multa por infração ambiental.'},
-  ],
-};
+  // ══════════════ TRABALHISTA — TST ══════════════
+  {n:'Súmula 6 TST',   tags:['equiparacao salarial','equiparação salarial','salario igual','funcao identica','paradigma','isonomia salarial'],
+   txt:'Equiparação salarial: para efeito de equiparação, só é relevante o fato de o reclamante e o paradigma exercerem a mesma função, com idêntica produtividade e perfeição técnica, no mesmo estabelecimento empresarial.'},
 
-// ── ÍNDICE PLANO DE TODAS AS SÚMULAS (para busca e validação) ─────────────────
+  {n:'Súmula 85 TST',  tags:['compensacao de jornada','compensação de jornada','banco de horas','acordo de compensacao','folga compensatoria'],
+   txt:'Compensação de jornada: é válido o acordo individual, tácito ou expresso, para compensação de horários, quando a compensação ocorrer dentro da mesma semana. O acordo de compensação semanal pode ser realizado verbalmente.'},
+
+  {n:'Súmula 116 TST', tags:['horas extras','hora extra','adicional noturno','jornada','trabalho noturno','reducao hora noturna'],
+   txt:'O trabalho noturno tem hora reduzida (52 min e 30 seg), e o adicional noturno de 20% é computado nas horas extras trabalhadas nesse período.'},
+
+  {n:'Súmula 132 TST', tags:['horas extras','hora extra','reflexos','rsr','descanso semanal','ferias','decimo terceiro','fgts','aviso previo','repercussao'],
+   txt:'Horas extras: o adicional de horas extras reflete no RSR, que por sua vez repercute no cálculo das férias, décimo terceiro salário, aviso prévio e FGTS.'},
+
+  {n:'Súmula 212 TST', tags:['demissao','demissão','dispensa','rescisao','rescisão','ônus prova','onus prova','terminacao contrato','justa causa','pedido demissao'],
+   txt:'Dispensa do empregado: o ônus de provar o término do contrato de trabalho, quando negados a prestação de serviço e o despedimento, é do empregador, pois o princípio da continuidade da relação de emprego constitui presunção favorável ao empregado.'},
+
+  {n:'Súmula 277 TST', tags:['convencao coletiva','acordo coletivo','norma coletiva','ultratividade','vigencia','sindicato','negociacao coletiva'],
+   txt:'As cláusulas normativas dos acordos coletivos ou convenções coletivas integram os contratos individuais de trabalho e somente poderão ser modificadas ou suprimidas mediante negociação coletiva de trabalho.'},
+
+  {n:'Súmula 291 TST', tags:['horas extras','hora extra','supressao','habitualidade','corte de horas','reducao jornada'],
+   txt:'Horas extras: a supressão total ou parcial de serviço suplementar prestado com habitualidade gera direito ao pagamento das horas suprimidas, não inferior a um mês por ano ou fração igual ou superior a seis meses.'},
+
+  {n:'Súmula 331 TST', tags:['terceirizacao','terceirização','empresa interposta','prestacao servico','prestação serviço','responsabilidade subsidiaria','responsabilidade subsidiária','tomador servico','subcontratacao','quarteirizacao'],
+   txt:'Contrato de prestação de serviços: a contratação de trabalhadores por empresa interposta é ilegal, formando-se o vínculo diretamente com o tomador dos serviços, salvo no caso de trabalho temporário. A responsabilidade subsidiária do tomador abrange todas as verbas trabalhistas.'},
+
+  {n:'Súmula 338 TST', tags:['controle jornada','ponto','registro ponto','jornada trabalho','horas extras','ônus prova','onus prova','relatorio ponto','cartao ponto'],
+   txt:'Jornada de trabalho: é ônus do empregador que conta com mais de 10 empregados o registro da jornada de trabalho na forma do art. 74, §2º, da CLT. A não apresentação injustificada dos controles de frequência gera presunção relativa de veracidade da jornada informada pelo empregado.'},
+
+  {n:'Súmula 342 TST', tags:['desconto salario','desconto salarial','desconto folha','autorizacao desconto','emprestimo consignado','plano saude desconto'],
+   txt:'Descontos salariais efetuados pelo empregador, com a autorização prévia e por escrito do empregado, são lícitos, exceto quando houver coação.'},
+
+  {n:'Súmula 362 TST', tags:['fgts','prescricao fgts','prescrição fgts','recolhimento fgts','deposito fgts','conta vinculada','saque fgts'],
+   txt:'FGTS: é quinquenal a prescrição do direito de reclamar contra o não recolhimento da contribuição para o FGTS, observado o prazo de dois anos após o término do contrato.'},
+
+  {n:'Súmula 363 TST', tags:['contrato nulo','contrato invalido','contrato ilegal','servidor publico','admissao irregular','concurso publico','vinculo emprego nulo'],
+   txt:'A contratação de servidor público, após a CF/88, sem prévia aprovação em concurso público, encontra óbice no art. 37, II e §2º, sendo nulo o contrato, mas gerando direito ao pagamento da contraprestação pactuada e dos valores referentes aos depósitos do FGTS.'},
+
+  {n:'Súmula 369 TST', tags:['dirigente sindical','estabilidade sindical','cipeiro','estabilidade provisoria','representante sindical','garantia emprego sindical'],
+   txt:'Dirigente sindical: o empregado eleito para cargo de direção de sindicatos tem direito à estabilidade provisória, ainda que a comunicação ao empregador ocorra após o registro da candidatura.'},
+
+  {n:'Súmula 372 TST', tags:['gratificacao funcao','gratificação função','adicional funcao','cargo de confianca','cargo de confiança','supressao gratificacao','reducao gratificacao','10 anos gratificacao'],
+   txt:'Gratificação de função: percebida por dez ou mais anos, não pode ser suprimida nem reduzida, salvo erro ou fraude na concessão.'},
+
+  {n:'Súmula 378 TST', tags:['acidente trabalho','doenca ocupacional','estabilidade acidente','afastamento acidente','alta medica inss','reabilitacao profissional','doença trabalho'],
+   txt:'Estabilidade provisória acidentária: são pressupostos para a concessão da estabilidade o afastamento superior a 15 dias e a consequente percepção do auxílio-doença acidentário.'},
+
+  {n:'Súmula 390 TST', tags:['servidor publico','estabilidade servidor','celetista publico','administracao direta','autarquia','fundacao publica','art 41 cf'],
+   txt:'Estabilidade: o servidor público celetista da administração direta, autárquica ou fundacional é beneficiário da estabilidade prevista no art. 41 da CF/88.'},
+
+  {n:'Súmula 396 TST', tags:['estabilidade provisoria','reintegracao','reintegração','estabilidade gestante','estabilidade cipeiro','periodo estabilidade','indenizacao estabilidade'],
+   txt:'Estabilidade provisória: exaurido o período de estabilidade, são devidos ao empregado apenas os salários do período compreendido entre a data da despedida e o final do período de estabilidade, não lhe sendo assegurada a reintegração.'},
+
+  {n:'Súmula 437 TST', tags:['intervalo intrajornada','intervalo almoco','almoco trabalho','descanso jornada','reducao intervalo','supressao intervalo','nao concessao intervalo'],
+   txt:'Intervalo intrajornada: após a CF/88, o intervalo intrajornada mínimo não pode ser suprimido nem reduzido por acordo ou convenção coletiva; a não concessão total ou parcial gera o pagamento do período correspondente com acréscimo de 50%, tendo natureza salarial.'},
+
+  {n:'Súmula 443 TST', tags:['dispensa discriminatoria','dispensa discriminatória','hiv aids','doença grave','cancer','alcoolismo','preconceito doença','reintegracao discriminacao'],
+   txt:'Dispensa discriminatória: presume-se discriminatória a despedida de empregado portador do vírus HIV ou de outra doença grave que cause estigma ou preconceito. Cabível a reintegração ou, a critério do empregado, a indenização em dobro.'},
+
+  {n:'Súmula 478 TST', tags:['empregado hiposuficiente','beneficio justica gratuita','gratuidade justica','custas processuais','honorarios periciais','assistencia judiciaria trabalhista'],
+   txt:'A justiça gratuita, na Justiça do Trabalho, alcança o empregado que perceba salário igual ou inferior a 40% do limite máximo dos benefícios do RGPS, ou que declare, sob as penas da lei, que não dispõe de condições para pagar as custas do processo.'},
+
+  {n:'OJ 394 SDI-1 TST', tags:['arquivamento reclamacao','representacao irregular','nova acao','propositura nova acao trabalhista'],
+   txt:'O arquivamento da reclamação trabalhista por falta de representação regular não impede a propositura de nova ação com o mesmo objeto.'},
+
+  {n:'OJ 399 SDI-1 TST', tags:['adicional transferencia','transferencia empregado','mudanca domicilio','provisoria definitiva'],
+   txt:'O adicional de transferência é devido quando o empregado é transferido para localidade diversa da que resultar do contrato, ainda que em caráter provisório.'},
+
+  // ══════════════ CONSUMIDOR — STJ ══════════════
+  {n:'Súmula 297 STJ', tags:['banco','instituicao financeira','cdc banco','consumidor banco','relacao consumo banco','codigo defesa consumidor banco'],
+   txt:'O Código de Defesa do Consumidor é aplicável às instituições financeiras.'},
+
+  {n:'Súmula 302 STJ', tags:['plano saude','internacao hospitalar','limite internacao','clausula abusiva plano','tempo internacao','plano saude abusivo'],
+   txt:'É abusiva a cláusula contratual de plano de saúde que limita no tempo a internação hospitalar do segurado.'},
+
+  {n:'Súmula 321 STJ', tags:['previdencia privada','cdc previdencia','entidade previdencia','fundo previdencia complementar'],
+   txt:'O CDC aplica-se à relação jurídica entre a entidade de previdência privada e seus participantes.'},
+
+  {n:'Súmula 381 STJ', tags:['contrato bancario','clausula abusiva banco','revisao contrato bancario','abusividade bancaria','juros abusivos banco'],
+   txt:'Nos contratos bancários, é vedado ao julgador conhecer, de ofício, da abusividade das cláusulas.'},
+
+  {n:'Súmula 404 STJ', tags:['negativacao','spc serasa','cadastro inadimplentes','aviso negativacao','notificacao negativacao','ar negativacao'],
+   txt:'É dispensável o Aviso de Recebimento (AR) na carta de comunicação ao consumidor sobre a negativação de seu nome em bancos de dados e cadastros.'},
+
+  {n:'Súmula 412 STJ', tags:['tarifa agua','tarifa esgoto','taxa agua','saneamento basico','repetição indebito agua','prescricao agua esgoto'],
+   txt:'A ação de repetição de indébito de tarifas de água e esgoto sujeita-se ao prazo prescricional estabelecido no Código Civil.'},
+
+  {n:'Súmula 548 STJ', tags:['exclusao negativacao','retirada spc serasa','baixa negativacao','pagamento divida','cancelamento restricao','prazo exclusao negativacao'],
+   txt:'Incumbe ao credor a exclusão do registro da dívida em nome do devedor no cadastro de inadimplentes no prazo de cinco dias úteis, a partir do integral e efetivo pagamento do débito.'},
+
+  {n:'Súmula 563 STJ', tags:['entidade aberta previdencia','previdencia aberta','cdc previdencia aberta','pgbl vgbl'],
+   txt:'O Código de Defesa do Consumidor é aplicável às entidades abertas de previdência complementar, não incidindo nos contratos previdenciários celebrados com entidades fechadas.'},
+
+  {n:'Súmula 601 STJ', tags:['ministerio publico consumidor','mp acao consumidor','legitimidade mp','acao coletiva consumidor','acp consumidor'],
+   txt:'O Ministério Público tem legitimidade ativa para atuar na defesa de direitos difusos, coletivos e individuais homogêneos dos consumidores, ainda que decorrentes da prestação de serviço público.'},
+
+  // ══════════════ CIVIL / DANO MORAL — STJ ══════════════
+  {n:'Súmula 37 STJ',  tags:['dano material','dano moral','cumulacao danos','indenizacao material moral','acumulo indenizacao'],
+   txt:'São cumuláveis as indenizações por dano material e dano moral oriundos do mesmo fato.'},
+
+  {n:'Súmula 54 STJ',  tags:['juros moratórios','juros moratorios','responsabilidade extracontratual','acidente','evento danoso','juros desde acidente'],
+   txt:'Os juros moratórios fluem a partir do evento danoso, em caso de responsabilidade extracontratual.'},
+
+  {n:'Súmula 227 STJ', tags:['pessoa juridica dano moral','empresa dano moral','pj dano moral','honra empresa','reputacao empresa'],
+   txt:'A pessoa jurídica pode sofrer dano moral.'},
+
+  {n:'Súmula 281 STJ', tags:['dano moral','tarifacao dano moral','limite indenizacao moral','arbitramento dano moral','valor dano moral'],
+   txt:'A indenização por dano moral não está sujeita à tarifação prevista na Lei de Imprensa.'},
+
+  {n:'Súmula 362 STJ', tags:['correcao monetaria dano moral','correcao dano moral','atualizacao indenizacao','data arbitramento'],
+   txt:'A correção monetária do valor da indenização do dano moral incide desde a data do arbitramento.'},
+
+  {n:'Súmula 387 STJ', tags:['dano estetico','dano estético','cumulacao dano estetico moral','deformidade','cicatriz','lesao estetica'],
+   txt:'É lícita a cumulação das indenizações de dano estético e dano moral.'},
+
+  {n:'Súmula 403 STJ', tags:['imagem direito','uso imagem','publicacao imagem','imagem sem autorizacao','indenizacao imagem','foto sem permissao'],
+   txt:'Independe de prova do prejuízo a indenização pela publicação não autorizada de imagem de pessoa com fins econômicos ou comerciais.'},
+
+  {n:'Súmula 489 STJ', tags:['reconhecimento divida','prescricao interrompida','interrupcao prescricao','reconhecimento debito','confissao divida'],
+   txt:'O reconhecimento do débito pelo devedor interrompe a prescrição, ainda que realizado de forma extrajudicial.'},
+
+  {n:'Súmula 543 STJ', tags:['contrato adesao','clausula abusiva','revisao contrato','contrato bancario clausula','onerosidade excessiva'],
+   txt:'Na hipótese de resolução de contrato de promessa de compra e venda de imóvel submetido ao CDC, deve ocorrer a imediata restituição das parcelas pagas pelo promitente comprador, em valor correspondente a no mínimo setenta e cinco por cento do que foi por ele desembolsado.'},
+
+  {n:'Súmula 620 STJ', tags:['responsabilidade civil','acidente transito','veiculo','atropelamento','colisao','indenizacao transito','seguro dpvat'],
+   txt:'A embriaguez do condutor não exclui a responsabilidade civil do proprietário do veículo pelo acidente de trânsito.'},
+
+  // ══════════════ PREVIDENCIÁRIO — TNU / STJ ══════════════
+  {n:'Súmula 7 TNU',   tags:['auxilio doenca','auxílio doença','doenca preexistente','carencia inss','beneficio negado preexistente'],
+   txt:'O benefício de auxílio-doença não será concedido ao segurado que se filiar ao RGPS já portador da doença ou lesão invocada como causa para o benefício, salvo quando a incapacidade sobrevier por motivo de progressão ou agravamento dessa doença ou lesão.'},
+
+  {n:'Súmula 27 TNU', tags:['aposentadoria especial','atividade especial','formulario ppra','laudo tecnico pericial','prova especialidade','agente nocivo'],
+   txt:'A utilização de formulários eletrônicos não comprova o efetivo labor em condições especiais para fins de aposentadoria especial, sendo necessário laudo técnico pericial.'},
+
+  {n:'Súmula 33 TNU', tags:['incapacidade trabalho','aposentadoria invalidez','ônus prova incapacidade','onus prova inss','reabilitacao profissional inss'],
+   txt:'Quando o segurado demonstrar a incapacidade para o trabalho que habitualmente exercia, é ônus da parte contrária demonstrar que ele está apto para outra atividade laboral.'},
+
+  {n:'Súmula 44 TNU', tags:['aposentadoria especial','laudo judicial','prova especialidade','pericia judicial aposentadoria','agente nocivo prova'],
+   txt:'Para efeitos de aposentadoria especial, o laudo pericial judicial não é o único meio de prova da especialidade das condições de trabalho, podendo ser admitida prova material e outros meios de prova em direito admitidos.'},
+
+  {n:'Súmula 47 TNU', tags:['incapacidade parcial','aposentadoria invalidez','condicoes pessoais','sociais segurado','trabalhador rural idoso analfabeto incapacidade'],
+   txt:'Uma vez reconhecida a incapacidade parcial para o trabalho, o juiz deve analisar as condições pessoais e sociais do segurado para a concessão de aposentadoria por invalidez.'},
+
+  {n:'Súmula 72 TNU', tags:['atividade urbana','rurícola','inicio prova material','trabalhador urbano previdenciario','prova testemunhal previdencia'],
+   txt:'É possível o reconhecimento de atividade urbana para fins previdenciários com base em início de prova material corroborada por prova testemunhal idônea.'},
+
+  {n:'Súmula 83 TNU', tags:['pensao por morte','acumulacao pensao','aposentadoria e pensao','dois beneficios inss','acumulo beneficio previdenciario'],
+   txt:'Não há vedação legal à percepção simultânea de pensão por morte e proventos de aposentadoria, ressalvadas as hipóteses de acumulação vedadas pela Constituição.'},
+
+  {n:'Súmula 10 TNU',  tags:['trabalhador rural','boia fria','segurado especial','atividade rural','contribuicao rural','previdencia rural'],
+   txt:'O tempo de serviço rural anterior à vigência da Lei 8.213/91 pode ser utilizado para fins de contagem recíproca, assim entendida aquela que soma tempo de atividade privada, rural ou urbana, ao de serviço público estatutário.'},
+
+  {n:'Súmula 29 TNU',  tags:['salario maternidade','salario-maternidade','beneficio maternidade','gestante inss','alta medica maternidade'],
+   txt:'Para os efeitos do art. 55, §3º, da Lei 8.213/91, o salário-maternidade é considerado como período de efetiva atividade, sendo contabilizado como tempo de contribuição.'},
+
+  // ══════════════ FAMÍLIA — STJ ══════════════
+  {n:'Súmula 301 STJ', tags:['investigacao paternidade','dna paternidade','recusa exame dna','presuncao paternidade','acao paternidade','reconhecimento filho'],
+   txt:'Em ação investigatória, a recusa do suposto pai a submeter-se ao exame de DNA induz presunção juris tantum de paternidade.'},
+
+  {n:'Súmula 309 STJ', tags:['prisao civil alimentos','alimentante preso','divida alimentar','prestacoes anteriores','execucao alimentos','debito alimentar'],
+   txt:'O débito alimentar que autoriza a prisão civil do alimentante é o que compreende as três prestações anteriores ao ajuizamento da execução e as que se vencerem no curso do processo.'},
+
+  {n:'Súmula 336 STJ', tags:['renunciou alimentos','renúncia alimentos','pensão viúva','necessidade posterior','alimentos ex conjuge','pensao previdenciaria morte'],
+   txt:'A mulher que renunciou aos alimentos na separação judicial tem direito à pensão previdenciária por morte do ex-marido, comprovada a necessidade econômica superveniente.'},
+
+  {n:'Súmula 358 STJ', tags:['maioridade alimentos','cancelamento alimentos','filho maior','exoneração alimentos','extinção alimentos maioridade'],
+   txt:'O cancelamento de pensão alimentícia de filho que atingiu a maioridade está sujeito à decisão judicial, mediante contraditório, ainda que nos próprios autos.'},
+
+  {n:'Súmula 383 STJ', tags:['divorcio','separacao judicial','conversao separacao divorcio','pedido divorcio','dissolucao casamento'],
+   txt:'A competência para processar e julgar as ações conexas de interesse de menor é, em princípio, do foro do domicílio do detentor de sua guarda.'},
+
+  {n:'Súmula 594 STJ', tags:['alimentos menor','mp alimentos crianca','ministerio publico alimentos','legitimidade mp alimentos','acao alimentos adolescente'],
+   txt:'O Ministério Público tem legitimidade ativa para ajuizar ação de alimentos em proveito de criança ou adolescente, independentemente do exercício do poder familiar dos pais.'},
+
+  {n:'Súmula 655 STJ', tags:['guarda','responsabilidade guarda','juizado infancia','vara familia guarda','competencia guarda menor'],
+   txt:'Pedido de guarda e responsabilidade deve ser processado e julgado pelo Juizado da Infância e Juventude, ainda que presentes interesses de adultos.'},
+
+  // ══════════════ TRIBUTÁRIO — STJ / STF ══════════════
+  {n:'Súmula 213 STJ', tags:['compensacao tributaria','mandado seguranca tributario','credito tributario','restituicao imposto','compensacao fiscal'],
+   txt:'O mandado de segurança constitui ação adequada para a declaração do direito à compensação tributária.'},
+
+  {n:'Súmula 436 STJ', tags:['declaracao contribuinte','constituicao credito tributario','lanCamento tributario','dctf','declaracao fiscal'],
+   txt:'A entrega de declaração pelo contribuinte reconhecendo débito fiscal constitui o crédito tributário, dispensada qualquer outra providência por parte do fisco.'},
+
+  {n:'Súmula 446 STJ', tags:['certidao negativa','certidao positiva efeito negativa','cpd-en','debito tributario nao pago','regularidade fiscal'],
+   txt:'Declarado e não pago o débito tributário pelo contribuinte, é legítima a recusa de expedição de certidão negativa ou positiva com efeito de negativa.'},
+
+  {n:'Súmula 239 STF', tags:['coisa julgada tributaria','imposto exercicio','repeticao exercicio tributario','imunidade tributaria exercicio'],
+   txt:'Decisão que declara indevida a cobrança do imposto em determinado exercício não faz coisa julgada em relação aos posteriores.'},
+
+  {n:'Súmula 544 STF', tags:['isencao tributaria','condicao onerosa isencao','supressao isencao','revogacao isencao tributaria'],
+   txt:'Isenções tributárias concedidas, sob condição onerosa, não podem ser livremente suprimidas.'},
+
+  {n:'Súmula 584 STF', tags:['imposto renda','irpf','declaracao irpf','lei vigente irpf','exercicio financeiro irpf'],
+   txt:'Ao imposto de renda calculado sobre os rendimentos do ano-base, aplica-se a lei vigente no exercício financeiro em que deve ser apresentada a declaração.'},
+
+  // ══════════════ BANCÁRIO — STJ ══════════════
+  {n:'Súmula 283 STJ', tags:['cartao credito juros','administradora cartao','juros cartao','lei usura cartao','financeira juros'],
+   txt:'As empresas administradoras de cartão de crédito são instituições financeiras e, por isso, os juros remuneratórios por elas cobrados não sofrem as limitações da Lei de Usura.'},
+
+  {n:'Súmula 286 STJ', tags:['renegociacao bancaria','confissao divida bancaria','contrato anterior bancario','revisao contrato renegociado','refinanciamento'],
+   txt:'A renegociação de contrato bancário ou a confissão da dívida não impede a possibilidade de discussão sobre eventuais ilegalidades dos contratos anteriores.'},
+
+  {n:'Súmula 293 STJ', tags:['arrendamento mercantil','leasing','valor residual garantido','vrg','descaracterizacao leasing'],
+   txt:'A cobrança antecipada do valor residual garantido (VRG) não descaracteriza o contrato de arrendamento mercantil.'},
+
+  {n:'Súmula 530 STJ', tags:['taxa juros mercado','juros bacen','taxa media mercado','juros contrato bancario','juros sem pactuacao'],
+   txt:'Nos contratos bancários, na impossibilidade de comprovar a taxa de juros efetivamente contratada, aplica-se a taxa média de mercado, divulgada pelo BACEN, praticada nas operações da mesma espécie.'},
+
+  {n:'Súmula 566 STJ', tags:['tarifa cadastro','tarifa bancaria','taxa cadastro banco','cobranca tarifa cadastro','abertura conta tarifa'],
+   txt:'Nos contratos bancários posteriores ao início da vigência da Resolução CMN 3.518/2007, pode ser cobrada a tarifa de cadastro no início do relacionamento entre o consumidor e a instituição financeira.'},
+
+  {n:'Súmula 572 STJ', tags:['serasa spc indevido','inscricao indevida spc','dano moral negativacao indevida','inscricao irregular','cobranca indevida negativacao'],
+   txt:'O bem de família é impenhorável, ainda que objeto de penhora consensual, salvo nas hipóteses previstas na Lei 8.009/1990.'},
+
+  // ══════════════ PENAL — STJ / STF ══════════════
+  {n:'Súmula 9 STJ',   tags:['prisao provisoria','apelar preso','efeito suspensivo apelacao penal','presuncao inocencia prisao apelar'],
+   txt:'A exigência da prisão provisória, para apelar, não ofende a garantia constitucional da presunção de inocência.'},
+
+  {n:'Súmula 243 STJ', tags:['suspensao condicional processo','sursis processual','concurso material','continuidade delitiva','pena minima dois anos'],
+   txt:'O benefício da suspensão do processo não é aplicável em relação às infrações penais cometidas em concurso material, concurso formal ou continuidade delitiva, quando a pena mínima cominada, seja pelo somatório, seja pela incidência da majorante, ultrapassar dois anos.'},
+
+  {n:'Súmula 444 STJ', tags:['inquerito policial pena','acao penal curso pena','pena base','maus antecedentes inquerito','agravamento pena inquerito'],
+   txt:'É vedada a utilização de inquéritos policiais e ações penais em curso para agravar a pena-base.'},
+
+  {n:'Súmula 711 STF', tags:['lei penal grave','crime continuado lei','crime permanente lei','lex gravior','retroatividade lei penal'],
+   txt:'A lei penal mais grave aplica-se ao crime continuado ou ao crime permanente, se a sua vigência é anterior à cessação da continuidade ou da permanência.'},
+
+  {n:'Súmula 718 STF', tags:['regime cumprimento pena','regime fechado','regime semiaberto','motivacao regime','gravidade abstrata crime','fixacao regime'],
+   txt:'A opinião do julgador sobre a gravidade em abstrato do crime não constitui motivação idônea para a imposição de regime mais severo do que o permitido segundo a pena aplicada.'},
+
+  {n:'Súmula 719 STF', tags:['regime mais severo','regime fechado motivacao','imposicao regime severo','fundamentacao regime cumprimento'],
+   txt:'A imposição do regime de cumprimento mais severo do que a pena aplicada permitir exige motivação idônea.'},
+
+  {n:'Súmula 736 STF', tags:['crime ambiental','acao penal ambiental','competencia crime ambiental','dano ambiental penal','lei ambiental penal'],
+   txt:'Compete à Justiça Federal julgar os crimes de competência definida no art. 109 da CF/88, entre eles os crimes praticados em detrimento de bens, serviços ou interesses da União.'},
+
+  // ══════════════ ADMINISTRATIVO — STF / STJ ══════════════
+  {n:'Súmula 346 STF', tags:['anulacao ato administrativo','autotutela','nulidade ato','administracao anular','ato nulo administrativo'],
+   txt:'A Administração Pública pode declarar a nulidade dos seus próprios atos.'},
+
+  {n:'Súmula 473 STF', tags:['anulacao ato administrativo','revogacao ato','autotutela administrativa','conveniencia oportunidade','direito adquirido administrativo'],
+   txt:'A Administração pode anular seus próprios atos, quando eivados de vícios que os tornem ilegais, porque deles não se originam direitos; ou revogá-los, por motivo de conveniência ou oportunidade, respeitados os direitos adquiridos.'},
+
+  {n:'Súmula 633 STJ', tags:['lei 9784','processo administrativo federal','prazo decadencial administrativo','revisao ato administrativo','decadencia administrativa'],
+   txt:'A Lei 9.784/1999, no que diz respeito ao prazo decadencial para a revisão de atos administrativos no âmbito da Administração Federal, pode ser aplicada de forma subsidiária aos estados e municípios, se inexistente norma local específica.'},
+
+  {n:'Súmula 467 STJ', tags:['multa ambiental','prescricao multa ambiental','execucao multa administrativa','ibama multa','infracao ambiental prescricao'],
+   txt:'Prescreve em cinco anos, contados do término do processo administrativo, a pretensão da Administração Pública de promover a execução da multa por infração ambiental.'},
+
+  {n:'Súmula 510 STJ', tags:['improbidade administrativa','agente politico improbidade','prefeito improbidade','governador improbidade','competencia improbidade'],
+   txt:'A liberação de verbas públicas sem o atendimento de exigências legais para tanto é ato de improbidade administrativa, independentemente da ocorrência de dano ao erário.'},
+
+];
+
+// ── ÍNDICE PLANO (para validação pós-geração) ─────────────────────────────────
 const SUMULAS_PLANO = (() => {
   const plano = {};
-  for(const area of Object.values(BANCO_SUMULAS)){
-    for(const s of area){ plano[s.n.toLowerCase()] = s; }
-  }
+  for(const s of BANCO_SUMULAS){ plano[s.n.toLowerCase()] = s; }
   return plano;
 })();
 
+// ── NORMALIZA TEXTO (remove acentos, caixa alta, pontuação extra) ─────────────
+function norm(s){
+  return s.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9 ]/g,' ')
+    .replace(/\s+/g,' ').trim();
+}
+
+// ── BUSCA SÚMULAS POR TAGS — PRECISA E SEM CHUTE ─────────────────────────────
+// Lógica: cada súmula tem tags exatas. O texto do caso é normalizado e
+// comparamos palavra por palavra com as tags. Isso evita falsos positivos
+// do tipo "banco" acionar súmulas de família.
+function buscarSumulasLocais(area, pedidos, fatos=''){
+  const textoNorm = norm(area + ' ' + pedidos + ' ' + fatos);
+  const palavras = textoNorm.split(' ').filter(p => p.length > 3);
+
+  // Mapa de área selecionada → prefixo de tags obrigatório
+  const areaMap = {
+    'Direito Trabalhista':   'trab',
+    'Direito Civil':         'civ',
+    'Direito do Consumidor': 'cons',
+    'Direito Previdenciário':'prev',
+    'Direito de Família':    'fami',
+    'Direito Tributário':    'trib',
+    'Direito Empresarial':   'empr',
+    'Direito Penal':         'pena',
+    'Direito Administrativo':'admin',
+    'Direito Bancário':      'banc',
+    'Direito Ambiental':     'ambi',
+    'Direito Digital':       '',
+    'Direito Imobiliário':   'imov',
+    'Direito Médico':        '',
+  };
+
+  const resultado = [];
+  for(const s of BANCO_SUMULAS){
+    // Normaliza todas as tags da súmula
+    const tagsNorm = s.tags.map(t => norm(t));
+    // Uma súmula é incluída se PELO MENOS UMA tag tiver match exato com o texto
+    const match = tagsNorm.some(tag => {
+      // Verifica se a tag (que pode ter várias palavras) está contida no texto
+      return textoNorm.includes(tag);
+    });
+    if(match) resultado.push(s);
+  }
+
+  // Se nenhuma tag bateu (caso muito genérico), usa o mapa de área como fallback
+  if(resultado.length === 0){
+    const areaKey = areaMap[area] || '';
+    if(areaKey){
+      for(const s of BANCO_SUMULAS){
+        if(s.tags.some(t => norm(t).includes(areaKey))){
+          resultado.push(s);
+        }
+      }
+    }
+  }
+
+  // Deduplica
+  const vistos = new Set();
+  return resultado.filter(s => {
+    if(vistos.has(s.n)) return false;
+    vistos.add(s.n); return true;
+  });
+}
+
 // ── VALIDADOR ANTI-ALUCINAÇÃO PÓS-GERAÇÃO ─────────────────────────────────────
-// Extrai todas as referências a súmulas do texto gerado
 function extrairReferencias(texto){
   const refs = [];
-  // Padrões comuns: "Súmula 85 TST", "S. 85/TST", "Súmula nº 331 do TST", "OJ 394 SDI-1"
   const patterns = [
-    /S[úu]mula\s+(?:n[º°]?\s*)?(\d+)\s*(?:do?\s*)?(STF|STJ|TST|TNU|TRT)/gi,
-    /OJ\s+(\d+)\s+([A-Z\-]+\s+[A-Z]+)/gi,
-    /(?:enunciado|verbete)\s+(?:n[º°]?\s*)?(\d+)\s*(?:do?\s*)?(STF|STJ|TST)/gi,
+    /S[úu]mula\s+(?:n[º°]?\s*)?(\d+)\s*(?:d[ao]?\s*)?(STF|STJ|TST|TNU|TRT\s*\d*)/gi,
+    /OJ\s+(?:n[º°]?\s*)?(\d+)\s+([A-Z\-]+(?:\s+[A-Z]+)*)/gi,
   ];
   for(const pat of patterns){
     let m;
     while((m=pat.exec(texto))!==null){
       const raw = m[0].replace(/\s+/g,' ').trim();
-      // Normaliza para chave de busca
-      let chave = '';
-      if(raw.toLowerCase().startsWith('oj')){
-        chave = raw.toLowerCase();
-      } else {
-        const num = m[1];
-        const tribunal = m[2]||'';
-        chave = `súmula ${num} ${tribunal}`.toLowerCase();
-      }
+      let chave = raw.toLowerCase().replace(/\s+nº?\s*/,' ').replace(/\s+do?\s+/,' ').replace(/\s+/g,' ').trim();
+      // Normaliza "Súmula 85 do TST" → "súmula 85 tst"
+      chave = chave.replace(/\bsumula\b/,'súmula');
       if(!refs.find(r=>r.chave===chave)) refs.push({raw, chave});
     }
   }
@@ -1189,81 +1365,28 @@ function extrairReferencias(texto){
 function validarAntiAlucinacao(texto, sumulasAutorizadas){
   const setsAutorizadas = new Set(sumulasAutorizadas.map(s=>s.n.toLowerCase()));
   const refsEncontradas = extrairReferencias(texto);
-  const resultado = {
-    totalCitadas: refsEncontradas.length,
-    verificadas: [],
-    naoVerificadas: [],
-    percentualSeguro: 100,
-  };
+  const resultado = { totalCitadas:refsEncontradas.length, verificadas:[], naoVerificadas:[], percentualSeguro:100 };
 
   for(const ref of refsEncontradas){
-    // Busca exata e parcial no banco
-    const exata = SUMULAS_PLANO[ref.chave];
+    const noPlano = SUMULAS_PLANO[ref.chave];
     const autorizada = setsAutorizadas.has(ref.chave) ||
-      [...setsAutorizadas].some(a=>a.includes(ref.chave)||ref.chave.includes(a.split(' ').slice(1,3).join(' ')));
+      [...setsAutorizadas].some(a => {
+        // Compara número + tribunal
+        const partsA = a.split(' '); const partsR = ref.chave.split(' ');
+        return partsA[1]===partsR[1] && partsA[2]===partsR[2];
+      });
 
-    if(exata && autorizada){
-      resultado.verificadas.push({ref: ref.raw, dados: exata, status:'verified'});
-    } else if(exata && !autorizada){
-      // Existe no banco mas não estava na lista autorizada para este caso
-      resultado.verificadas.push({ref: ref.raw, dados: exata, status:'warned'});
+    if(noPlano && autorizada){
+      resultado.verificadas.push({ref:ref.raw, dados:noPlano, status:'verified'});
+    } else if(noPlano && !autorizada){
+      resultado.verificadas.push({ref:ref.raw, dados:noPlano, status:'warned'});
     } else {
-      // Não existe no banco — possível alucinação
-      resultado.naoVerificadas.push({ref: ref.raw, status:'removed'});
+      resultado.naoVerificadas.push({ref:ref.raw, status:'removed'});
     }
   }
 
   const total = resultado.totalCitadas;
-  const problemas = resultado.naoVerificadas.length;
-  resultado.percentualSeguro = total===0 ? 100 : Math.round(((total-problemas)/total)*100);
-
-  return resultado;
-}
-
-// ── BUSCA SÚMULAS NO BANCO LOCAL ──────────────────────────────────────────────
-function buscarSumulasLocais(area, pedidos, fatos=''){
-  const texto = (area+' '+pedidos+' '+fatos).toLowerCase();
-  let resultado = [];
-
-  const mapa = [
-    {chaves:['trabalhist','clt','empregado','empregador','hora extra','fgts','demiss','rescis','aviso prévio','holerite','carteira','sindicato','salário','reintegr','subordin','jornada','verbal'], area:'trabalhista'},
-    {chaves:['consumidor','cdc','produto','serviço','banco','financeira','cartão','plano de saúde','seguro','defeito','vício','propaganda','publicidade'], area:'consumidor'},
-    {chaves:['civil','contrato','indeniz','dano moral','responsabilidade','locação','imóvel','posse','propriedade','usucapião','herança','inventário'], area:'civil'},
-    {chaves:['previdenci','inss','aposentadoria','auxílio','benefício','invalidez','pensão por morte','salário maternidade'], area:'previdenciario'},
-    {chaves:['família','família','alimento','divórcio','guarda','tutela','curatela','adoção','paternidade','pensão alimentícia'], area:'familia'},
-    {chaves:['tribut','imposto','taxa','contribuição','icms','iss','irpf','fiscal','receita federal'], area:'tributario'},
-    {chaves:['banco','crédito','financiamento','empréstimo','juros','cdb','cheque','usura'], area:'bancario'},
-    {chaves:['penal','crime','delito','furto','roubo','estelionato','homicídio','tráfico','prisão'], area:'penal'},
-    {chaves:['administrat','servidor','licitação','improbidade','ato administrat','poder público'], area:'administrativo'},
-  ];
-
-  const areasDetectadas = new Set();
-  for(const m of mapa){
-    if(m.chaves.some(ch => texto.includes(ch))) areasDetectadas.add(m.area);
-  }
-
-  if(areasDetectadas.size === 0){
-    const areaMap = {
-      'Direito Trabalhista':'trabalhista','Direito Civil':'civil',
-      'Direito do Consumidor':'consumidor','Direito Previdenciário':'previdenciario',
-      'Direito de Família':'familia','Direito Tributário':'tributario',
-      'Direito Empresarial':'civil','Direito Penal':'penal',
-      'Direito Administrativo':'administrativo','Direito Bancário':'bancario',
-    };
-    const areaMapeada = areaMap[area];
-    if(areaMapeada) areasDetectadas.add(areaMapeada);
-  }
-
-  for(const a of areasDetectadas){
-    if(BANCO_SUMULAS[a]) resultado.push(...BANCO_SUMULAS[a]);
-  }
-
-  const vistos = new Set();
-  resultado = resultado.filter(s => {
-    if(vistos.has(s.n)) return false;
-    vistos.add(s.n); return true;
-  });
-
+  resultado.percentualSeguro = total===0 ? 100 : Math.round(((total-resultado.naoVerificadas.length)/total)*100);
   return resultado;
 }
 
