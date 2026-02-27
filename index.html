@@ -555,13 +555,44 @@ const TONS={
 
 function buildPrompt(d){
   const ton = TONS[d.tom]||TONS.imparcial;
-  const extra = d.extraContext?`\nInstruções adicionais: ${d.extraContext}`:'';
+  const extra = d.extraContext?`\nInstruções adicionais do usuário: ${d.extraContext}`:'';
+
+  const webSearchInstruction = `
+PASSO 1 — ANTES DE ESCREVER A ANÁLISE, PESQUISE NA WEB:
+Use sua capacidade de busca para encontrar jurisprudência REAL e ATUAL sobre este caso.
+Pesquise especificamente:
+- Súmulas do TST, STJ, STF relacionadas à área "${d.area||'direito'}" e aos pedidos informados
+- Entendimentos recentes dos tribunais superiores sobre o tema
+- Orientações Jurisprudenciais (OJs) do TST se for trabalhista
+- Súmulas vinculantes do STF se aplicável
+Após pesquisar, cite APENAS o que encontrou e confirmou. Se não encontrar súmula específica, diga claramente.
+
+PASSO 2 — COM BASE NA PESQUISA, ESCREVA A ANÁLISE COMPLETA:
+`;
+
   if(currentMode==='upload'){
     const max=14000;
     const doc=extractedContent.length>max?extractedContent.substring(0,max)+'\n[Truncado]':extractedContent;
-    return `Você é um jurista brasileiro sênior. Analise o documento jurídico abaixo.\n\n${RULES}\n\nTom: ${ton}\nData: ${d.data}${extra}\n\n═══\n${doc}\n═══\n\n${STRUCTURE}`;
+    return `${webSearchInstruction}\n${RULES}\n\nTom da análise: ${ton}\nData de hoje: ${d.data}${extra}\n\nDOCUMENTO PARA ANALISAR:\n═══════════════════════════\n${doc}\n═══════════════════════════\n\n${STRUCTURE}`;
   }
-  return `Você é um jurista brasileiro sênior. ANÁLISE JURÍDICA COMPLETA do caso abaixo.\n\n${RULES}\n\nÁrea: ${d.area||'?'}\nTipo: ${d.tipo||'?'}\nAutor: ${d.autor||'?'}\nRéu: ${d.reu||'?'}\nPedidos: ${d.pedidos||'?'}\nTribunal: ${d.tribunal||'?'}\nValor: ${d.valor?'R$ '+d.valor:'?'}\nData: ${d.data}\nTom: ${ton}${extra}\n\nFATOS:\n${d.fatos||'(Não informado)'}\n\n${STRUCTURE}`;
+
+  return `${webSearchInstruction}\n${RULES}\n\nDADOS DO CASO:\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Área do Direito: ${d.area||'Não informado'}
+Tipo de Ação: ${d.tipo||'Não informado'}
+Polo Ativo (Autor): ${d.autor||'Não informado'}
+Polo Passivo (Réu): ${d.reu||'Não informado'}
+Pedidos: ${d.pedidos||'Não informado'}
+Tribunal/Instância: ${d.tribunal||'Não informado'}
+Valor da Causa: ${d.valor?'R$ '+d.valor:'Não informado'}
+Data: ${d.data}
+Tom da análise: ${ton}${extra}
+
+FATOS E ARGUMENTOS DO CASO:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${d.fatos||'(Não informado)'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${STRUCTURE}`;
 }
 
 // ── EXECUTAR ──────────────────────────────────────────────────────────────────
@@ -591,7 +622,7 @@ async function executar(){
   document.getElementById('loading').classList.add('visible');
   document.getElementById('resultCard').classList.remove('visible');
 
-  const steps=['Lendo documento...','Identificando partes e objeto...','Analisando fundamentos jurídicos...','Calculando probabilidades...','Buscando entendimentos consolidados...','Elaborando esboço processual...','Definindo estratégia...','Compilando análise final...'];
+  const steps=['Lendo documento...','Pesquisando jurisprudência na web...','Verificando súmulas nos tribunais superiores...','Analisando fundamentos jurídicos...','Calculando probabilidade com base nos fatos...','Cruzando com entendimentos do TST, STJ e STF...','Elaborando esboço da peça processual...','Definindo estratégia processual...','Compilando análise final completa...'];
   let si=0;
   const iv=setInterval(()=>{document.getElementById('loadingStep').textContent=steps[si++%steps.length];},1800);
 
@@ -601,11 +632,42 @@ async function executar(){
     if(currentMode==='upload' && extractedBase64){
       parts.push({inline_data:{mime_type: extractedMime, data: extractedBase64}});
       const ton = TONS[d.tom]||TONS.imparcial;
-      const extra = d.extraContext?`\nInstruções adicionais: ${d.extraContext}`:'';
-      parts.push({text:`Você é um jurista brasileiro sênior. Analise este documento jurídico.\n\n${RULES}\n\nTom: ${ton}\nData: ${d.data}${extra}\n\n${STRUCTURE}`});
+      const extra = d.extraContext?`\nInstruções adicionais do usuário: ${d.extraContext}`:'';
+      parts.push({text:`PASSO 1 — PESQUISE NA WEB antes de analisar: busque súmulas e jurisprudência relevante ao conteúdo deste documento.\nPASSO 2 — Analise o documento com base na pesquisa.\n\n${RULES}\n\nTom: ${ton}\nData: ${d.data}${extra}\n\n${STRUCTURE}`});
     } else {
       parts.push({text: buildPrompt(d)});
     }
+
+    const SYSTEM_PROMPT = `Você é um jurista brasileiro sênior com 30 anos de experiência nos tribunais. Sua reputação foi construída sobre uma única base: a VERDADE ABSOLUTA.
+
+IDENTIDADE PROFISSIONAL:
+Você é rigoroso, preciso e honesto. Você usa a ferramenta de busca na web SEMPRE antes de citar qualquer jurisprudência, para confirmar que ela realmente existe e está atualizada.
+
+REGRAS INVIOLÁVEIS:
+
+① JURISPRUDÊNCIA — USE A BUSCA ANTES DE CITAR:
+- SEMPRE pesquise na web antes de mencionar qualquer súmula ou acórdão
+- Cite APENAS o que você encontrou e confirmou na busca
+- Formato obrigatório: "Súmula [N] do [Tribunal]: [o que determina] — Aplicação: [como se aplica ao caso]"
+- Se a busca não retornar resultado claro, escreva: "Não localizei súmula específica consolidada sobre este ponto. O entendimento majoritário dos tribunais é: [descreva]"
+- NUNCA invente número de súmula, acórdão ou ementa
+
+② PROBABILIDADE — RACIOCÍNIO OBRIGATÓRIO:
+- Cada percentual precisa de justificativa explícita fator por fator
+- Liste o que favorece, o que prejudica e o que é incerto
+- Se não tiver dados suficientes para estimar, diga isso claramente
+
+③ ARTIGOS DE LEI:
+- Pesquise para confirmar que o artigo existe antes de citar
+- Formato: "Art. [N] da [Lei/Código]: [o que determina]"
+
+④ VALORES E INDENIZAÇÕES:
+- Cite apenas parâmetros reais conhecidos e praticados
+- Se não tiver base suficiente: "Não é possível estimar sem mais dados"
+
+⑤ HONESTIDADE ACIMA DE TUDO:
+- É melhor dizer "não sei" ou "dados insuficientes" do que inventar qualquer dado
+- Sua credibilidade profissional depende de nunca alucinar`;
 
     const res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
@@ -613,28 +675,10 @@ async function executar(){
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
-          system_instruction: {parts:[{text:`Você é um jurista brasileiro sênior com 30 anos de experiência. Suas respostas são sua reputação profissional.
-
-COMPROMISSO ABSOLUTO COM A VERDADE:
-- Você NUNCA inventa súmulas, acórdãos, números de processo ou ementas
-- Você NUNCA fabrica percentuais sem explicar cada fator que os compõe
-- Quando citar jurisprudência, você APENAS cita o que realmente existe e é amplamente conhecido
-- Se não souber o número exato de uma súmula, você descreve o entendimento sem inventar número
-- Quando não tiver dados suficientes, você diz claramente "dados insuficientes para esta análise"
-- Você prefere parecer limitado a parecer inventivo — a honestidade é inegociável
-
-SOBRE PROBABILIDADE:
-- Cada percentual deve ser justificado fator por fator
-- Explique o que pesou positivamente, o que pesou negativamente e o que é incerto
-- Nunca jogue um número sem raciocínio explícito
-
-SOBRE JURISPRUDÊNCIA:
-- Cite apenas súmulas reais com número correto (Súmula 331 TST, Súmula 7 STJ, etc.)
-- Para cada súmula: diga o que ela determina e como se aplica ao caso
-- Se não houver súmula específica, descreva o entendimento majoritário sem inventar referência
-- É preferível dizer "não há súmula consolidada" a inventar uma`}]},
+          system_instruction: {parts:[{text: SYSTEM_PROMPT}]},
+          tools: [{google_search: {}}],
           contents: [{role:'user', parts}],
-          generationConfig: {maxOutputTokens: 4000, temperature: 0.3}
+          generationConfig: {maxOutputTokens: 8000, temperature: 0.2}
         })
       }
     );
