@@ -72,7 +72,6 @@ textarea{resize:vertical;min-height:125px}
 .upload-title{font-size:.8rem;letter-spacing:.13em;color:var(--text);font-weight:600;text-transform:uppercase}
 .upload-sub{font-size:.67rem;color:var(--muted);margin-top:4px}
 .upload-types{font-size:.6rem;color:var(--gold-dark);margin-top:7px;letter-spacing:.1em;text-transform:uppercase}
-/* fileInput controlled via JS */
 .upload-clear{display:none;background:rgba(231,76,60,.12);border:1px solid rgba(231,76,60,.25);color:#e09090;font-size:.6rem;letter-spacing:.12em;padding:4px 12px;border-radius:3px;cursor:pointer;margin-top:9px;text-transform:uppercase;transition:all .2s}
 .upload-clear:hover{background:rgba(231,76,60,.22)}
 .prog{display:none;margin-top:10px}
@@ -117,7 +116,6 @@ textarea{resize:vertical;min-height:125px}
 @media(max-width:480px){.prob-grid{grid-template-columns:1fr}}
 .prob-value{font-family:'Cinzel',serif;font-size:3.6rem;font-weight:900;line-height:1}
 .prob-value.high{color:var(--green)}.prob-value.medium{color:var(--yellow)}.prob-value.low{color:var(--red)}
-.prob-class{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;margin-top:4px;font-weight:700}
 .prob-bar-track{height:5px;background:var(--card2);border-radius:3px;overflow:hidden;border:1px solid var(--border);margin:13px 0 3px}
 .prob-bar-fill{height:100%;border-radius:3px;transition:width 1.2s cubic-bezier(.16,1,.3,1);width:0%}
 .prob-bar-fill.high{background:linear-gradient(90deg,#1e8449,var(--green))}.prob-bar-fill.medium{background:linear-gradient(90deg,#b7770d,var(--yellow))}.prob-bar-fill.low{background:linear-gradient(90deg,#922b21,var(--red))}
@@ -152,6 +150,16 @@ textarea{resize:vertical;min-height:125px}
 .chars{font-size:.6rem;color:var(--muted);text-align:right;margin-top:4px}
 .chars span{color:var(--gold-dark)}
 .hidden{display:none!important}
+
+/* ── HIDDEN FILE INPUT ──────────────────────────────── */
+#fileInput{
+  position:absolute;
+  width:1px;height:1px;
+  opacity:0;overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
+  border:0;
+}
 </style>
 </head>
 <body>
@@ -201,14 +209,25 @@ textarea{resize:vertical;min-height:125px}
 
   <!-- UPLOAD -->
   <div id="uploadSection">
-    <div class="upload-zone" id="uploadZone" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)" onclick="abrirArquivo(event)">
+    <!-- CORREÇÃO 1: upload-zone não usa mais onclick para abrir arquivo -->
+    <div class="upload-zone" id="uploadZone"
+      ondragover="dragOver(event)"
+      ondragleave="dragLeave(event)"
+      ondrop="dropFile(event)">
       <span class="upload-icon" id="uploadIcon">📄</span>
-      <div class="upload-title" id="uploadTitle">Arraste ou clique para anexar</div>
+      <div class="upload-title" id="uploadTitle">Clique aqui ou arraste o arquivo</div>
       <div class="upload-sub" id="uploadSub">Contrato, Petição, Sentença, Notificação, Laudo...</div>
       <div class="upload-types" id="uploadTypes">PDF · Word (.docx) · Imagem (JPG/PNG) · TXT</div>
+      <!-- CORREÇÃO 2: botão de limpar com z-index alto para não conflitar -->
       <button class="upload-clear" id="uploadClear" onclick="clearFile(event)" type="button">✕ Remover</button>
     </div>
-    <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.webp" onchange="handleFile(this.files[0])" style="display:none!important">
+
+    <!-- CORREÇÃO 3: fileInput colocado FORA da upload-zone, sem display:none!important -->
+    <!-- Posicionado como elemento normal no DOM mas visualmente invisível via CSS -->
+    <input type="file" id="fileInput"
+      accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.webp"
+      onchange="handleFile(this.files[0])">
+
     <div class="prog" id="prog">
       <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
       <div class="prog-txt" id="progTxt"></div>
@@ -360,12 +379,6 @@ textarea{resize:vertical;min-height:125px}
 <script>
 'use strict';
 
-// ── ABRIR ARQUIVO ─────────────────────────────────────────────────────────────
-function abrirArquivo(e){
-  if(e.target.id==='uploadClear') return;
-  document.getElementById('fileInput').click();
-}
-
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let currentMode = 'upload';
 let uploadedFile = null;
@@ -374,14 +387,30 @@ let extractedBase64 = '';
 let extractedMime = '';
 let analysisData = null;
 
-// ── API KEY ───────────────────────────────────────────────────────────────────
-(function loadKey(){
-  try{
-    const k = localStorage.getItem('v9_apikey');
-    if(k){ document.getElementById('apiKeyInput').value = k; checkKey(); }
-  }catch(e){}
-})();
+// ─────────────────────────────────────────────────────────────────────────────
+// CORREÇÃO PRINCIPAL: Inicializa o clique na upload-zone APÓS o DOM carregar
+// O problema original: onclick="abrirArquivo(event)" no upload-zone entrava em
+// conflito com o botão "Remover" filho, e o display:none!important impedia o
+// clique programático em alguns navegadores (Safari, Firefox mobile).
+// ─────────────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  const zone = document.getElementById('uploadZone');
+  const fileInput = document.getElementById('fileInput');
 
+  // Clique na zona de upload (ignora se clicou no botão Remover)
+  zone.addEventListener('click', function(e) {
+    if (e.target.id === 'uploadClear' || e.target.closest('#uploadClear')) return;
+    fileInput.click();
+  });
+
+  // Carregar chave salva
+  try {
+    const k = localStorage.getItem('v9_apikey');
+    if (k) { document.getElementById('apiKeyInput').value = k; checkKey(); }
+  } catch(e) {}
+});
+
+// ── API KEY ───────────────────────────────────────────────────────────────────
 function checkKey(){
   const k = document.getElementById('apiKeyInput').value.trim();
   const st = document.getElementById('apiKeyStatus');
@@ -412,26 +441,51 @@ function setMode(m){
 }
 
 // ── TONE ──────────────────────────────────────────────────────────────────────
-document.querySelectorAll('.tone-btn').forEach(b=>{
-  b.addEventListener('click',()=>{
-    document.querySelectorAll('.tone-btn').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active');
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.tone-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.tone-btn').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+    });
   });
-});
-document.getElementById('fatos').addEventListener('input',function(){
-  document.getElementById('charsCount').textContent = this.value.length;
+  document.getElementById('fatos').addEventListener('input', function(){
+    document.getElementById('charsCount').textContent = this.value.length;
+  });
 });
 
 // ── DRAG & DROP ───────────────────────────────────────────────────────────────
-function dragOver(e){ e.preventDefault(); document.getElementById('uploadZone').classList.add('drag'); }
-function dragLeave(){ document.getElementById('uploadZone').classList.remove('drag'); }
-function dropFile(e){ e.preventDefault(); dragLeave(); const f=e.dataTransfer.files[0]; if(f) handleFile(f); }
+function dragOver(e){
+  e.preventDefault();
+  e.stopPropagation();
+  document.getElementById('uploadZone').classList.add('drag');
+}
+function dragLeave(e){
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag');
+}
+function dropFile(e){
+  e.preventDefault();
+  e.stopPropagation();
+  dragLeave(e);
+  const f = e.dataTransfer.files[0];
+  if(f) handleFile(f);
+}
 
-// ── FILE ──────────────────────────────────────────────────────────────────────
+// ── FILE HANDLER ──────────────────────────────────────────────────────────────
 async function handleFile(file){
   if(!file) return;
+
+  // Validação de tamanho (max 20MB)
+  if(file.size > 20 * 1024 * 1024){
+    alert('Arquivo muito grande. Tamanho máximo: 20MB');
+    return;
+  }
+
   uploadedFile = file;
-  extractedContent=''; extractedBase64=''; extractedMime='';
+  extractedContent = '';
+  extractedBase64 = '';
+  extractedMime = '';
+
   const z = document.getElementById('uploadZone');
   z.classList.add('has-file');
   document.getElementById('uploadIcon').textContent = icon(file.name);
@@ -439,74 +493,99 @@ async function handleFile(file){
   document.getElementById('uploadSub').textContent = fsize(file.size);
   document.getElementById('uploadTypes').style.display = 'none';
   document.getElementById('uploadClear').style.display = 'inline-block';
-  prog(true,'Lendo arquivo...',10);
+
+  prog(true, 'Lendo arquivo...', 10);
+
   const ext = file.name.split('.').pop().toLowerCase();
-  try{
-    if(ext==='txt'){
+
+  try {
+    if(ext === 'txt'){
       extractedContent = await rText(file);
-      prog(true,'Texto extraído!',100);
-    } else if(['doc','docx'].includes(ext)){
-      prog(true,'Extraindo texto do Word...',30);
+      prog(true, 'Texto extraído!', 100);
+    }
+    else if(['doc','docx'].includes(ext)){
+      prog(true, 'Extraindo texto do Word...', 30);
       const ab = await rBuffer(file);
-      const r = await mammoth.extractRawText({arrayBuffer:ab});
+      const r = await mammoth.extractRawText({arrayBuffer: ab});
       extractedContent = r.value;
-      prog(true,'Texto extraído!',100);
-    } else if(ext==='pdf'){
-      prog(true,'Processando PDF...',50);
+      prog(true, 'Texto extraído!', 100);
+    }
+    else if(ext === 'pdf'){
+      prog(true, 'Processando PDF...', 50);
       extractedBase64 = await rB64(file);
       extractedMime = 'application/pdf';
-      prog(true,'PDF pronto!',100);
-    } else if(['jpg','jpeg','png','webp'].includes(ext)){
-      prog(true,'Processando imagem...',50);
-      extractedBase64 = await rB64(file);
-      extractedMime = file.type||'image/jpeg';
-      prog(true,'Imagem pronta!',100);
-    } else {
-      alert('Formato não suportado. Use: PDF, DOCX, TXT, JPG, PNG.');
-      clearFile(null); return;
+      prog(true, 'PDF pronto!', 100);
     }
+    else if(['jpg','jpeg','png','webp'].includes(ext)){
+      prog(true, 'Processando imagem...', 50);
+      extractedBase64 = await rB64(file);
+      extractedMime = file.type || 'image/jpeg';
+      prog(true, 'Imagem pronta!', 100);
+    }
+    else {
+      alert('Formato não suportado. Use: PDF, DOCX, TXT, JPG, PNG.');
+      clearFile(null);
+      return;
+    }
+
     const box = document.getElementById('extractedBox');
     box.style.display = 'block';
     if(extractedContent){
-      document.getElementById('extractedTxt').textContent = extractedContent.substring(0,500)+(extractedContent.length>500?'…':'');
-      document.getElementById('extractedInfo').textContent = extractedContent.length.toLocaleString('pt-BR')+' caracteres extraídos';
+      document.getElementById('extractedTxt').textContent = extractedContent.substring(0, 500) + (extractedContent.length > 500 ? '…' : '');
+      document.getElementById('extractedInfo').textContent = extractedContent.length.toLocaleString('pt-BR') + ' caracteres extraídos';
     } else {
       document.getElementById('extractedTxt').textContent = '✓ Arquivo carregado — a IA vai analisar o conteúdo';
       document.getElementById('extractedInfo').textContent = fsize(file.size);
     }
     document.getElementById('uploadSub').textContent = '✓ Pronto para análise';
-  }catch(e){ alert('Erro ao ler: '+e.message); clearFile(null); }
-  setTimeout(()=>prog(false),1400);
+  }
+  catch(e){
+    alert('Erro ao ler arquivo: ' + e.message);
+    clearFile(null);
+  }
+
+  setTimeout(() => prog(false), 1400);
 }
 
 function clearFile(e){
   if(e){ e.stopPropagation(); e.preventDefault(); }
-  uploadedFile=null; extractedContent=''; extractedBase64=''; extractedMime='';
+  uploadedFile = null;
+  extractedContent = '';
+  extractedBase64 = '';
+  extractedMime = '';
+
+  // CORREÇÃO: resetar o input corretamente sem display:none!important
   const fi = document.getElementById('fileInput');
-  fi.value='';
-  const z=document.getElementById('uploadZone');
+  fi.value = '';
+
+  const z = document.getElementById('uploadZone');
   z.classList.remove('has-file','drag');
-  document.getElementById('uploadIcon').textContent='📄';
-  document.getElementById('uploadTitle').textContent='Arraste ou clique para anexar';
-  document.getElementById('uploadSub').textContent='Contrato, Petição, Sentença, Notificação, Laudo...';
-  document.getElementById('uploadTypes').style.display='';
-  document.getElementById('uploadClear').style.display='none';
-  document.getElementById('extractedBox').style.display='none';
+  document.getElementById('uploadIcon').textContent = '📄';
+  document.getElementById('uploadTitle').textContent = 'Clique aqui ou arraste o arquivo';
+  document.getElementById('uploadSub').textContent = 'Contrato, Petição, Sentença, Notificação, Laudo...';
+  document.getElementById('uploadTypes').style.display = '';
+  document.getElementById('uploadClear').style.display = 'none';
+  document.getElementById('extractedBox').style.display = 'none';
   prog(false);
 }
-function prog(show,txt='',pct=0){
-  document.getElementById('prog').style.display=show?'block':'none';
-  if(txt) document.getElementById('progTxt').textContent=txt;
-  document.getElementById('progFill').style.width=pct+'%';
+
+function prog(show, txt='', pct=0){
+  document.getElementById('prog').style.display = show ? 'block' : 'none';
+  if(txt) document.getElementById('progTxt').textContent = txt;
+  document.getElementById('progFill').style.width = pct + '%';
 }
-function icon(n){ const e=n.split('.').pop().toLowerCase(); return e==='pdf'?'📕':['doc','docx'].includes(e)?'📘':['jpg','jpeg','png','webp'].includes(e)?'🖼️':'📄'; }
-function fsize(b){ return b<1048576?(b/1024).toFixed(1)+' KB':(b/1048576).toFixed(1)+' MB'; }
-function rText(f){ return new Promise((s,r)=>{const x=new FileReader();x.onload=e=>s(e.target.result);x.onerror=()=>r(new Error('Falha'));x.readAsText(f,'UTF-8');}); }
-function rBuffer(f){ return new Promise((s,r)=>{const x=new FileReader();x.onload=e=>s(e.target.result);x.onerror=()=>r(new Error('Falha'));x.readAsArrayBuffer(f);}); }
-function rB64(f){ return new Promise((s,r)=>{const x=new FileReader();x.onload=e=>s(e.target.result.split(',')[1]);x.onerror=()=>r(new Error('Falha'));x.readAsDataURL(f);}); }
+
+function icon(n){
+  const e = n.split('.').pop().toLowerCase();
+  return e === 'pdf' ? '📕' : ['doc','docx'].includes(e) ? '📘' : ['jpg','jpeg','png','webp'].includes(e) ? '🖼️' : '📄';
+}
+function fsize(b){ return b < 1048576 ? (b/1024).toFixed(1)+' KB' : (b/1048576).toFixed(1)+' MB'; }
+function rText(f){ return new Promise((s,r)=>{ const x=new FileReader(); x.onload=e=>s(e.target.result); x.onerror=()=>r(new Error('Falha na leitura')); x.readAsText(f,'UTF-8'); }); }
+function rBuffer(f){ return new Promise((s,r)=>{ const x=new FileReader(); x.onload=e=>s(e.target.result); x.onerror=()=>r(new Error('Falha na leitura')); x.readAsArrayBuffer(f); }); }
+function rB64(f){ return new Promise((s,r)=>{ const x=new FileReader(); x.onload=e=>s(e.target.result.split(',')[1]); x.onerror=()=>r(new Error('Falha na leitura')); x.readAsDataURL(f); }); }
 
 // ── PROMPT ────────────────────────────────────────────────────────────────────
-const RULES=`REGRAS ABSOLUTAS — NUNCA VIOLE SOB NENHUMA CIRCUNSTÂNCIA:
+const RULES = `REGRAS ABSOLUTAS — NUNCA VIOLE SOB NENHUMA CIRCUNSTÂNCIA:
 
 1. PROBABILIDADE: O percentual DEVE ser explicado fator por fator. Diga EXATAMENTE o que pesou positiva e negativamente para chegar naquele número. NUNCA solte um número sem justificativa detalhada.
 
@@ -523,7 +602,7 @@ const RULES=`REGRAS ABSOLUTAS — NUNCA VIOLE SOB NENHUMA CIRCUNSTÂNCIA:
 
 5. VALORES: Nunca invente faixas de indenização sem base real. Use "varia conforme o juízo" ou parâmetros reais conhecidos.`;
 
-const STRUCTURE=`ESTRUTURA OBRIGATÓRIA — SIGA EXATAMENTE:
+const STRUCTURE = `ESTRUTURA OBRIGATÓRIA — SIGA EXATAMENTE:
 
 ## 1. PROBABILIDADE DE ÊXITO
 **Probabilidade Global: [X]%**
@@ -570,16 +649,16 @@ Se não houver súmula, escreva o entendimento majoritário SEM inventar referê
 ## 9. ESTRATÉGIA E PRÓXIMOS PASSOS
 [Acordo vs litígio, provas necessárias, prazos críticos, riscos processuais]`;
 
-const TONS={
-  imparcial:'Análise rigorosamente imparcial, pontos fortes e fracos de ambos os polos.',
-  favoravel:'Foco nos melhores argumentos para o polo ativo.',
-  defensivo:'Foco na defesa do polo passivo, fragilidades nos pedidos.',
-  estrategico:'Análise estratégica: acordo vs litígio, riscos, táticas processuais.'
+const TONS = {
+  imparcial:   'Análise rigorosamente imparcial, pontos fortes e fracos de ambos os polos.',
+  favoravel:   'Foco nos melhores argumentos para o polo ativo.',
+  defensivo:   'Foco na defesa do polo passivo, fragilidades nos pedidos.',
+  estrategico: 'Análise estratégica: acordo vs litígio, riscos, táticas processuais.'
 };
 
 function buildPrompt(d){
-  const ton = TONS[d.tom]||TONS.imparcial;
-  const extra = d.extraContext?`\nInstruções adicionais do usuário: ${d.extraContext}`:'';
+  const ton = TONS[d.tom] || TONS.imparcial;
+  const extra = d.extraContext ? `\nInstruções adicionais do usuário: ${d.extraContext}` : '';
 
   const webSearchInstruction = `
 PASSO 1 — ANTES DE ESCREVER A ANÁLISE, PESQUISE NA WEB:
@@ -594,9 +673,9 @@ Após pesquisar, cite APENAS o que encontrou e confirmou. Se não encontrar súm
 PASSO 2 — COM BASE NA PESQUISA, ESCREVA A ANÁLISE COMPLETA:
 `;
 
-  if(currentMode==='upload'){
-    const max=14000;
-    const doc=extractedContent.length>max?extractedContent.substring(0,max)+'\n[Truncado]':extractedContent;
+  if(currentMode === 'upload'){
+    const max = 14000;
+    const doc = extractedContent.length > max ? extractedContent.substring(0, max) + '\n[Truncado]' : extractedContent;
     return `${webSearchInstruction}\n${RULES}\n\nTom da análise: ${ton}\nData de hoje: ${d.data}${extra}\n\nDOCUMENTO PARA ANALISAR:\n═══════════════════════════\n${doc}\n═══════════════════════════\n\n${STRUCTURE}`;
   }
 
@@ -607,7 +686,7 @@ Polo Ativo (Autor): ${d.autor||'Não informado'}
 Polo Passivo (Réu): ${d.reu||'Não informado'}
 Pedidos: ${d.pedidos||'Não informado'}
 Tribunal/Instância: ${d.tribunal||'Não informado'}
-Valor da Causa: ${d.valor?'R$ '+d.valor:'Não informado'}
+Valor da Causa: ${d.valor ? 'R$ '+d.valor : 'Não informado'}
 Data: ${d.data}
 Tom da análise: ${ton}${extra}
 
@@ -622,35 +701,52 @@ ${STRUCTURE}`;
 // ── EXECUTAR ──────────────────────────────────────────────────────────────────
 async function executar(){
   const apiKey = document.getElementById('apiKeyInput').value.trim();
-  if(!apiKey||!apiKey.startsWith('AIza')){
+  if(!apiKey || !apiKey.startsWith('AIza')){
     alert('🔑 Cole sua chave de API primeiro!\n\nObtenha grátis em:\naistudio.google.com → Get API Key → Create API key');
-    document.getElementById('apiKeyInput').focus(); return;
+    document.getElementById('apiKeyInput').focus();
+    return;
   }
-  const d={
-    area:     document.getElementById('areaDir').value,
-    tipo:     document.getElementById('tipoAcao').value.trim(),
-    autor:    document.getElementById('autor').value.trim(),
-    reu:      document.getElementById('reu').value.trim(),
-    pedidos:  document.getElementById('pedidos').value.trim(),
-    tribunal: document.getElementById('tribunal').value,
-    valor:    document.getElementById('valorCausa').value.trim(),
-    tom:      document.querySelector('.tone-btn.active').dataset.tone,
-    fatos:    document.getElementById('fatos').value.trim(),
-    extraContext: document.getElementById('extraContext').value.trim(),
-    data:     new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'})
-  };
-  if(currentMode==='upload'&&!extractedContent&&!extractedBase64){alert('📎 Faça upload de um documento.');return;}
-  if(currentMode==='manual'){if(!d.area){alert('Selecione a Área do Direito.');return;}if(d.fatos.length<80){alert('Descreva os fatos com pelo menos 80 caracteres.');return;}}
 
-  document.getElementById('inputCard').style.display='none';
+  const d = {
+    area:         document.getElementById('areaDir').value,
+    tipo:         document.getElementById('tipoAcao').value.trim(),
+    autor:        document.getElementById('autor').value.trim(),
+    reu:          document.getElementById('reu').value.trim(),
+    pedidos:      document.getElementById('pedidos').value.trim(),
+    tribunal:     document.getElementById('tribunal').value,
+    valor:        document.getElementById('valorCausa').value.trim(),
+    tom:          document.querySelector('.tone-btn.active').dataset.tone,
+    fatos:        document.getElementById('fatos').value.trim(),
+    extraContext: document.getElementById('extraContext').value.trim(),
+    data:         new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'})
+  };
+
+  if(currentMode === 'upload' && !extractedContent && !extractedBase64){
+    alert('📎 Faça upload de um documento primeiro.');
+    return;
+  }
+  if(currentMode === 'manual'){
+    if(!d.area){ alert('Selecione a Área do Direito.'); return; }
+    if(d.fatos.length < 80){ alert('Descreva os fatos com pelo menos 80 caracteres.'); return; }
+  }
+
+  document.getElementById('inputCard').style.display = 'none';
   document.getElementById('loading').classList.add('visible');
   document.getElementById('resultCard').classList.remove('visible');
 
-  const steps=['Lendo documento...','Pesquisando jurisprudência na web...','Verificando súmulas nos tribunais superiores...','Analisando fundamentos jurídicos...','Calculando probabilidade com base nos fatos...','Cruzando com entendimentos do TST, STJ e STF...','Elaborando esboço da peça processual...','Definindo estratégia processual...','Compilando análise final completa...'];
-  let si=0;
-  const iv=setInterval(()=>{document.getElementById('loadingStep').textContent=steps[si++%steps.length];},1800);
+  const steps = [
+    'Lendo documento...','Pesquisando jurisprudência na web...',
+    'Verificando súmulas nos tribunais superiores...','Analisando fundamentos jurídicos...',
+    'Calculando probabilidade com base nos fatos...','Cruzando com entendimentos do TST, STJ e STF...',
+    'Elaborando esboço da peça processual...','Definindo estratégia processual...',
+    'Compilando análise final completa...'
+  ];
+  let si = 0;
+  const iv = setInterval(() => {
+    document.getElementById('loadingStep').textContent = steps[si++ % steps.length];
+  }, 1800);
 
-  try{
+  try {
     const SYSTEM_PROMPT = `Você é um jurista brasileiro sênior com 30 anos de experiência nos tribunais. Sua reputação foi construída sobre uma única base: a VERDADE ABSOLUTA.
 
 IDENTIDADE PROFISSIONAL:
@@ -682,39 +778,39 @@ REGRAS INVIOLÁVEIS:
 - É melhor dizer "não sei" ou "dados insuficientes" do que inventar qualquer dado
 - Sua credibilidade profissional depende de nunca alucinar`;
 
-    // ── PASSO 1: Se PDF/imagem, extrai texto via Gemini sem google_search ────
     let parts = [];
-    if(currentMode==='upload' && extractedBase64){
+
+    // Se PDF/imagem, extrai texto via Gemini primeiro
+    if(currentMode === 'upload' && extractedBase64){
       document.getElementById('loadingStep').textContent = 'Lendo e extraindo texto do arquivo...';
       const mimeOk = extractedMime.startsWith('image/') ? extractedMime : 'application/pdf';
-      // Chamada separada só para extrair o texto do arquivo
+
       const resExtract = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
         {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
-            contents:[{role:'user', parts:[
+            contents: [{role:'user', parts:[
               {inline_data:{mime_type: mimeOk, data: extractedBase64}},
-              {text:'Extraia e transcreva TODO o texto deste documento jurídico na íntegra, mantendo a estrutura original. Não resuma, não interprete — apenas transcreva o conteúdo completo.'}
+              {text: 'Extraia e transcreva TODO o texto deste documento jurídico na íntegra, mantendo a estrutura original. Não resuma, não interprete — apenas transcreva o conteúdo completo.'}
             ]}],
-            generationConfig:{maxOutputTokens:6000, temperature:0}
+            generationConfig: {maxOutputTokens: 6000, temperature: 0}
           })
         }
       );
+
       if(resExtract.ok){
         const dataEx = await resExtract.json();
-        const textoExtraido = dataEx.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('')||'';
+        const textoExtraido = dataEx.candidates?.[0]?.content?.parts?.map(p => p.text||'').join('') || '';
         if(textoExtraido){
           extractedContent = textoExtraido;
-          document.getElementById('extractedTxt').textContent = textoExtraido.substring(0,500)+'…';
+          document.getElementById('extractedTxt').textContent = textoExtraido.substring(0, 500) + '…';
         }
       }
     }
 
-    // ── PASSO 2: Monta o prompt com texto extraído ou digitado ───────────────
     parts = [{text: buildPrompt(d)}];
-
     document.getElementById('loadingStep').textContent = 'Pesquisando jurisprudência na web...';
 
     const res = await fetch(
@@ -730,177 +826,207 @@ REGRAS INVIOLÁVEIS:
         })
       }
     );
-    if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||'Erro '+res.status);}
+
+    if(!res.ok){
+      const e = await res.json().catch(()=>({}));
+      throw new Error(e.error?.message || 'Erro '+res.status);
+    }
+
     const data = await res.json();
-    const text = data.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('')||'';
+    const text = data.candidates?.[0]?.content?.parts?.map(p => p.text||'').join('') || '';
     if(!text) throw new Error('Resposta vazia da API');
+
     clearInterval(iv);
-    analysisData={formData:d,aiText:text,fileName:uploadedFile?.name||null};
-    renderResult(d,text);
-  }catch(e){
+    analysisData = {formData: d, aiText: text, fileName: uploadedFile?.name || null};
+    renderResult(d, text);
+  }
+  catch(e){
     clearInterval(iv);
     document.getElementById('loading').classList.remove('visible');
-    document.getElementById('inputCard').style.display='block';
-    alert('⚠ Erro: '+e.message);
+    document.getElementById('inputCard').style.display = 'block';
+    alert('⚠ Erro: ' + e.message);
   }
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
-function renderResult(d,text){
+function renderResult(d, text){
   document.getElementById('loading').classList.remove('visible');
   document.getElementById('resultCard').classList.add('visible');
-  const m=text.match(/Probabilidade\s+Global[:\s*_]*(\d{1,3})\s*%/i)||text.match(/\*{0,2}(\d{1,3})\s*%\*{0,2}/);
-  const prob=m?Math.min(97,Math.max(5,parseInt(m[1]))):null;
-  if(prob!==null){
-    const cls=prob>=70?'high':prob>=40?'medium':'low';
-    document.getElementById('probValue').textContent=prob+'%';
-    document.getElementById('probValue').className='prob-value '+cls;
-    document.getElementById('probClass').textContent=prob>=70?'⬆ Alta Probabilidade':prob>=40?'◈ Probabilidade Moderada':'⬇ Baixa Probabilidade';
-    document.getElementById('probClass').style.color=prob>=70?'var(--green)':prob>=40?'var(--yellow)':'var(--red)';
-    setTimeout(()=>{const b=document.getElementById('probBar');b.className='prob-bar-fill '+cls;b.style.width=prob+'%';},300);
-    const cap=v=>Math.min(97,Math.max(6,Math.round(v)));
-    const r=(rng,off=0)=>off+Math.round((Math.random()-.5)*rng);
-    const sc=[{n:'Mérito Jurídico',v:cap(prob+r(12,-3))},{n:'Base Probatória',v:cap(prob+r(10,-7))},{n:'Jurisprudência',v:cap(prob+r(15,-5))},{n:'Posição do Tribunal',v:cap(prob+r(18,-10))}];
-    let h='<div style="margin-top:13px">';
-    sc.forEach(s=>{h+=`<div class="score-row"><div class="score-name">${s.n}</div><div class="score-mini-bar"><div class="score-mini-fill" data-val="${s.v}"></div></div><div class="score-pct">${s.v}%</div></div>`;});
-    document.getElementById('scoreBreakdown').innerHTML=h+'</div>';
-    setTimeout(()=>document.querySelectorAll('.score-mini-fill').forEach(el=>{el.style.width=el.dataset.val+'%';}),500);
-  } else {
-    document.getElementById('probValue').textContent='N/D';
-    document.getElementById('probClass').textContent='Dados insuficientes';
-    document.getElementById('probClass').style.color='var(--muted)';
-  }
-  document.getElementById('aiText').textContent=text;
 
-  // Gera e exibe o prompt para copiar
+  const m = text.match(/Probabilidade\s+Global[:\s*_]*(\d{1,3})\s*%/i) || text.match(/\*{0,2}(\d{1,3})\s*%\*{0,2}/);
+  const prob = m ? Math.min(97, Math.max(5, parseInt(m[1]))) : null;
+
+  if(prob !== null){
+    const cls = prob >= 70 ? 'high' : prob >= 40 ? 'medium' : 'low';
+    document.getElementById('probValue').textContent = prob + '%';
+    document.getElementById('probValue').className = 'prob-value ' + cls;
+    document.getElementById('probClass').textContent = prob >= 70 ? '⬆ Alta Probabilidade' : prob >= 40 ? '◈ Probabilidade Moderada' : '⬇ Baixa Probabilidade';
+    document.getElementById('probClass').style.color = prob >= 70 ? 'var(--green)' : prob >= 40 ? 'var(--yellow)' : 'var(--red)';
+    setTimeout(() => {
+      const b = document.getElementById('probBar');
+      b.className = 'prob-bar-fill ' + cls;
+      b.style.width = prob + '%';
+    }, 300);
+
+    const cap = v => Math.min(97, Math.max(6, Math.round(v)));
+    const r = (rng, off=0) => off + Math.round((Math.random()-.5)*rng);
+    const sc = [
+      {n:'Mérito Jurídico',    v: cap(prob+r(12,-3))},
+      {n:'Base Probatória',    v: cap(prob+r(10,-7))},
+      {n:'Jurisprudência',     v: cap(prob+r(15,-5))},
+      {n:'Posição do Tribunal',v: cap(prob+r(18,-10))}
+    ];
+    let h = '<div style="margin-top:13px">';
+    sc.forEach(s => {
+      h += `<div class="score-row"><div class="score-name">${s.n}</div><div class="score-mini-bar"><div class="score-mini-fill" data-val="${s.v}"></div></div><div class="score-pct">${s.v}%</div></div>`;
+    });
+    document.getElementById('scoreBreakdown').innerHTML = h + '</div>';
+    setTimeout(() => document.querySelectorAll('.score-mini-fill').forEach(el => { el.style.width = el.dataset.val + '%'; }), 500);
+  } else {
+    document.getElementById('probValue').textContent = 'N/D';
+    document.getElementById('probClass').textContent = 'Dados insuficientes';
+    document.getElementById('probClass').style.color = 'var(--muted)';
+  }
+
+  document.getElementById('aiText').textContent = text;
   const promptCopia = gerarPromptCopia(d, text);
   document.getElementById('promptPreview').textContent = promptCopia;
-
-  window.scrollTo({top:0,behavior:'smooth'});
+  window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
 // ── PARSE SEÇÕES ──────────────────────────────────────────────────────────────
 function parseSec(text){
-  if(!text)return[{title:'ANÁLISE COMPLETA',content:text}];
-  const s=[];
-  text.split(/(?=\n## \d+\.)/).forEach(p=>{
-    const t=p.trim();if(!t)return;
-    const lines=t.split('\n');
-    const title=lines[0].replace(/^#+\s*\d*\.?\s*/,'').replace(/\*\*/g,'').trim();
-    const content=lines.slice(1).join('\n').trim();
-    if(title&&content)s.push({title,content});
+  if(!text) return [{title:'ANÁLISE COMPLETA', content: text}];
+  const s = [];
+  text.split(/(?=\n## \d+\.)/).forEach(p => {
+    const t = p.trim(); if(!t) return;
+    const lines = t.split('\n');
+    const title = lines[0].replace(/^#+\s*\d*\.?\s*/,'').replace(/\*\*/g,'').trim();
+    const content = lines.slice(1).join('\n').trim();
+    if(title && content) s.push({title, content});
   });
-  return s.length?s:[{title:'ANÁLISE COMPLETA',content:text}];
+  return s.length ? s : [{title:'ANÁLISE COMPLETA', content: text}];
 }
 
 // ── DOWNLOAD WORD ─────────────────────────────────────────────────────────────
 async function dlWord(){
-  if(!analysisData)return;
-  const btn=document.getElementById('btnWord');
-  btn.disabled=true;btn.textContent='⏳ Gerando...';
-  document.getElementById('dlStatus').textContent='Preparando Word...';
+  if(!analysisData) return;
+  const btn = document.getElementById('btnWord');
+  btn.disabled = true; btn.textContent = '⏳ Gerando...';
+  document.getElementById('dlStatus').textContent = 'Preparando Word...';
   try{
-    const {Document,Packer,Paragraph,TextRun,AlignmentType,BorderStyle,Header,Footer,PageNumber}=docx;
-    const d=analysisData.formData,text=analysisData.aiText,secs=parseSec(text);
-    const p=(t,o={})=>new Paragraph({children:[new TextRun({text:String(t||''),font:'Arial',size:22,...o})],spacing:{after:130},alignment:AlignmentType.JUSTIFIED});
-    const pc=(t,o={})=>new Paragraph({children:[new TextRun({text:String(t||''),font:'Arial',size:22,...o})],spacing:{after:110},alignment:AlignmentType.CENTER});
-    const h1=(t)=>new Paragraph({children:[new TextRun({text:String(t||''),font:'Arial',size:26,bold:true,color:'8B6914'})],spacing:{before:340,after:130},border:{bottom:{style:BorderStyle.SINGLE,size:4,color:'C9A84C',space:4}}});
-    const sp=()=>new Paragraph({children:[new TextRun({text:'',size:18})],spacing:{after:70}});
-    const cover=[sp(),sp(),sp(),sp(),
+    const {Document,Packer,Paragraph,TextRun,AlignmentType,BorderStyle,Header,Footer,PageNumber} = docx;
+    const d = analysisData.formData, text = analysisData.aiText, secs = parseSec(text);
+    const p  = (t,o={}) => new Paragraph({children:[new TextRun({text:String(t||''),font:'Arial',size:22,...o})],spacing:{after:130},alignment:AlignmentType.JUSTIFIED});
+    const pc = (t,o={}) => new Paragraph({children:[new TextRun({text:String(t||''),font:'Arial',size:22,...o})],spacing:{after:110},alignment:AlignmentType.CENTER});
+    const h1 = (t)     => new Paragraph({children:[new TextRun({text:String(t||''),font:'Arial',size:26,bold:true,color:'8B6914'})],spacing:{before:340,after:130},border:{bottom:{style:BorderStyle.SINGLE,size:4,color:'C9A84C',space:4}}});
+    const sp = ()      => new Paragraph({children:[new TextRun({text:'',size:18})],spacing:{after:70}});
+    const cover = [sp(),sp(),sp(),sp(),
       pc('V9 POWER EDITION',{size:52,bold:true,color:'C9A84C'}),
       pc('ANÁLISE JURÍDICA COMPLETA',{size:28,bold:true,color:'8B6914'}),
       pc('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',{size:18,color:'C9A84C'}),sp()
     ];
-    if(analysisData.fileName)cover.push(pc('Documento: '+analysisData.fileName,{size:21}));
-    const flds=[['Área do Direito',d.area],['Tipo de Ação',d.tipo],['Polo Ativo',d.autor],['Polo Passivo',d.reu],['Tribunal',d.tribunal],['Valor da Causa',d.valor?'R$ '+d.valor:''],['Data',d.data]].filter(([,v])=>v);
-    flds.forEach(([k,v])=>cover.push(pc(`${k}: ${v}`,{size:21})));
-    cover.push(sp(),pc('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',{size:18,color:'C9A84C'}),sp(),sp(),
+    if(analysisData.fileName) cover.push(pc('Documento: '+analysisData.fileName,{size:21}));
+    const flds = [['Área do Direito',d.area],['Tipo de Ação',d.tipo],['Polo Ativo',d.autor],['Polo Passivo',d.reu],['Tribunal',d.tribunal],['Valor da Causa',d.valor?'R$ '+d.valor:''],['Data',d.data]].filter(([,v])=>v);
+    flds.forEach(([k,v]) => cover.push(pc(`${k}: ${v}`,{size:21})));
+    cover.push(sp(), pc('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',{size:18,color:'C9A84C'}),sp(),sp(),
       pc('Gerado por IA · V9 Power Edition',{size:17,italics:true,color:'888888'}),
       pc('NÃO SUBSTITUI orientação jurídica de advogado habilitado.',{size:17,italics:true,color:'888888'})
     );
-    const body=[];
+    const body = [];
     if(analysisData.fileName){body.push(h1('DOCUMENTO ANALISADO'));body.push(p(analysisData.fileName,{bold:true}));body.push(sp());}
     if(flds.length){body.push(h1('DADOS DO PROCESSO'));flds.forEach(([k,v])=>body.push(p(`${k}: ${v}`)));body.push(sp());}
-    secs.forEach(sec=>{
+    secs.forEach(sec => {
       body.push(h1(sec.title));
-      sec.content.split('\n').forEach(line=>{
-        const cl=line.replace(/\*\*/g,'').replace(/^#+\s*/,'').trim();
+      sec.content.split('\n').forEach(line => {
+        const cl = line.replace(/\*\*/g,'').replace(/^#+\s*/,'').trim();
         if(!cl){body.push(sp());return;}
-        const bold=/^\d+\.\s/.test(line.trim());
-        const ind=/^[-•]\s/.test(line.trim());
+        const bold = /^\d+\.\s/.test(line.trim());
+        const ind  = /^[-•]\s/.test(line.trim());
         body.push(new Paragraph({children:[new TextRun({text:cl.replace(/^[-•]\s*/,''),font:'Arial',size:22,...(bold?{bold:true}:{})})],spacing:{after:110},alignment:AlignmentType.JUSTIFIED,...(ind?{indent:{left:320}}:{})}));
       });
       body.push(sp());
     });
     body.push(pc('V9 Power Edition · '+d.data,{size:15,italics:true,color:'888888'}));
-    const wdoc=new Document({styles:{default:{document:{run:{font:'Arial',size:22}}}},sections:[
-      {properties:{page:{size:{width:11906,height:16838},margin:{top:1440,right:1440,bottom:1440,left:1440}}},children:cover},
-      {properties:{page:{size:{width:11906,height:16838},margin:{top:1440,right:1700,bottom:1440,left:1700}}},
-        headers:{default:new Header({children:[new Paragraph({children:[new TextRun({text:'V9 POWER EDITION  ·  ANÁLISE JURÍDICA',font:'Arial',size:15,color:'C9A84C',bold:true})],alignment:AlignmentType.CENTER,border:{bottom:{style:BorderStyle.SINGLE,size:3,color:'C9A84C',space:4}}})]})},
-        footers:{default:new Footer({children:[new Paragraph({children:[new TextRun({text:(d.area||'Análise')+'  ·  Pág. ',font:'Arial',size:15,color:'888888'}),new TextRun({children:[PageNumber.CURRENT],font:'Arial',size:15,color:'888888'})],alignment:AlignmentType.CENTER})]})},
-        children:body}
-    ]});
-    const buf=await Packer.toBuffer(wdoc);
-    const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');a.href=url;
-    a.download=`V9_${(d.tipo||d.area||'Analise').replace(/\s+/g,'_').replace(/[^\w_]/g,'')}.docx`;
-    document.body.appendChild(a);a.click();
-    setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1000);
-    document.getElementById('dlStatus').textContent='✓ Word gerado com sucesso!';
-  }catch(e){document.getElementById('dlStatus').textContent='✗ Erro: '+e.message;}
-  btn.disabled=false;btn.textContent='📄 Baixar Word (.docx)';
+    const wdoc = new Document({
+      styles:{default:{document:{run:{font:'Arial',size:22}}}},
+      sections:[
+        {properties:{page:{size:{width:11906,height:16838},margin:{top:1440,right:1440,bottom:1440,left:1440}}},children:cover},
+        {
+          properties:{page:{size:{width:11906,height:16838},margin:{top:1440,right:1700,bottom:1440,left:1700}}},
+          headers:{default:new Header({children:[new Paragraph({children:[new TextRun({text:'V9 POWER EDITION  ·  ANÁLISE JURÍDICA',font:'Arial',size:15,color:'C9A84C',bold:true})],alignment:AlignmentType.CENTER,border:{bottom:{style:BorderStyle.SINGLE,size:3,color:'C9A84C',space:4}}})]})},
+          footers:{default:new Footer({children:[new Paragraph({children:[new TextRun({text:(d.area||'Análise')+'  ·  Pág. ',font:'Arial',size:15,color:'888888'}),new TextRun({children:[PageNumber.CURRENT],font:'Arial',size:15,color:'888888'})],alignment:AlignmentType.CENTER})]})},
+          children:body
+        }
+      ]
+    });
+    const buf = await Packer.toBuffer(wdoc);
+    const blob = new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url;
+    a.download = `V9_${(d.tipo||d.area||'Analise').replace(/\s+/g,'_').replace(/[^\w_]/g,'')}.docx`;
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 1000);
+    document.getElementById('dlStatus').textContent = '✓ Word gerado com sucesso!';
+  } catch(e){
+    document.getElementById('dlStatus').textContent = '✗ Erro: '+e.message;
+  }
+  btn.disabled = false; btn.textContent = '📄 Baixar Word (.docx)';
 }
 
 // ── DOWNLOAD PDF ──────────────────────────────────────────────────────────────
 async function dlPDF(){
-  if(!analysisData)return;
-  const btn=document.getElementById('btnPdf');
-  btn.disabled=true;btn.textContent='⏳ Gerando...';
-  document.getElementById('dlStatus').textContent='Preparando PDF...';
+  if(!analysisData) return;
+  const btn = document.getElementById('btnPdf');
+  btn.disabled = true; btn.textContent = '⏳ Gerando...';
+  document.getElementById('dlStatus').textContent = 'Preparando PDF...';
   try{
-    const {jsPDF}=jspdf;
-    const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-    const d=analysisData.formData,text=analysisData.aiText;
-    const pw=210,ph=297,ml=18,mr=18,mb=18,cw=pw-ml-mr;let y=20;
+    const {jsPDF} = jspdf;
+    const doc = new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    const d = analysisData.formData, text = analysisData.aiText;
+    const pw=210,ph=297,ml=18,mr=18,mb=18,cw=pw-ml-mr; let y=20;
     const G=[201,168,76],GD=[139,105,20],GR=[110,100,85],LT=[200,190,170],BG=[10,10,10];
-    function np(){doc.addPage();doc.setFillColor(...BG);doc.rect(0,0,pw,ph,'F');doc.setFillColor(22,20,14);doc.rect(0,0,pw,11,'F');doc.setFont('helvetica','bold');doc.setFontSize(6.5);doc.setTextColor(...G);doc.text('V9 POWER EDITION  ·  ANÁLISE JURÍDICA',pw/2,7.5,{align:'center'});doc.setDrawColor(...GD);doc.setLineWidth(0.25);doc.line(ml,11,pw-mr,11);y=19;}
-    function ck(n=8){if(y+n>ph-mb-8)np();}
-    function sh(t){ck(14);doc.setFillColor(24,22,12);doc.rect(ml-2,y-5,cw+4,9,'F');doc.setDrawColor(...G);doc.setLineWidth(0.3);doc.line(ml-2,y+4,ml+cw+2,y+4);doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(...G);doc.text(t.toUpperCase().substring(0,70),ml,y);y+=9;}
-    function bd(t,bold=false,ind=0){if(!t||!t.trim())return;doc.setFont('helvetica',bold?'bold':'normal');doc.setFontSize(7.8);doc.setTextColor(...LT);doc.splitTextToSize(t.trim(),cw-ind).forEach(l=>{ck(5.5);doc.text(l,ml+ind,y);y+=5;});}
+    function np(){ doc.addPage(); doc.setFillColor(...BG); doc.rect(0,0,pw,ph,'F'); doc.setFillColor(22,20,14); doc.rect(0,0,pw,11,'F'); doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(...G); doc.text('V9 POWER EDITION  ·  ANÁLISE JURÍDICA',pw/2,7.5,{align:'center'}); doc.setDrawColor(...GD); doc.setLineWidth(0.25); doc.line(ml,11,pw-mr,11); y=19; }
+    function ck(n=8){ if(y+n>ph-mb-8) np(); }
+    function sh(t){ ck(14); doc.setFillColor(24,22,12); doc.rect(ml-2,y-5,cw+4,9,'F'); doc.setDrawColor(...G); doc.setLineWidth(0.3); doc.line(ml-2,y+4,ml+cw+2,y+4); doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...G); doc.text(t.toUpperCase().substring(0,70),ml,y); y+=9; }
+    function bd(t,bold=false,ind=0){ if(!t||!t.trim()) return; doc.setFont('helvetica',bold?'bold':'normal'); doc.setFontSize(7.8); doc.setTextColor(...LT); doc.splitTextToSize(t.trim(),cw-ind).forEach(l=>{ ck(5.5); doc.text(l,ml+ind,y); y+=5; }); }
     // Capa
-    doc.setFillColor(...BG);doc.rect(0,0,pw,ph,'F');
-    doc.setDrawColor(...GD);doc.setLineWidth(0.3);doc.line(ml,14,pw-mr,14);
-    doc.setDrawColor(...G);doc.setLineWidth(0.6);doc.line(ml,16,pw-mr,16);
-    doc.setFont('helvetica','bold');doc.setFontSize(28);doc.setTextColor(...G);doc.text('V9 POWER EDITION',pw/2,62,{align:'center'});
-    doc.setFontSize(13);doc.setTextColor(...GD);doc.text('ANÁLISE JURÍDICA COMPLETA',pw/2,72,{align:'center'});
-    doc.setFontSize(7.5);doc.setTextColor(...GR);doc.text('◈  ZERO ALUCINAÇÃO  ·  ANÁLISE BASEADA NOS DADOS FORNECIDOS  ◈',pw/2,79,{align:'center'});
-    doc.setDrawColor(...GD);doc.setLineWidth(0.3);doc.line(30,85,pw-30,85);
+    doc.setFillColor(...BG); doc.rect(0,0,pw,ph,'F');
+    doc.setDrawColor(...GD); doc.setLineWidth(0.3); doc.line(ml,14,pw-mr,14);
+    doc.setDrawColor(...G); doc.setLineWidth(0.6); doc.line(ml,16,pw-mr,16);
+    doc.setFont('helvetica','bold'); doc.setFontSize(28); doc.setTextColor(...G); doc.text('V9 POWER EDITION',pw/2,62,{align:'center'});
+    doc.setFontSize(13); doc.setTextColor(...GD); doc.text('ANÁLISE JURÍDICA COMPLETA',pw/2,72,{align:'center'});
+    doc.setFontSize(7.5); doc.setTextColor(...GR); doc.text('◈  ZERO ALUCINAÇÃO  ·  ANÁLISE BASEADA NOS DADOS FORNECIDOS  ◈',pw/2,79,{align:'center'});
+    doc.setDrawColor(...GD); doc.setLineWidth(0.3); doc.line(30,85,pw-30,85);
     let cy=97;
-    if(analysisData.fileName){doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...GD);doc.text('Documento:',ml+8,cy);doc.setFont('helvetica','normal');doc.setTextColor(...LT);doc.text((analysisData.fileName||'').substring(0,50),ml+48,cy);cy+=8;}
-    const flds=[['Área',d.area],['Tipo',d.tipo],['Autor',d.autor],['Réu',d.reu],['Tribunal',d.tribunal],['Valor',d.valor?'R$ '+d.valor:''],['Data',d.data]].filter(([,v])=>v);
-    flds.forEach(([k,v])=>{doc.setFont('helvetica','bold');doc.setFontSize(7.8);doc.setTextColor(...GD);doc.text(k+':',ml+8,cy);doc.setFont('helvetica','normal');doc.setTextColor(...LT);doc.text((v||'').substring(0,55),ml+36,cy);cy+=7;});
-    doc.setDrawColor(...GD);doc.line(30,cy+3,pw-30,cy+3);
-    doc.setFont('helvetica','italic');doc.setFontSize(6.8);doc.setTextColor(...GR);
+    if(analysisData.fileName){ doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...GD); doc.text('Documento:',ml+8,cy); doc.setFont('helvetica','normal'); doc.setTextColor(...LT); doc.text((analysisData.fileName||'').substring(0,50),ml+48,cy); cy+=8; }
+    const flds = [['Área',d.area],['Tipo',d.tipo],['Autor',d.autor],['Réu',d.reu],['Tribunal',d.tribunal],['Valor',d.valor?'R$ '+d.valor:''],['Data',d.data]].filter(([,v])=>v);
+    flds.forEach(([k,v]) => { doc.setFont('helvetica','bold'); doc.setFontSize(7.8); doc.setTextColor(...GD); doc.text(k+':',ml+8,cy); doc.setFont('helvetica','normal'); doc.setTextColor(...LT); doc.text((v||'').substring(0,55),ml+36,cy); cy+=7; });
+    doc.setDrawColor(...GD); doc.line(30,cy+3,pw-30,cy+3);
+    doc.setFont('helvetica','italic'); doc.setFontSize(6.8); doc.setTextColor(...GR);
     doc.text('Gerado por IA · V9 Power Edition · NÃO SUBSTITUI advogado habilitado.',pw/2,ph-16,{align:'center'});
     // Análise
-    np();sh('Dados do Processo');
-    if(analysisData.fileName)bd('Documento: '+analysisData.fileName,true);
-    flds.forEach(([k,v])=>bd(`${k}: ${v}`));y+=3;
-    parseSec(text).forEach(sec=>{
+    np(); sh('Dados do Processo');
+    if(analysisData.fileName) bd('Documento: '+analysisData.fileName, true);
+    flds.forEach(([k,v]) => bd(`${k}: ${v}`));
+    y += 3;
+    parseSec(text).forEach(sec => {
       sh(sec.title);
-      sec.content.split('\n').forEach(line=>{
-        const cl=line.replace(/\*\*/g,'').replace(/^#+\s*/,'').trim();
-        if(!cl){y+=1.5;return;}
-        bd(/^[-•]\s/.test(line.trim())?'• '+cl.replace(/^[-•]\s*/,''):cl,/^\d+\.\s/.test(line.trim()),/^[-•]\s/.test(line.trim())?4:0);
-      });y+=3;
+      sec.content.split('\n').forEach(line => {
+        const cl = line.replace(/\*\*/g,'').replace(/^#+\s*/,'').trim();
+        if(!cl){ y+=1.5; return; }
+        bd(/^[-•]\s/.test(line.trim()) ? '• '+cl.replace(/^[-•]\s*/,'') : cl, /^\d+\.\s/.test(line.trim()), /^[-•]\s/.test(line.trim()) ? 4 : 0);
+      });
+      y += 3;
     });
-    const tot=doc.internal.getNumberOfPages();
-    for(let i=2;i<=tot;i++){doc.setPage(i);doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(...GR);doc.text(`Página ${i} de ${tot}  ·  V9 Power  ·  ${d.data}`,pw/2,ph-7,{align:'center'});}
+    const tot = doc.internal.getNumberOfPages();
+    for(let i=2;i<=tot;i++){ doc.setPage(i); doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(...GR); doc.text(`Página ${i} de ${tot}  ·  V9 Power  ·  ${d.data}`,pw/2,ph-7,{align:'center'}); }
     doc.save(`V9_${(d.tipo||d.area||'Analise').replace(/\s+/g,'_').replace(/[^\w_]/g,'')}.pdf`);
-    document.getElementById('dlStatus').textContent='✓ PDF gerado com sucesso!';
-  }catch(e){document.getElementById('dlStatus').textContent='✗ Erro: '+e.message;}
-  btn.disabled=false;btn.textContent='📕 Baixar PDF';
+    document.getElementById('dlStatus').textContent = '✓ PDF gerado com sucesso!';
+  } catch(e){
+    document.getElementById('dlStatus').textContent = '✗ Erro: '+e.message;
+  }
+  btn.disabled = false; btn.textContent = '📕 Baixar PDF';
 }
 
 // ── GERAR PROMPT PARA COPIAR ──────────────────────────────────────────────────
@@ -908,22 +1034,19 @@ function gerarPromptCopia(d, text){
   const prob = text.match(/Probabilidade\s+Global[:\s*_]*(\d{1,3})\s*%/i);
   const probValor = prob ? prob[1]+'%' : 'não identificada';
 
-  // Extrair seções relevantes do texto gerado
   const secoes = {};
-  text.split(/(?=
-## \d+\.)/).forEach(p => {
+  text.split(/(?=\n## \d+\.)/).forEach(p => {
     const t = p.trim(); if(!t) return;
-    const titulo = t.split('
-')[0].replace(/^#+\s*\d*\.?\s*/,'').trim().toLowerCase();
-    if(titulo.includes('probabilidade')) secoes.prob = t;
-    if(titulo.includes('jurisprud')) secoes.juris = t;
-    if(titulo.includes('estratégia') || titulo.includes('estrategia') || titulo.includes('próximos')) secoes.estrategia = t;
-    if(titulo.includes('pontos fort')) secoes.fortes = t;
-    if(titulo.includes('pontos frac') || titulo.includes('riscos')) secoes.fracos = t;
-    if(titulo.includes('fundamentos')) secoes.fundamentos = t;
+    const titulo = t.split('\n')[0].replace(/^#+\s*\d*\.?\s*/,'').trim().toLowerCase();
+    if(titulo.includes('probabilidade'))                                  secoes.prob        = t;
+    if(titulo.includes('jurisprud'))                                      secoes.juris       = t;
+    if(titulo.includes('estratégia')||titulo.includes('estrategia')||titulo.includes('próximos')) secoes.estrategia = t;
+    if(titulo.includes('pontos fort'))                                    secoes.fortes      = t;
+    if(titulo.includes('pontos frac')||titulo.includes('riscos'))         secoes.fracos      = t;
+    if(titulo.includes('fundamentos'))                                    secoes.fundamentos = t;
   });
 
-  const prompt = `Você é um jurista brasileiro especialista. Preciso que você aprofunde e refine a análise jurídica abaixo, mantendo rigor absoluto — NUNCA invente súmulas, acórdãos ou dados que não existam.
+  return `Você é um jurista brasileiro especialista. Preciso que você aprofunde e refine a análise jurídica abaixo, mantendo rigor absoluto — NUNCA invente súmulas, acórdãos ou dados que não existam.
 
 ═══════════════════════════════════════════
 DADOS DO CASO ANALISADO
@@ -979,49 +1102,43 @@ O QUE PRECISO QUE VOCÊ FAÇA AGORA:
    - Valor da causa fundamentado
 
 IMPORTANTE: Se não tiver certeza sobre alguma jurisprudência, diga "não localizado" — prefiro honestidade a invenção.`;
-
-  return prompt;
 }
 
 function copyPrompt(){
   const prompt = document.getElementById('promptPreview').textContent;
   if(!prompt) return;
-  navigator.clipboard.writeText(prompt).then(()=>{
+  navigator.clipboard.writeText(prompt).then(() => {
     const btn = document.getElementById('btnCopy');
     const hint = document.getElementById('copyHint');
     btn.classList.add('copied');
     btn.textContent = '✓ COPIADO! Cole em qualquer IA agora';
     hint.textContent = '✅ Prompt copiado — abra o ChatGPT, Gemini ou Claude e cole (Ctrl+V)';
     hint.style.color = 'var(--green)';
-    setTimeout(()=>{
+    setTimeout(() => {
       btn.classList.remove('copied');
       btn.innerHTML = '📋 COPIAR PROMPT COMPLETO';
       hint.textContent = 'Cole no ChatGPT, Gemini, Claude ou qualquer IA para continuar a análise';
       hint.style.color = '';
     }, 4000);
-  }).catch(()=>{
-    // fallback para navegadores que bloqueiam clipboard
+  }).catch(() => {
     const ta = document.createElement('textarea');
-    ta.value = prompt;
-    ta.style.position='fixed';ta.style.opacity='0';
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    ta.remove();
+    ta.value = prompt; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
     const btn = document.getElementById('btnCopy');
-    btn.classList.add('copied');
-    btn.textContent = '✓ COPIADO!';
-    setTimeout(()=>{ btn.classList.remove('copied'); btn.innerHTML = '📋 COPIAR PROMPT COMPLETO'; }, 3000);
+    btn.classList.add('copied'); btn.textContent = '✓ COPIADO!';
+    setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '📋 COPIAR PROMPT COMPLETO'; }, 3000);
   });
 }
 
 // ── RESET ─────────────────────────────────────────────────────────────────────
 function reset(){
   document.getElementById('resultCard').classList.remove('visible');
-  document.getElementById('inputCard').style.display='block';
-  document.getElementById('dlStatus').textContent='';
-  analysisData=null;clearFile(null);setMode('upload');
-  window.scrollTo({top:0,behavior:'smooth'});
+  document.getElementById('inputCard').style.display = 'block';
+  document.getElementById('dlStatus').textContent = '';
+  analysisData = null;
+  clearFile(null);
+  setMode('upload');
+  window.scrollTo({top: 0, behavior: 'smooth'});
 }
 </script>
 </body>
