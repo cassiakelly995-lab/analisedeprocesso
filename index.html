@@ -65,7 +65,7 @@ textarea{resize:vertical;min-height:125px}
 .mode-btn.active{background:linear-gradient(135deg,var(--gold-dark),rgba(201,168,76,.45));color:var(--gold-light)}
 
 /* ── UPLOAD ───────────────────────────────────────── */
-.upload-zone{border:2px dashed var(--border);border-radius:5px;padding:28px 18px;text-align:center;cursor:pointer;transition:all .25s;background:var(--card2)}
+.upload-zone{border:2px dashed var(--border);border-radius:5px;padding:28px 18px;text-align:center;cursor:pointer;transition:all .25s;background:var(--card2);display:block;width:100%;box-sizing:border-box}
 .upload-zone:hover,.upload-zone.drag{border-color:var(--gold-dark);background:rgba(139,105,20,.06)}
 .upload-zone.has-file{border-color:var(--gold);border-style:solid;background:rgba(201,168,76,.04)}
 .upload-icon{font-size:2.1rem;display:block;margin-bottom:8px;opacity:.65}
@@ -201,15 +201,14 @@ textarea{resize:vertical;min-height:125px}
 
   <!-- UPLOAD -->
   <div id="uploadSection">
-    <div class="upload-zone" id="uploadZone"
-      onclick="document.getElementById('fileInput').click()"
+    <label class="upload-zone" id="uploadZone" for="fileInput"
       ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
       <span class="upload-icon" id="uploadIcon">📄</span>
       <div class="upload-title" id="uploadTitle">Arraste ou clique para anexar</div>
       <div class="upload-sub" id="uploadSub">Contrato, Petição, Sentença, Notificação, Laudo...</div>
       <div class="upload-types" id="uploadTypes">PDF · Word (.docx) · Imagem (JPG/PNG) · TXT</div>
-      <button class="upload-clear" id="uploadClear" onclick="clearFile(event)">✕ Remover</button>
-    </div>
+      <button class="upload-clear" id="uploadClear" onclick="clearFile(event)" type="button">✕ Remover</button>
+    </label>
     <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.webp"
       onchange="handleFile(this.files[0])">
     <div class="prog" id="prog">
@@ -477,7 +476,7 @@ async function handleFile(file){
 }
 
 function clearFile(e){
-  if(e) e.stopPropagation();
+  if(e){ e.stopPropagation(); e.preventDefault(); }
   uploadedFile=null; extractedContent=''; extractedBase64=''; extractedMime='';
   document.getElementById('fileInput').value='';
   const z=document.getElementById('uploadZone');
