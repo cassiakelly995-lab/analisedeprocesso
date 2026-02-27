@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>V9 POWER EDITION – Análise Jurídica</title>
+<title>V9 PRO – Análise Jurídica Profissional</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -11,196 +11,317 @@
 <style>
 :root{
   --gold:#c9a84c;--gold-light:#e8c96b;--gold-dark:#8b6914;
-  --bg:#080808;--card:#101010;--card2:#161616;--border:#252525;
-  --text:#e0d5c0;--muted:#6b6050;--green:#2ecc71;--red:#e74c3c;--yellow:#f39c12;
+  --bg:#060606;--card:#0e0e0e;--card2:#141414;--border:#222;
+  --text:#e0d5c0;--muted:#6b6050;--green:#2ecc71;--red:#e74c3c;--yellow:#f39c12;--blue:#3498db;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;line-height:1.6;min-height:100vh;overflow-x:hidden}
-body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.4}
-body::before{content:'';position:fixed;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold-dark) 20%,var(--gold-light) 50%,var(--gold-dark) 80%,transparent);z-index:100}
+body::before{content:'';position:fixed;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold-dark) 20%,var(--gold-light) 50%,var(--gold-dark) 80%,transparent);z-index:1000}
 
-header{text-align:center;padding:44px 20px 22px}
-header::after{content:'';display:block;width:300px;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dark),var(--gold),var(--gold-dark),transparent);margin:12px auto 0}
-.logo-text{font-family:'Cinzel',serif;font-size:clamp(1.5rem,5vw,2.6rem);letter-spacing:.4em;background:linear-gradient(135deg,var(--gold-dark),var(--gold-light),var(--gold),var(--gold-dark));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:inline-block}
-.logo-sub{font-size:.63rem;letter-spacing:.38em;color:var(--muted);margin-top:6px;text-transform:uppercase}
-.logo-badge{display:inline-block;font-size:.52rem;letter-spacing:.22em;color:var(--gold-dark);border:1px solid var(--gold-dark);padding:2px 11px;margin-top:7px;border-radius:2px;text-transform:uppercase}
+/* ── TOPBAR ── */
+.topbar{background:#0a0a0a;border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:500}
+.topbar-logo{font-family:'Cinzel',serif;font-size:.9rem;letter-spacing:.3em;background:linear-gradient(135deg,var(--gold-dark),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.topbar-actions{display:flex;gap:8px;align-items:center}
+.btn-hist{background:transparent;border:1px solid var(--border);border-radius:3px;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:.6rem;letter-spacing:.15em;padding:6px 12px;cursor:pointer;text-transform:uppercase;transition:all .2s}
+.btn-hist:hover{border-color:var(--gold-dark);color:var(--gold)}
+.hist-count{background:var(--gold-dark);color:#000;font-size:.5rem;font-weight:700;border-radius:10px;padding:1px 5px;margin-left:4px}
 
-.container{max-width:940px;margin:0 auto;padding:26px 18px 80px;position:relative;z-index:1}
+/* ── HEADER ── */
+header{text-align:center;padding:36px 20px 18px}
+.logo-text{font-family:'Cinzel',serif;font-size:clamp(1.4rem,4vw,2.3rem);letter-spacing:.4em;background:linear-gradient(135deg,var(--gold-dark),var(--gold-light),var(--gold),var(--gold-dark));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:inline-block}
+.logo-sub{font-size:.58rem;letter-spacing:.35em;color:var(--muted);margin-top:5px;text-transform:uppercase}
+.logo-badges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:9px}
+.badge{font-size:.48rem;letter-spacing:.18em;color:var(--gold-dark);border:1px solid var(--gold-dark);padding:2px 9px;border-radius:2px;text-transform:uppercase}
+header::after{content:'';display:block;width:260px;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dark),var(--gold),var(--gold-dark),transparent);margin:12px auto 0}
 
-.card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:26px;margin-bottom:18px;position:relative;overflow:hidden}
+.container{max-width:960px;margin:0 auto;padding:22px 16px 80px;position:relative;z-index:1}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:22px;margin-bottom:16px;position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dark),var(--gold),var(--gold-dark),transparent)}
-
-.slabel{font-size:.58rem;letter-spacing:.33em;color:var(--gold);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-weight:700}
+.slabel{font-size:.55rem;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px;font-weight:700}
 .slabel::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
 
-/* ── API KEY CARD ─────────────────────────────────── */
-.apikey-wrap{margin-bottom:6px}
-.apikey-help{font-size:.68rem;color:var(--muted);line-height:1.65;margin-bottom:10px}
+/* ── API KEY ── */
+.apikey-help{font-size:.66rem;color:var(--muted);line-height:1.6;margin-bottom:9px}
 .apikey-help a{color:var(--gold-dark);text-decoration:none}
-.apikey-help a:hover{color:var(--gold)}
 .apikey-row{display:flex;gap:8px}
-.apikey-input{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;padding:11px 14px;outline:none;transition:border-color .2s;letter-spacing:.04em}
-.apikey-input:focus{border-color:var(--gold-dark);box-shadow:0 0 0 2px rgba(139,105,20,.1)}
-.apikey-eye{background:var(--card2);border:1px solid var(--border);border-radius:3px;color:var(--muted);font-size:17px;padding:0 13px;cursor:pointer;transition:all .2s;flex-shrink:0}
+.apikey-input{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;padding:10px 13px;outline:none;transition:border-color .2s;letter-spacing:.04em}
+.apikey-input:focus{border-color:var(--gold-dark)}
+.apikey-eye{background:var(--card2);border:1px solid var(--border);border-radius:3px;color:var(--muted);font-size:16px;padding:0 12px;cursor:pointer;transition:all .2s}
 .apikey-eye:hover{border-color:var(--gold-dark)}
-.apikey-status{font-size:.62rem;letter-spacing:.12em;margin-top:7px;text-transform:uppercase;min-height:18px}
+.apikey-status{font-size:.58rem;letter-spacing:.1em;margin-top:6px;text-transform:uppercase;min-height:16px}
 .apikey-status.ok{color:var(--green)}.apikey-status.err{color:var(--red)}
-.apikey-save-note{font-size:.6rem;color:var(--muted);margin-top:5px;letter-spacing:.06em}
+.apikey-note{font-size:.56rem;color:var(--muted);margin-top:4px}
 
-/* ── FIELDS ───────────────────────────────────────── */
-label{display:block;font-size:.6rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:4px;margin-top:15px}
+/* ── FIELDS ── */
+label{display:block;font-size:.57rem;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin-bottom:4px;margin-top:13px}
 label:first-of-type{margin-top:0}
-input[type=text],select,textarea{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;padding:10px 13px;outline:none;transition:border-color .2s,box-shadow .2s;letter-spacing:.03em}
-input[type=text]:focus,select:focus,textarea:focus{border-color:var(--gold-dark);box-shadow:0 0 0 2px rgba(139,105,20,.1)}
-select option{background:#161616}
-textarea{resize:vertical;min-height:125px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media(max-width:600px){.grid2{grid-template-columns:1fr}}
+input[type=text],select,textarea{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;padding:10px 12px;outline:none;transition:border-color .2s}
+input[type=text]:focus,select:focus,textarea:focus{border-color:var(--gold-dark)}
+select option{background:#141414}
+textarea{resize:vertical;min-height:120px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:640px){.grid2,.grid3{grid-template-columns:1fr}}
 
-/* ── MODE TOGGLE ──────────────────────────────────── */
-.mode-toggle{display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:16px}
-.mode-btn{flex:1;padding:11px;background:var(--card2);border:none;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:.64rem;letter-spacing:.18em;cursor:pointer;transition:all .2s;text-transform:uppercase;font-weight:600}
-.mode-btn:first-child{border-right:1px solid var(--border)}
-.mode-btn.active{background:linear-gradient(135deg,var(--gold-dark),rgba(201,168,76,.45));color:var(--gold-light)}
+/* ── MODE TOGGLE ── */
+.mode-toggle{display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:14px}
+.mode-btn{flex:1;padding:10px;background:var(--card2);border:none;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:.6rem;letter-spacing:.16em;cursor:pointer;transition:all .2s;text-transform:uppercase;font-weight:600}
+.mode-btn+.mode-btn{border-left:1px solid var(--border)}
+.mode-btn.active{background:linear-gradient(135deg,var(--gold-dark),rgba(201,168,76,.4));color:var(--gold-light)}
 
-/* ── UPLOAD ───────────────────────────────────────── */
-.upload-zone{border:2px dashed var(--border);border-radius:5px;padding:28px 18px;text-align:center;cursor:pointer;transition:all .25s;background:var(--card2);position:relative;overflow:hidden}
-.upload-zone:hover,.upload-zone.drag{border-color:var(--gold-dark);background:rgba(139,105,20,.06)}
+/* ── UPLOAD ── */
+.upload-zone{border:2px dashed var(--border);border-radius:5px;padding:26px 16px;text-align:center;cursor:pointer;transition:all .25s;background:var(--card2)}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--gold-dark);background:rgba(139,105,20,.05)}
 .upload-zone.has-file{border-color:var(--gold);border-style:solid;background:rgba(201,168,76,.04)}
-.upload-icon{font-size:2.1rem;display:block;margin-bottom:8px;opacity:.65}
-.upload-title{font-size:.8rem;letter-spacing:.13em;color:var(--text);font-weight:600;text-transform:uppercase}
-.upload-sub{font-size:.67rem;color:var(--muted);margin-top:4px}
-.upload-types{font-size:.6rem;color:var(--gold-dark);margin-top:7px;letter-spacing:.1em;text-transform:uppercase}
-.upload-clear{display:none;background:rgba(231,76,60,.12);border:1px solid rgba(231,76,60,.25);color:#e09090;font-size:.6rem;letter-spacing:.12em;padding:4px 12px;border-radius:3px;cursor:pointer;margin-top:9px;text-transform:uppercase;transition:all .2s}
-.upload-clear:hover{background:rgba(231,76,60,.22)}
-.prog{display:none;margin-top:10px}
+.upload-icon{font-size:2rem;display:block;margin-bottom:7px;opacity:.6}
+.upload-title{font-size:.75rem;letter-spacing:.12em;color:var(--text);font-weight:600;text-transform:uppercase}
+.upload-sub{font-size:.63rem;color:var(--muted);margin-top:3px}
+.upload-types{font-size:.56rem;color:var(--gold-dark);margin-top:6px;letter-spacing:.09em;text-transform:uppercase}
+.upload-clear{display:none;background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.2);color:#e09090;font-size:.57rem;letter-spacing:.1em;padding:4px 11px;border-radius:3px;cursor:pointer;margin-top:8px;text-transform:uppercase;transition:all .2s}
+.prog{display:none;margin-top:9px}
 .prog-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
 .prog-fill{height:100%;background:linear-gradient(90deg,var(--gold-dark),var(--gold));width:0%;transition:width .3s}
-.prog-txt{font-size:.6rem;color:var(--muted);margin-top:4px}
-.extracted-box{display:none;background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:12px;margin-top:11px}
-.extracted-lbl{font-size:.58rem;letter-spacing:.2em;color:var(--gold-dark);text-transform:uppercase;margin-bottom:6px}
-.extracted-txt{font-size:12px;color:var(--muted);max-height:95px;overflow-y:auto;white-space:pre-wrap;line-height:1.55}
-.extracted-info{font-size:.58rem;color:var(--muted);margin-top:5px}
+.prog-txt{font-size:.57rem;color:var(--muted);margin-top:3px}
+.extracted-box{display:none;background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:11px;margin-top:10px}
+.extracted-lbl{font-size:.55rem;letter-spacing:.18em;color:var(--gold-dark);text-transform:uppercase;margin-bottom:5px}
+.extracted-txt{font-size:11px;color:var(--muted);max-height:80px;overflow-y:auto;white-space:pre-wrap;line-height:1.5}
+#fileInput{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
-/* ── TONE ─────────────────────────────────────────── */
-.tone-group{display:flex;gap:7px;flex-wrap:wrap}
-.tone-btn{background:var(--card2);border:1px solid var(--border);border-radius:3px;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:.6rem;letter-spacing:.17em;padding:7px 12px;cursor:pointer;text-transform:uppercase;transition:all .2s}
+/* ── TONE ── */
+.tone-group{display:flex;gap:6px;flex-wrap:wrap}
+.tone-btn{background:var(--card2);border:1px solid var(--border);border-radius:3px;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:.57rem;letter-spacing:.15em;padding:6px 11px;cursor:pointer;text-transform:uppercase;transition:all .2s}
 .tone-btn:hover{border-color:var(--gold-dark);color:var(--gold-dark)}
 .tone-btn.active{background:linear-gradient(135deg,var(--gold-dark),var(--gold));border-color:var(--gold);color:#000;font-weight:700}
 
-/* ── EXECUTE ──────────────────────────────────────── */
-.btn-exec{width:100%;padding:17px;background:linear-gradient(135deg,#6b4f0a,var(--gold),#6b4f0a);border:none;border-radius:4px;font-family:'Cinzel',serif;font-size:.76rem;letter-spacing:.28em;color:#000;font-weight:700;cursor:pointer;transition:all .3s;text-transform:uppercase;margin-top:16px;position:relative;overflow:hidden}
-.btn-exec::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(255,255,255,.1),transparent);transform:translateX(-100%);transition:.5s}
-.btn-exec:hover::after{transform:translateX(100%)}
-.btn-exec:hover{transform:translateY(-1px);box-shadow:0 10px 35px rgba(201,168,76,.2)}
-.btn-exec:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+/* ── PRAZOS ── */
+.prazo-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:6px}
+@media(max-width:600px){.prazo-grid{grid-template-columns:1fr 1fr}}
+.prazo-card{background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:10px 12px}
+.prazo-nome{font-size:.55rem;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.prazo-data{font-size:.85rem;color:var(--gold);font-family:'Cinzel',serif;margin-top:2px}
+.prazo-dias{font-size:.58rem;color:var(--muted);margin-top:1px}
+.prazo-dias.urgente{color:var(--red)}
+.prazo-dias.atencao{color:var(--yellow)}
+.prazo-dias.ok{color:var(--green)}
 
-/* ── LOADING ──────────────────────────────────────── */
-.loading{display:none;text-align:center;padding:62px 20px}
+/* ── EXEC BUTTON ── */
+.btn-exec{width:100%;padding:16px;background:linear-gradient(135deg,#6b4f0a,var(--gold),#6b4f0a);border:none;border-radius:4px;font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.26em;color:#000;font-weight:700;cursor:pointer;transition:all .3s;text-transform:uppercase;margin-top:14px;position:relative;overflow:hidden}
+.btn-exec::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(255,255,255,.12),transparent);transform:translateX(-100%);transition:.5s}
+.btn-exec:hover::after{transform:translateX(100%)}
+.btn-exec:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(201,168,76,.22)}
+.btn-exec:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+/* ── LOADING ── */
+.loading{display:none;text-align:center;padding:56px 20px}
 .loading.visible{display:block}
-.spinner{width:50px;height:50px;margin:0 auto 16px;position:relative}
+.spinner{width:48px;height:48px;margin:0 auto 14px;position:relative}
 .spinner::before,.spinner::after{content:'';position:absolute;inset:0;border-radius:50%;border:2px solid transparent}
 .spinner::before{border-top-color:var(--gold);animation:spin .9s linear infinite}
 .spinner::after{border-bottom-color:var(--gold-dark);animation:spin 1.5s linear infinite reverse;inset:7px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading-title{font-size:.66rem;letter-spacing:.28em;color:var(--muted);text-transform:uppercase}
-.loading-step{font-size:.6rem;letter-spacing:.15em;color:var(--gold-dark);margin-top:8px;min-height:20px}
+.loading-title{font-size:.62rem;letter-spacing:.25em;color:var(--muted);text-transform:uppercase}
+.loading-step{font-size:.58rem;letter-spacing:.13em;color:var(--gold-dark);margin-top:7px;min-height:18px}
 
-/* ── RESULT ───────────────────────────────────────── */
+/* ── RESULT ── */
 .result-card{display:none}
 .result-card.visible{display:block;animation:fadeUp .5s ease}
-@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 
-.prob-grid{display:grid;grid-template-columns:135px 1fr;gap:20px;align-items:start}
+/* ── RESUMO EXECUTIVO ── */
+.resumo-exec{background:linear-gradient(135deg,rgba(139,105,20,.1),rgba(201,168,76,.05));border:1px solid rgba(201,168,76,.2);border-radius:6px;padding:18px 20px;margin-bottom:16px}
+.resumo-exec::before{content:'';display:block;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin-bottom:14px}
+.resumo-titulo{font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.22em;color:var(--gold);text-transform:uppercase;margin-bottom:10px}
+.resumo-itens{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:500px){.resumo-itens{grid-template-columns:1fr}}
+.resumo-item{background:rgba(0,0,0,.3);border-radius:4px;padding:8px 11px;border-left:2px solid var(--gold-dark)}
+.resumo-item-label{font-size:.52rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.resumo-item-val{font-size:.82rem;color:var(--text);margin-top:2px;font-weight:600}
+
+/* ── PROB ── */
+.prob-grid{display:grid;grid-template-columns:120px 1fr;gap:18px;align-items:start}
 @media(max-width:480px){.prob-grid{grid-template-columns:1fr}}
-.prob-value{font-family:'Cinzel',serif;font-size:3.6rem;font-weight:900;line-height:1}
+.prob-value{font-family:'Cinzel',serif;font-size:3.4rem;font-weight:900;line-height:1}
 .prob-value.high{color:var(--green)}.prob-value.medium{color:var(--yellow)}.prob-value.low{color:var(--red)}
-.prob-bar-track{height:5px;background:var(--card2);border-radius:3px;overflow:hidden;border:1px solid var(--border);margin:13px 0 3px}
+.prob-class{font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;margin-top:3px;font-weight:700}
+.prob-bar-track{height:5px;background:var(--card2);border-radius:3px;overflow:hidden;border:1px solid var(--border);margin:12px 0 3px}
 .prob-bar-fill{height:100%;border-radius:3px;transition:width 1.2s cubic-bezier(.16,1,.3,1);width:0%}
 .prob-bar-fill.high{background:linear-gradient(90deg,#1e8449,var(--green))}.prob-bar-fill.medium{background:linear-gradient(90deg,#b7770d,var(--yellow))}.prob-bar-fill.low{background:linear-gradient(90deg,#922b21,var(--red))}
-.score-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.score-name{font-size:.58rem;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;width:155px;flex-shrink:0}
-.score-mini-bar{flex:1;height:4px;background:var(--card2);border-radius:2px;overflow:hidden}
+.score-row{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.score-name{font-size:.55rem;letter-spacing:.09em;color:var(--muted);text-transform:uppercase;width:145px;flex-shrink:0}
+.score-mini-bar{flex:1;height:3px;background:var(--card2);border-radius:2px;overflow:hidden}
 .score-mini-fill{height:100%;background:linear-gradient(90deg,var(--gold-dark),var(--gold-light));border-radius:2px;transition:width 1.1s ease;width:0%}
-.score-pct{font-size:.66rem;color:var(--gold);width:32px;text-align:right;font-family:'Cinzel',serif}
+.score-pct{font-size:.62rem;color:var(--gold);width:30px;text-align:right;font-family:'Cinzel',serif}
 
-.ai-text{font-size:13.5px;line-height:1.88;color:#a09880;white-space:pre-wrap;font-family:'Rajdhani',sans-serif}
+/* ── AI TEXT ── */
+.ai-text{font-size:13px;line-height:1.9;color:#a09880;white-space:pre-wrap;font-family:'Rajdhani',sans-serif}
 
-.dl-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+/* ── CHAT ── */
+.chat-wrap{margin-top:6px}
+.chat-messages{max-height:380px;overflow-y:auto;margin-bottom:12px;display:flex;flex-direction:column;gap:10px;padding-right:4px}
+.chat-msg{border-radius:5px;padding:11px 14px;font-size:13px;line-height:1.75;max-width:92%}
+.chat-msg.user{background:rgba(139,105,20,.15);border:1px solid rgba(139,105,20,.25);color:var(--text);align-self:flex-end}
+.chat-msg.ai{background:var(--card2);border:1px solid var(--border);color:#a09880;align-self:flex-start;white-space:pre-wrap}
+.chat-msg.ai.loading-msg{color:var(--muted);font-style:italic}
+.chat-input-row{display:flex;gap:8px}
+.chat-input{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;padding:10px 12px;outline:none;transition:border-color .2s;resize:none;min-height:44px;max-height:120px}
+.chat-input:focus{border-color:var(--gold-dark)}
+.btn-chat-send{background:linear-gradient(135deg,var(--gold-dark),var(--gold));border:none;border-radius:3px;color:#000;font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.15em;font-weight:700;padding:0 18px;cursor:pointer;transition:all .2s;flex-shrink:0}
+.btn-chat-send:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(201,168,76,.2)}
+.btn-chat-send:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.chat-sugest{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.chat-sugest-btn{background:var(--card2);border:1px solid var(--border);border-radius:3px;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:.57rem;letter-spacing:.1em;padding:5px 10px;cursor:pointer;text-transform:uppercase;transition:all .2s;white-space:nowrap}
+.chat-sugest-btn:hover{border-color:var(--gold-dark);color:var(--gold-dark)}
+
+/* ── DOWNLOAD ── */
+.dl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
 @media(max-width:480px){.dl-grid{grid-template-columns:1fr}}
-.btn-dl{width:100%;padding:14px;border:none;border-radius:4px;font-family:'Cinzel',serif;font-size:.66rem;letter-spacing:.17em;font-weight:700;cursor:pointer;transition:all .3s;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-dl{width:100%;padding:13px;border:none;border-radius:4px;font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.15em;font-weight:700;cursor:pointer;transition:all .3s;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:7px}
 .btn-dl.word{background:linear-gradient(135deg,#0f2a52,#1a4a8a);color:#fff;border:1px solid #1a4a8a}
 .btn-dl.pdf{background:linear-gradient(135deg,#4a0f0f,#8a1a1a);color:#fff;border:1px solid #8a1a1a}
-.btn-dl:hover{transform:translateY(-2px);box-shadow:0 7px 22px rgba(0,0,0,.45)}
+.btn-dl:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.4)}
 .btn-dl:disabled{opacity:.4;cursor:not-allowed;transform:none}
-.dl-status{font-size:.61rem;letter-spacing:.1em;color:var(--muted);text-align:center;padding:7px 0 0;min-height:22px;text-transform:uppercase}
+.dl-status{font-size:.58rem;letter-spacing:.09em;color:var(--muted);text-align:center;padding:6px 0 0;min-height:20px;text-transform:uppercase}
 
-.btn-nova{width:100%;padding:12px;background:transparent;border:1px solid var(--border);border-radius:4px;font-family:'Rajdhani',sans-serif;font-size:.68rem;letter-spacing:.28em;color:var(--muted);cursor:pointer;text-transform:uppercase;transition:all .2s;margin-top:4px}
+/* ── HISTÓRICO ── */
+.hist-panel{display:none;position:fixed;top:0;right:0;width:360px;max-width:95vw;height:100vh;background:#0c0c0c;border-left:1px solid var(--border);z-index:900;flex-direction:column;animation:slideIn .25s ease}
+.hist-panel.open{display:flex}
+@keyframes slideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+.hist-header{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.hist-title{font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.2em;color:var(--gold);text-transform:uppercase}
+.hist-close{background:transparent;border:1px solid var(--border);border-radius:3px;color:var(--muted);font-size:16px;width:30px;height:30px;cursor:pointer;transition:all .2s}
+.hist-close:hover{border-color:var(--red);color:var(--red)}
+.hist-list{flex:1;overflow-y:auto;padding:12px}
+.hist-item{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:12px;margin-bottom:9px;cursor:pointer;transition:all .2s}
+.hist-item:hover{border-color:var(--gold-dark);background:rgba(139,105,20,.07)}
+.hist-item-titulo{font-size:.7rem;font-weight:600;color:var(--text);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist-item-meta{font-size:.58rem;color:var(--muted);display:flex;gap:10px}
+.hist-item-prob{font-family:'Cinzel',serif;font-size:.8rem}
+.hist-item-prob.high{color:var(--green)}.hist-item-prob.medium{color:var(--yellow)}.hist-item-prob.low{color:var(--red)}
+.hist-empty{text-align:center;color:var(--muted);font-size:.68rem;padding:40px 20px}
+.hist-footer{padding:12px 16px;border-top:1px solid var(--border);flex-shrink:0}
+.btn-hist-clear{width:100%;padding:9px;background:transparent;border:1px solid rgba(231,76,60,.25);border-radius:3px;color:rgba(231,76,60,.6);font-family:'Rajdhani',sans-serif;font-size:.6rem;letter-spacing:.15em;cursor:pointer;text-transform:uppercase;transition:all .2s}
+.btn-hist-clear:hover{border-color:var(--red);color:var(--red)}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:800}
+.overlay.open{display:block}
+
+/* ── CHECKLIST ── */
+.checklist{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+@media(max-width:500px){.checklist{grid-template-columns:1fr}}
+.check-item{display:flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--border);border-radius:3px;padding:8px 10px;cursor:pointer;transition:all .2s;user-select:none}
+.check-item:hover{border-color:var(--gold-dark)}
+.check-item.checked{border-color:rgba(46,204,113,.4);background:rgba(46,204,113,.05)}
+.check-box{width:14px;height:14px;border:1px solid var(--border);border-radius:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .2s}
+.check-item.checked .check-box{background:var(--green);border-color:var(--green);color:#000}
+.check-label{font-size:.62rem;color:var(--muted);letter-spacing:.06em;transition:color .2s}
+.check-item.checked .check-label{color:var(--text)}
+.check-progress{height:3px;background:var(--border);border-radius:2px;margin-top:10px;overflow:hidden}
+.check-progress-fill{height:100%;background:linear-gradient(90deg,var(--gold-dark),var(--green));border-radius:2px;transition:width .4s ease}
+.check-status{font-size:.58rem;color:var(--muted);margin-top:4px}
+
+/* ── PRAZOS CALC ── */
+.prazo-input-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.prazo-input-row > div{flex:1;min-width:130px}
+.btn-calc-prazo{background:linear-gradient(135deg,var(--gold-dark),rgba(201,168,76,.5));border:none;border-radius:3px;color:#000;font-family:'Cinzel',serif;font-size:.58rem;letter-spacing:.14em;font-weight:700;padding:10px 16px;cursor:pointer;white-space:nowrap;transition:all .2s}
+.btn-calc-prazo:hover{transform:translateY(-1px)}
+.prazo-resultado{display:none;margin-top:12px}
+
+/* ── NOVA ANÁLISE ── */
+.btn-nova{width:100%;padding:11px;background:transparent;border:1px solid var(--border);border-radius:4px;font-family:'Rajdhani',sans-serif;font-size:.64rem;letter-spacing:.26em;color:var(--muted);cursor:pointer;text-transform:uppercase;transition:all .2s;margin-top:4px}
 .btn-nova:hover{border-color:var(--gold-dark);color:var(--gold)}
-.copy-prompt-card{background:linear-gradient(135deg,rgba(139,105,20,.08),rgba(201,168,76,.04));border:1px solid rgba(201,168,76,.25);border-radius:6px;padding:22px;margin-bottom:18px;position:relative}
-.copy-prompt-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-.prompt-preview{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:14px;font-size:12px;color:var(--muted);white-space:pre-wrap;max-height:220px;overflow-y:auto;line-height:1.7;font-family:'Rajdhani',sans-serif;margin:12px 0}
-.btn-copy{width:100%;padding:15px;background:linear-gradient(135deg,rgba(201,168,76,.15),rgba(201,168,76,.08));border:1px solid var(--gold-dark);border-radius:4px;font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.22em;color:var(--gold-light);font-weight:700;cursor:pointer;transition:all .3s;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:10px}
-.btn-copy:hover{background:linear-gradient(135deg,rgba(201,168,76,.28),rgba(201,168,76,.14));border-color:var(--gold);transform:translateY(-1px);box-shadow:0 6px 20px rgba(201,168,76,.15)}
-.btn-copy.copied{background:linear-gradient(135deg,rgba(46,204,113,.15),rgba(46,204,113,.08));border-color:var(--green);color:var(--green)}
-.copy-hint{font-size:.62rem;color:var(--muted);text-align:center;margin-top:8px;letter-spacing:.08em}
-.disc{background:rgba(201,168,76,.04);border:1px solid rgba(201,168,76,.1);border-radius:4px;padding:11px 14px;margin-bottom:16px;font-size:.69rem;color:var(--muted);line-height:1.65}
+
+/* ── DISC ── */
+.disc{background:rgba(201,168,76,.03);border:1px solid rgba(201,168,76,.08);border-radius:4px;padding:10px 13px;margin-bottom:14px;font-size:.65rem;color:var(--muted);line-height:1.6}
 .disc strong{color:var(--gold-dark)}
-.chars{font-size:.6rem;color:var(--muted);text-align:right;margin-top:4px}
+.chars{font-size:.57rem;color:var(--muted);text-align:right;margin-top:3px}
 .chars span{color:var(--gold-dark)}
 .hidden{display:none!important}
-
-/* ── HIDDEN FILE INPUT ──────────────────────────────── */
-#fileInput{
-  position:absolute;
-  width:1px;height:1px;
-  opacity:0;overflow:hidden;
-  clip:rect(0,0,0,0);
-  white-space:nowrap;
-  border:0;
-}
+.copy-prompt-card{background:linear-gradient(135deg,rgba(139,105,20,.07),rgba(201,168,76,.03));border:1px solid rgba(201,168,76,.2);border-radius:6px;padding:18px;margin-bottom:16px;position:relative}
+.copy-prompt-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.prompt-preview{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:12px;font-size:11px;color:var(--muted);white-space:pre-wrap;max-height:180px;overflow-y:auto;line-height:1.65;font-family:'Rajdhani',sans-serif;margin:10px 0}
+.btn-copy{width:100%;padding:13px;background:linear-gradient(135deg,rgba(201,168,76,.13),rgba(201,168,76,.06));border:1px solid var(--gold-dark);border-radius:4px;font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.2em;color:var(--gold-light);font-weight:700;cursor:pointer;transition:all .3s;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:9px}
+.btn-copy:hover{border-color:var(--gold);transform:translateY(-1px)}
+.btn-copy.copied{background:linear-gradient(135deg,rgba(46,204,113,.13),rgba(46,204,113,.06));border-color:var(--green);color:var(--green)}
+.copy-hint{font-size:.58rem;color:var(--muted);text-align:center;margin-top:7px}
 </style>
 </head>
 <body>
 
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-logo">V9 PRO</div>
+  <div class="topbar-actions">
+    <button class="btn-hist" onclick="toggleHist()">
+      📋 Histórico <span class="hist-count" id="histCount">0</span>
+    </button>
+  </div>
+</div>
+
+<!-- HISTÓRICO PAINEL -->
+<div class="overlay" id="overlay" onclick="toggleHist()"></div>
+<div class="hist-panel" id="histPanel">
+  <div class="hist-header">
+    <div class="hist-title">◈ Análises Salvas</div>
+    <button class="hist-close" onclick="toggleHist()">✕</button>
+  </div>
+  <div class="hist-list" id="histList"></div>
+  <div class="hist-footer">
+    <button class="btn-hist-clear" onclick="limparHistorico()">🗑 Limpar Histórico</button>
+  </div>
+</div>
+
 <header>
   <div class="logo-text">V9 POWER EDITION</div>
-  <div class="logo-sub">Engenharia Jurídica · Análise por IA · Upload de Documentos</div>
-  <div class="logo-badge">Zero Alucinação · Word &amp; PDF</div>
+  <div class="logo-sub">Plataforma Jurídica Profissional · Advogados &amp; Escritórios</div>
+  <div class="logo-badges">
+    <span class="badge">Zero Alucinação</span>
+    <span class="badge">Word &amp; PDF</span>
+    <span class="badge">Chat com IA</span>
+    <span class="badge">Prazos Processuais</span>
+  </div>
 </header>
 
 <div class="container">
 
-<!-- ── CHAVE DE API ─────────────────────────────────────────────────────── -->
+<!-- API KEY -->
 <div class="card">
-  <div class="slabel">🔑 Chave de API</div>
-  <div class="apikey-wrap">
-    <div class="apikey-help">
-      Necessária apenas uma vez — fica salva no seu navegador. Obtenha grátis em
-      <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>
-      → Get API Key → Create API key.
-    </div>
-    <div class="apikey-row">
-      <input class="apikey-input" id="apiKeyInput" type="password"
-        placeholder="AIza..." oninput="checkKey()" autocomplete="off" spellcheck="false"/>
-      <button class="apikey-eye" id="apiKeyEye" onclick="toggleEye()">👁</button>
-    </div>
-    <div class="apikey-status" id="apiKeyStatus"></div>
-    <div class="apikey-save-note">🔒 Sua chave fica salva só no seu navegador — nunca sai do seu dispositivo.</div>
+  <div class="slabel">🔑 Chave de API Gemini</div>
+  <div class="apikey-help">
+    Grátis em <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>
+    → Get API Key → Create API key. Salva automaticamente no seu navegador.
   </div>
+  <div class="apikey-row">
+    <input class="apikey-input" id="apiKeyInput" type="password" placeholder="AIza..." oninput="checkKey()" autocomplete="off" spellcheck="false"/>
+    <button class="apikey-eye" id="apiKeyEye" onclick="toggleEye()">👁</button>
+  </div>
+  <div class="apikey-status" id="apiKeyStatus"></div>
+  <div class="apikey-note">🔒 Sua chave fica salva só no seu navegador — nunca sai do dispositivo.</div>
 </div>
 
-<!-- ── AVISO ────────────────────────────────────────────────────────────── -->
 <div class="disc">
-  <strong>⚖ V9 POWER:</strong> Anexe o documento ou preencha os dados. A IA
-  <strong>NUNCA inventa dados</strong> — jurisprudências são entendimentos gerais
-  consolidados, não números fabricados. Não substitui advogado.
+  <strong>⚖ V9 PRO:</strong> Análise jurídica profissional para advogados e escritórios.
+  A IA <strong>NUNCA inventa dados</strong>. Não substitui advogado habilitado.
 </div>
 
-<!-- ── INPUT ────────────────────────────────────────────────────────────── -->
+<!-- FORMULÁRIO -->
 <div class="card" id="inputCard">
-  <div class="slabel">◈ Modo de Análise</div>
+  <div class="slabel">◈ Identificação do Caso</div>
+
+  <!-- Cliente + Processo -->
+  <div class="grid2">
+    <div>
+      <label>Cliente / Representado</label>
+      <input type="text" id="nomeCliente" placeholder="Nome do cliente..."/>
+    </div>
+    <div>
+      <label>Nº do Processo <small style="color:var(--muted)">(opcional)</small></label>
+      <input type="text" id="numProcesso" placeholder="0000000-00.0000.0.00.0000"/>
+    </div>
+  </div>
+
+  <div class="slabel" style="margin-top:20px">◈ Modo de Análise</div>
 
   <div class="mode-toggle">
     <button class="mode-btn active" id="modeUploadBtn" onclick="setMode('upload')">📎 Anexar Documento</button>
@@ -209,25 +330,14 @@ textarea{resize:vertical;min-height:125px}
 
   <!-- UPLOAD -->
   <div id="uploadSection">
-    <!-- CORREÇÃO 1: upload-zone não usa mais onclick para abrir arquivo -->
-    <div class="upload-zone" id="uploadZone"
-      ondragover="dragOver(event)"
-      ondragleave="dragLeave(event)"
-      ondrop="dropFile(event)">
+    <div class="upload-zone" id="uploadZone" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
       <span class="upload-icon" id="uploadIcon">📄</span>
       <div class="upload-title" id="uploadTitle">Clique aqui ou arraste o arquivo</div>
       <div class="upload-sub" id="uploadSub">Contrato, Petição, Sentença, Notificação, Laudo...</div>
       <div class="upload-types" id="uploadTypes">PDF · Word (.docx) · Imagem (JPG/PNG) · TXT · Até 150MB</div>
-      <!-- CORREÇÃO 2: botão de limpar com z-index alto para não conflitar -->
       <button class="upload-clear" id="uploadClear" onclick="clearFile(event)" type="button">✕ Remover</button>
     </div>
-
-    <!-- CORREÇÃO 3: fileInput colocado FORA da upload-zone, sem display:none!important -->
-    <!-- Posicionado como elemento normal no DOM mas visualmente invisível via CSS -->
-    <input type="file" id="fileInput"
-      accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.webp"
-      onchange="handleFile(this.files[0])">
-
+    <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.webp" onchange="handleFile(this.files[0])">
     <div class="prog" id="prog">
       <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
       <div class="prog-txt" id="progTxt"></div>
@@ -235,11 +345,9 @@ textarea{resize:vertical;min-height:125px}
     <div class="extracted-box" id="extractedBox">
       <div class="extracted-lbl">◈ Conteúdo Extraído</div>
       <div class="extracted-txt" id="extractedTxt"></div>
-      <div class="extracted-info" id="extractedInfo"></div>
     </div>
-    <label style="margin-top:15px">Instruções Adicionais <small style="color:var(--muted)">(opcional)</small></label>
-    <textarea id="extraContext" style="min-height:70px"
-      placeholder="Ex: Analise a cláusula de multa. Foco no risco para o credor..."></textarea>
+    <label style="margin-top:13px">Instruções Adicionais <small style="color:var(--muted)">(opcional)</small></label>
+    <textarea id="extraContext" style="min-height:65px" placeholder="Ex: Foque na cláusula de multa. Analise o risco para o credor..."></textarea>
   </div>
 
   <!-- MANUAL -->
@@ -255,6 +363,7 @@ textarea{resize:vertical;min-height:125px}
           <option>Direito Empresarial</option><option>Direito Penal</option>
           <option>Direito Administrativo</option><option>Direito Ambiental</option>
           <option>Direito Bancário</option><option>Direito Digital</option>
+          <option>Direito Imobiliário</option><option>Direito Médico</option>
         </select>
       </div>
       <div>
@@ -294,13 +403,12 @@ textarea{resize:vertical;min-height:125px}
       </div>
     </div>
     <label>Fatos, Provas e Argumentos *</label>
-    <textarea id="fatos"
-      placeholder="Descreva os fatos, provas disponíveis, documentos, histórico do caso..."></textarea>
+    <textarea id="fatos" placeholder="Descreva os fatos, provas disponíveis, documentos, histórico do caso..."></textarea>
     <div class="chars"><span id="charsCount">0</span> caracteres</div>
   </div>
 
-  <!-- TOM (sempre visível) -->
-  <label style="margin-top:18px">Tom da Análise</label>
+  <!-- TOM -->
+  <label style="margin-top:16px">Tom da Análise</label>
   <div class="tone-group">
     <button class="tone-btn active" data-tone="imparcial">Imparcial</button>
     <button class="tone-btn" data-tone="favoravel">Favorável ao Autor</button>
@@ -309,66 +417,140 @@ textarea{resize:vertical;min-height:125px}
   </div>
 
   <button class="btn-exec" id="btnExec" onclick="executar()">
-    ⚖ EXECUTAR ANÁLISE JURÍDICA V9 POWER
+    ⚖ EXECUTAR ANÁLISE JURÍDICA V9 PRO
   </button>
 </div>
 
-<!-- ── LOADING ───────────────────────────────────────────────────────────── -->
-<div class="loading" id="loading">
-  <div class="spinner"></div>
-  <p class="loading-title">Executando Engenharia V9 Power</p>
-  <p class="loading-step" id="loadingStep">Inicializando análise...</p>
+<!-- CALCULADORA DE PRAZOS -->
+<div class="card">
+  <div class="slabel">⏱ Calculadora de Prazos Processuais</div>
+  <div class="prazo-input-row">
+    <div>
+      <label>Data do Ato / Intimação</label>
+      <input type="text" id="prazoDataAto" placeholder="DD/MM/AAAA" maxlength="10" oninput="maskData(this)"/>
+    </div>
+    <div>
+      <label>Tipo de Prazo</label>
+      <select id="prazoTipo">
+        <option value="15">Contestação – 15 dias (Cível)</option>
+        <option value="30">Reclamação Trabalhista – 30 dias</option>
+        <option value="5">Embargos de Declaração – 5 dias</option>
+        <option value="15">Apelação – 15 dias</option>
+        <option value="15">Recurso Ordinário Trabalhista – 8 dias</option>
+        <option value="10">Agravo de Instrumento – 15 dias</option>
+        <option value="30">Recurso Especial/Extraordinário – 15 dias</option>
+        <option value="60">Mandado de Segurança – 120 dias</option>
+        <option value="custom">Personalizado...</option>
+      </select>
+    </div>
+    <div id="prazoCustomDiv" class="hidden">
+      <label>Dias</label>
+      <input type="text" id="prazoCustomDias" placeholder="Ex: 10"/>
+    </div>
+    <button class="btn-calc-prazo" onclick="calcularPrazo()">Calcular</button>
+  </div>
+  <div class="prazo-resultado" id="prazoResultado"></div>
 </div>
 
-<!-- ── RESULTADO ─────────────────────────────────────────────────────────── -->
+<!-- CHECKLIST DE DOCUMENTOS -->
+<div class="card">
+  <div class="slabel">📋 Checklist de Documentos</div>
+  <div class="grid2" style="margin-bottom:10px">
+    <div>
+      <label>Tipo de Ação para Checklist</label>
+      <select id="checklistTipo" onchange="gerarChecklist()">
+        <option value="">Selecione para gerar...</option>
+        <option value="trabalhista">Reclamação Trabalhista</option>
+        <option value="indenizacao">Ação de Indenização</option>
+        <option value="consumidor">Direito do Consumidor</option>
+        <option value="previdenciario">Previdenciário / INSS</option>
+        <option value="familia">Direito de Família</option>
+        <option value="cobranca">Ação de Cobrança</option>
+        <option value="contrato">Revisão de Contrato</option>
+      </select>
+    </div>
+  </div>
+  <div id="checklistArea"></div>
+</div>
+
+<!-- LOADING -->
+<div class="loading" id="loading">
+  <div class="spinner"></div>
+  <p class="loading-title">Executando Análise V9 Pro</p>
+  <p class="loading-step" id="loadingStep">Inicializando...</p>
+</div>
+
+<!-- RESULTADO -->
 <div class="result-card" id="resultCard">
 
+  <!-- RESUMO EXECUTIVO -->
+  <div class="resumo-exec" id="resumoExec">
+    <div class="resumo-titulo">◈ Resumo Executivo</div>
+    <div class="resumo-itens" id="resumoItens"></div>
+  </div>
+
+  <!-- PROBABILIDADE -->
   <div class="card">
     <div class="slabel">◈ Probabilidade de Êxito</div>
     <div class="prob-grid">
       <div>
-        <div style="font-size:.56rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Estimativa Global</div>
+        <div style="font-size:.52rem;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin-bottom:3px">Estimativa Global</div>
         <div class="prob-value" id="probValue">—</div>
         <div class="prob-class" id="probClass"></div>
       </div>
-      <div style="padding-top:1px">
+      <div>
         <div class="prob-bar-track"><div class="prob-bar-fill" id="probBar"></div></div>
         <div id="scoreBreakdown"></div>
       </div>
     </div>
-    <div style="margin-top:10px;font-size:.6rem;color:var(--muted);letter-spacing:.06em">
-      * Estimativa analítica baseada nos dados fornecidos. Não garante resultado processual.
-    </div>
+    <div style="margin-top:9px;font-size:.57rem;color:var(--muted)">* Estimativa analítica. Não garante resultado processual.</div>
   </div>
 
+  <!-- ANÁLISE COMPLETA -->
   <div class="card">
     <div class="slabel">◈ Análise Jurídica Completa</div>
     <div class="ai-text" id="aiText"></div>
   </div>
 
+  <!-- CHAT COM IA -->
+  <div class="card">
+    <div class="slabel">💬 Chat com a IA sobre este Caso</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Faça perguntas específicas sobre o caso analisado. A IA tem todo o contexto.</p>
+    <div class="chat-sugest" id="chatSugest">
+      <button class="chat-sugest-btn" onclick="chatSugest(this)">Qual a melhor estratégia para acordo?</button>
+      <button class="chat-sugest-btn" onclick="chatSugest(this)">Quais provas são indispensáveis?</button>
+      <button class="chat-sugest-btn" onclick="chatSugest(this)">Qual o risco de perder?</button>
+      <button class="chat-sugest-btn" onclick="chatSugest(this)">Estime os honorários advocatícios</button>
+      <button class="chat-sugest-btn" onclick="chatSugest(this)">Há prescrição ou decadência?</button>
+      <button class="chat-sugest-btn" onclick="chatSugest(this)">Elabore um esboço de petição inicial</button>
+    </div>
+    <div class="chat-wrap">
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input-row">
+        <textarea class="chat-input" id="chatInput" placeholder="Pergunte algo sobre o caso..." rows="1" onkeydown="chatKeydown(event)"></textarea>
+        <button class="btn-chat-send" id="btnChatSend" onclick="enviarChat()">ENVIAR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOWNLOAD -->
   <div class="card">
     <div class="slabel">◈ Download do Documento</div>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:2px">
-      Documento profissional com capa, análise completa, fundamentação e estratégia.
-    </p>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:2px">Documento profissional com capa, análise completa, fundamentação e estratégia.</p>
     <div class="dl-grid">
       <button class="btn-dl word" id="btnWord" onclick="dlWord()">📄 Baixar Word (.docx)</button>
-      <button class="btn-dl pdf"  id="btnPdf"  onclick="dlPDF()">📕 Baixar PDF</button>
+      <button class="btn-dl pdf" id="btnPdf" onclick="dlPDF()">📕 Baixar PDF</button>
     </div>
     <div class="dl-status" id="dlStatus"></div>
   </div>
 
-  <!-- ── COPIAR PROMPT ─────────────────────────────────────────────────────── -->
-  <div class="copy-prompt-card" id="copyPromptCard">
-    <div class="slabel">📋 Prompt Pronto para Copiar</div>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:4px">
-      Prompt completo com probabilidade, jurisprudência e estratégia — cole em qualquer IA para aprofundar a análise.
-    </p>
+  <!-- COPIAR PROMPT -->
+  <div class="copy-prompt-card">
+    <div class="slabel">📋 Prompt para Outra IA</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:4px">Prompt completo para aprofundar a análise no ChatGPT, Claude ou outra IA.</p>
     <div class="prompt-preview" id="promptPreview"></div>
-    <button class="btn-copy" id="btnCopy" onclick="copyPrompt()">
-      📋 COPIAR PROMPT COMPLETO
-    </button>
-    <div class="copy-hint" id="copyHint">Cole no ChatGPT, Gemini, Claude ou qualquer IA para continuar a análise</div>
+    <button class="btn-copy" id="btnCopy" onclick="copyPrompt()">📋 COPIAR PROMPT COMPLETO</button>
+    <div class="copy-hint" id="copyHint">Cole no ChatGPT, Gemini, Claude ou qualquer IA para continuar</div>
   </div>
 
   <button class="btn-nova" onclick="reset()">← NOVA ANÁLISE</button>
@@ -379,44 +561,57 @@ textarea{resize:vertical;min-height:125px}
 <script>
 'use strict';
 
-// ── STATE ─────────────────────────────────────────────────────────────────────
+// ── STATE ──────────────────────────────────────────────────────────────────────
 let currentMode = 'upload';
 let uploadedFile = null;
 let extractedContent = '';
 let extractedBase64 = '';
 let extractedMime = '';
 let analysisData = null;
+let chatHistory = [];
 
-// ─────────────────────────────────────────────────────────────────────────────
-// CORREÇÃO PRINCIPAL: Inicializa o clique na upload-zone APÓS o DOM carregar
-// O problema original: onclick="abrirArquivo(event)" no upload-zone entrava em
-// conflito com o botão "Remover" filho, e o display:none!important impedia o
-// clique programático em alguns navegadores (Safari, Firefox mobile).
-// ─────────────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', function() {
+// ── INIT ───────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  // Carregar chave salva
+  try { const k = localStorage.getItem('v9_apikey'); if(k){ document.getElementById('apiKeyInput').value=k; checkKey(); } } catch(e){}
+
+  // Upload zone click
   const zone = document.getElementById('uploadZone');
-  const fileInput = document.getElementById('fileInput');
-
-  // Clique na zona de upload (ignora se clicou no botão Remover)
-  zone.addEventListener('click', function(e) {
-    if (e.target.id === 'uploadClear' || e.target.closest('#uploadClear')) return;
-    fileInput.click();
+  const fi = document.getElementById('fileInput');
+  zone.addEventListener('click', e => {
+    if(e.target.id==='uploadClear'||e.target.closest('#uploadClear')) return;
+    fi.click();
   });
 
-  // Carregar chave salva
-  try {
-    const k = localStorage.getItem('v9_apikey');
-    if (k) { document.getElementById('apiKeyInput').value = k; checkKey(); }
-  } catch(e) {}
+  // Tone buttons
+  document.querySelectorAll('.tone-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.tone-btn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+    });
+  });
+
+  // Char counter
+  document.getElementById('fatos').addEventListener('input', function(){
+    document.getElementById('charsCount').textContent = this.value.length;
+  });
+
+  // Prazo tipo custom
+  document.getElementById('prazoTipo').addEventListener('change', function(){
+    document.getElementById('prazoCustomDiv').classList.toggle('hidden', this.value !== 'custom');
+  });
+
+  // Atualizar contagem do histórico
+  atualizarContHist();
 });
 
-// ── API KEY ───────────────────────────────────────────────────────────────────
+// ── API KEY ────────────────────────────────────────────────────────────────────
 function checkKey(){
   const k = document.getElementById('apiKeyInput').value.trim();
   const st = document.getElementById('apiKeyStatus');
   if(!k){ st.textContent=''; st.className='apikey-status'; return; }
   if(k.startsWith('AIza') && k.length > 20){
-    st.textContent = '✓ Chave válida — salva no seu navegador';
+    st.textContent = '✓ Chave válida — salva no navegador';
     st.className = 'apikey-status ok';
     try{ localStorage.setItem('v9_apikey', k); }catch(e){}
   } else {
@@ -424,14 +619,13 @@ function checkKey(){
     st.className = 'apikey-status err';
   }
 }
-
 function toggleEye(){
   const inp = document.getElementById('apiKeyInput');
-  inp.type = inp.type === 'password' ? 'text' : 'password';
-  document.getElementById('apiKeyEye').textContent = inp.type === 'password' ? '👁' : '🙈';
+  inp.type = inp.type==='password' ? 'text' : 'password';
+  document.getElementById('apiKeyEye').textContent = inp.type==='password' ? '👁' : '🙈';
 }
 
-// ── MODE ──────────────────────────────────────────────────────────────────────
+// ── MODE ───────────────────────────────────────────────────────────────────────
 function setMode(m){
   currentMode = m;
   document.getElementById('modeUploadBtn').classList.toggle('active', m==='upload');
@@ -440,268 +634,303 @@ function setMode(m){
   document.getElementById('manualSection').classList.toggle('hidden', m==='upload');
 }
 
-// ── TONE ──────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', function() {
-  document.querySelectorAll('.tone-btn').forEach(b => {
-    b.addEventListener('click', () => {
-      document.querySelectorAll('.tone-btn').forEach(x => x.classList.remove('active'));
-      b.classList.add('active');
-    });
-  });
-  document.getElementById('fatos').addEventListener('input', function(){
-    document.getElementById('charsCount').textContent = this.value.length;
-  });
-});
+// ── DRAG & DROP ────────────────────────────────────────────────────────────────
+function dragOver(e){ e.preventDefault(); e.stopPropagation(); document.getElementById('uploadZone').classList.add('drag'); }
+function dragLeave(e){ e.preventDefault(); document.getElementById('uploadZone').classList.remove('drag'); }
+function dropFile(e){ e.preventDefault(); e.stopPropagation(); dragLeave(e); const f=e.dataTransfer.files[0]; if(f) handleFile(f); }
 
-// ── DRAG & DROP ───────────────────────────────────────────────────────────────
-function dragOver(e){
-  e.preventDefault();
-  e.stopPropagation();
-  document.getElementById('uploadZone').classList.add('drag');
-}
-function dragLeave(e){
-  e.preventDefault();
-  document.getElementById('uploadZone').classList.remove('drag');
-}
-function dropFile(e){
-  e.preventDefault();
-  e.stopPropagation();
-  dragLeave(e);
-  const f = e.dataTransfer.files[0];
-  if(f) handleFile(f);
-}
-
-// ── FILE HANDLER ──────────────────────────────────────────────────────────────
+// ── FILE HANDLER ───────────────────────────────────────────────────────────────
 async function handleFile(file){
   if(!file) return;
-
-  // Validação de tamanho (max 150MB)
-  if(file.size > 150 * 1024 * 1024){
-    alert('Arquivo muito grande. Tamanho máximo: 150MB');
-    return;
-  }
-
-  uploadedFile = file;
-  extractedContent = '';
-  extractedBase64 = '';
-  extractedMime = '';
-
-  const z = document.getElementById('uploadZone');
+  if(file.size > 150*1024*1024){ alert('Arquivo muito grande. Máximo: 150MB'); return; }
+  uploadedFile=file; extractedContent=''; extractedBase64=''; extractedMime='';
+  const z=document.getElementById('uploadZone');
   z.classList.add('has-file');
   document.getElementById('uploadIcon').textContent = icon(file.name);
   document.getElementById('uploadTitle').textContent = file.name;
   document.getElementById('uploadSub').textContent = fsize(file.size);
-  document.getElementById('uploadTypes').style.display = 'none';
-  document.getElementById('uploadClear').style.display = 'inline-block';
-
-  prog(true, 'Lendo arquivo...', 10);
-
+  document.getElementById('uploadTypes').style.display='none';
+  document.getElementById('uploadClear').style.display='inline-block';
+  prog(true,'Lendo arquivo...',10);
   const ext = file.name.split('.').pop().toLowerCase();
-
-  try {
-    if(ext === 'txt'){
-      extractedContent = await rText(file);
-      prog(true, 'Texto extraído!', 100);
-    }
+  try{
+    if(ext==='txt'){ extractedContent=await rText(file); prog(true,'Texto extraído!',100); }
     else if(['doc','docx'].includes(ext)){
-      prog(true, 'Extraindo texto do Word...', 30);
-      const ab = await rBuffer(file);
-      const r = await mammoth.extractRawText({arrayBuffer: ab});
-      extractedContent = r.value;
-      prog(true, 'Texto extraído!', 100);
+      prog(true,'Extraindo texto do Word...',30);
+      const ab=await rBuffer(file);
+      const r=await mammoth.extractRawText({arrayBuffer:ab});
+      extractedContent=r.value; prog(true,'Texto extraído!',100);
     }
-    else if(ext === 'pdf'){
-      prog(true, 'Processando PDF...', 50);
-      extractedBase64 = await rB64(file);
-      extractedMime = 'application/pdf';
-      prog(true, 'PDF pronto!', 100);
-    }
-    else if(['jpg','jpeg','png','webp'].includes(ext)){
-      prog(true, 'Processando imagem...', 50);
-      extractedBase64 = await rB64(file);
-      extractedMime = file.type || 'image/jpeg';
-      prog(true, 'Imagem pronta!', 100);
-    }
-    else {
-      alert('Formato não suportado. Use: PDF, DOCX, TXT, JPG, PNG.');
-      clearFile(null);
-      return;
-    }
-
-    const box = document.getElementById('extractedBox');
-    box.style.display = 'block';
+    else if(ext==='pdf'){ prog(true,'PDF pronto!',100); extractedBase64=await rB64(file); extractedMime='application/pdf'; }
+    else if(['jpg','jpeg','png','webp'].includes(ext)){ prog(true,'Imagem pronta!',100); extractedBase64=await rB64(file); extractedMime=file.type||'image/jpeg'; }
+    else { alert('Formato não suportado. Use: PDF, DOCX, TXT, JPG, PNG.'); clearFile(null); return; }
+    const box=document.getElementById('extractedBox'); box.style.display='block';
     if(extractedContent){
-      document.getElementById('extractedTxt').textContent = extractedContent.substring(0, 500) + (extractedContent.length > 500 ? '…' : '');
-      document.getElementById('extractedInfo').textContent = extractedContent.length.toLocaleString('pt-BR') + ' caracteres extraídos';
+      document.getElementById('extractedTxt').textContent = extractedContent.substring(0,400)+(extractedContent.length>400?'…':'');
     } else {
       document.getElementById('extractedTxt').textContent = '✓ Arquivo carregado — a IA vai analisar o conteúdo';
-      document.getElementById('extractedInfo').textContent = fsize(file.size);
     }
-    document.getElementById('uploadSub').textContent = '✓ Pronto para análise';
-  }
-  catch(e){
-    alert('Erro ao ler arquivo: ' + e.message);
-    clearFile(null);
-  }
-
-  setTimeout(() => prog(false), 1400);
+    document.getElementById('uploadSub').textContent='✓ Pronto para análise';
+  }catch(e){ alert('Erro ao ler: '+e.message); clearFile(null); }
+  setTimeout(()=>prog(false),1200);
 }
-
 function clearFile(e){
   if(e){ e.stopPropagation(); e.preventDefault(); }
-  uploadedFile = null;
-  extractedContent = '';
-  extractedBase64 = '';
-  extractedMime = '';
-
-  // CORREÇÃO: resetar o input corretamente sem display:none!important
-  const fi = document.getElementById('fileInput');
-  fi.value = '';
-
-  const z = document.getElementById('uploadZone');
-  z.classList.remove('has-file','drag');
-  document.getElementById('uploadIcon').textContent = '📄';
-  document.getElementById('uploadTitle').textContent = 'Clique aqui ou arraste o arquivo';
-  document.getElementById('uploadSub').textContent = 'Contrato, Petição, Sentença, Notificação, Laudo...';
-  document.getElementById('uploadTypes').style.display = '';
-  document.getElementById('uploadClear').style.display = 'none';
-  document.getElementById('extractedBox').style.display = 'none';
+  uploadedFile=null; extractedContent=''; extractedBase64=''; extractedMime='';
+  document.getElementById('fileInput').value='';
+  const z=document.getElementById('uploadZone'); z.classList.remove('has-file','drag');
+  document.getElementById('uploadIcon').textContent='📄';
+  document.getElementById('uploadTitle').textContent='Clique aqui ou arraste o arquivo';
+  document.getElementById('uploadSub').textContent='Contrato, Petição, Sentença, Notificação, Laudo...';
+  document.getElementById('uploadTypes').style.display='';
+  document.getElementById('uploadClear').style.display='none';
+  document.getElementById('extractedBox').style.display='none';
   prog(false);
 }
+function prog(show,txt='',pct=0){
+  document.getElementById('prog').style.display=show?'block':'none';
+  if(txt) document.getElementById('progTxt').textContent=txt;
+  document.getElementById('progFill').style.width=pct+'%';
+}
+function icon(n){ const e=n.split('.').pop().toLowerCase(); return e==='pdf'?'📕':['doc','docx'].includes(e)?'📘':['jpg','jpeg','png','webp'].includes(e)?'🖼️':'📄'; }
+function fsize(b){ return b<1048576?(b/1024).toFixed(1)+' KB':(b/1048576).toFixed(1)+' MB'; }
+function rText(f){ return new Promise((s,r)=>{const x=new FileReader();x.onload=e=>s(e.target.result);x.onerror=()=>r(new Error('Falha'));x.readAsText(f,'UTF-8');}); }
+function rBuffer(f){ return new Promise((s,r)=>{const x=new FileReader();x.onload=e=>s(e.target.result);x.onerror=()=>r(new Error('Falha'));x.readAsArrayBuffer(f);}); }
+function rB64(f){ return new Promise((s,r)=>{const x=new FileReader();x.onload=e=>s(e.target.result.split(',')[1]);x.onerror=()=>r(new Error('Falha'));x.readAsDataURL(f);}); }
 
-function prog(show, txt='', pct=0){
-  document.getElementById('prog').style.display = show ? 'block' : 'none';
-  if(txt) document.getElementById('progTxt').textContent = txt;
-  document.getElementById('progFill').style.width = pct + '%';
+// ── CALCULADORA DE PRAZOS ──────────────────────────────────────────────────────
+function maskData(el){
+  let v=el.value.replace(/\D/g,'');
+  if(v.length>=3) v=v.substring(0,2)+'/'+v.substring(2);
+  if(v.length>=6) v=v.substring(0,5)+'/'+v.substring(5,9);
+  el.value=v;
+}
+function calcularPrazo(){
+  const dataStr = document.getElementById('prazoDataAto').value.trim();
+  if(!dataStr || dataStr.length<10){ alert('Informe a data no formato DD/MM/AAAA'); return; }
+  const [dd,mm,aaaa] = dataStr.split('/');
+  const dataAto = new Date(parseInt(aaaa), parseInt(mm)-1, parseInt(dd));
+  if(isNaN(dataAto.getTime())){ alert('Data inválida'); return; }
+
+  let sel = document.getElementById('prazoTipo');
+  let dias = parseInt(sel.value);
+  if(sel.value==='custom'){
+    dias = parseInt(document.getElementById('prazoCustomDias').value);
+    if(isNaN(dias)||dias<1){ alert('Informe o número de dias'); return; }
+  }
+  // Prazos especiais
+  const prazosEspeciais = {
+    '15': {nome:'Contestação',base:15},
+    '30': {nome:'Reclamação Trabalhista',base:30},
+    '5':  {nome:'Embargos de Declaração',base:5},
+  };
+
+  // Calcula vencimento (dias corridos — simplificado, sem feriados)
+  const venc = new Date(dataAto);
+  venc.setDate(venc.getDate() + dias);
+  // Se cair no fim de semana, avança para segunda
+  while(venc.getDay()===0||venc.getDay()===6) venc.setDate(venc.getDate()+1);
+
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const diffMs = venc - hoje;
+  const diffDias = Math.ceil(diffMs/(1000*60*60*24));
+
+  const fmt = d => d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',weekday:'long'});
+
+  let urgClass = diffDias<=3?'urgente':diffDias<=10?'atencao':'ok';
+  let urgTxt = diffDias<0?'⚠ PRAZO VENCIDO':diffDias===0?'⚠ VENCE HOJE':diffDias===1?'⚠ VENCE AMANHÃ':`${diffDias} dias restantes`;
+
+  const res = document.getElementById('prazoResultado');
+  res.style.display='block';
+  res.innerHTML = `
+    <div class="prazo-grid">
+      <div class="prazo-card">
+        <div class="prazo-nome">Data do Ato</div>
+        <div class="prazo-data">${dataStr}</div>
+        <div class="prazo-dias">${fmt(dataAto)}</div>
+      </div>
+      <div class="prazo-card">
+        <div class="prazo-nome">Prazo (${dias} dias úteis)</div>
+        <div class="prazo-data">${venc.toLocaleDateString('pt-BR')}</div>
+        <div class="prazo-dias">${fmt(venc)}</div>
+      </div>
+      <div class="prazo-card">
+        <div class="prazo-nome">Situação</div>
+        <div class="prazo-data ${urgClass}" style="font-size:1.1rem">${diffDias<0?'VENCIDO':diffDias+'d'}</div>
+        <div class="prazo-dias ${urgClass}">${urgTxt}</div>
+      </div>
+    </div>
+    <div style="font-size:.58rem;color:var(--muted);margin-top:8px">⚠ Cálculo simplificado — fins de semana ajustados. Confirme feriados locais.</div>`;
 }
 
-function icon(n){
-  const e = n.split('.').pop().toLowerCase();
-  return e === 'pdf' ? '📕' : ['doc','docx'].includes(e) ? '📘' : ['jpg','jpeg','png','webp'].includes(e) ? '🖼️' : '📄';
+// ── CHECKLIST ──────────────────────────────────────────────────────────────────
+const CHECKLISTS = {
+  trabalhista:['Carteira de Trabalho (CTPS)','Contracheques / Holerites','Contrato de Trabalho','Comprovante de rescisão / TRCT','Extrato FGTS','Comprovante de férias','Folhas de ponto','Comprovante de registro sindical','Documentos de identidade','Comprovante de endereço'],
+  indenizacao:['Documentos de identidade','Boletim de Ocorrência (se houver)','Laudos médicos / Atestados','Fotos dos danos','Orçamentos de reparo','Comprovantes de despesas','Testemunhas (nomes e contatos)','Prints / Provas digitais','Histórico de comunicações','Comprovante de endereço'],
+  consumidor:['Nota fiscal / Cupom fiscal','Contrato de compra ou serviço','Fotos do produto com defeito','Comprovantes de pagamento','E-mails / Mensagens com empresa','Laudo técnico (se houver)','Protocolo de reclamação','Print do site / Oferta','Comprovante de devolução','Documentos pessoais'],
+  previdenciario:['CPF e RG','Carteira de Trabalho','CNIS (Extrato Previdenciário)','Laudos médicos atualizados','Exames e atestados','Declaração do INSS de indeferimento','Procuração para advogado','Comprovante de residência','Histórico de contribuições','Formulários INSS preenchidos'],
+  familia:['Certidão de casamento','Documentos dos filhos','Certidão de nascimento','Comprovantes de renda de ambas as partes','Comprovante de residência','Documentos de bens imóveis','Extratos bancários','Escritura de divórcio anterior (se houver)','Acordo extrajudicial (se houver)','Documentos de dependentes'],
+  cobranca:['Contrato assinado','Duplicatas / Notas promissórias','Comprovantes de entrega','Extratos de pagamento','E-mails e notificações enviadas','Certidão de protesto (se houver)','Documentos da empresa devedora','Procuração','Planilha de débito atualizada','Documentos pessoais do credor'],
+  contrato:['Contrato original completo','Aditivos e anexos','Comprovantes de pagamento','E-mails sobre negociação','Atas de reunião','Documentos das partes','Laudos ou pareceres técnicos','Contratos similares para comparação','Correspondências formais','Extratos bancários relacionados'],
+};
+function gerarChecklist(){
+  const tipo = document.getElementById('checklistTipo').value;
+  const area = document.getElementById('checklistArea');
+  if(!tipo){ area.innerHTML=''; return; }
+  const items = CHECKLISTS[tipo]||[];
+  let html = `<div class="checklist" id="checklistItens">`;
+  items.forEach((item,i) => {
+    html += `<div class="check-item" id="ci${i}" onclick="toggleCheck(${i})">
+      <div class="check-box" id="cb${i}"></div>
+      <div class="check-label">${item}</div>
+    </div>`;
+  });
+  html += `</div>
+  <div class="check-progress"><div class="check-progress-fill" id="checkProgressFill" style="width:0%"></div></div>
+  <div class="check-status" id="checkStatus">0 de ${items.length} documentos coletados</div>`;
+  area.innerHTML = html;
 }
-function fsize(b){ return b < 1048576 ? (b/1024).toFixed(1)+' KB' : (b/1048576).toFixed(1)+' MB'; }
-function rText(f){ return new Promise((s,r)=>{ const x=new FileReader(); x.onload=e=>s(e.target.result); x.onerror=()=>r(new Error('Falha na leitura')); x.readAsText(f,'UTF-8'); }); }
-function rBuffer(f){ return new Promise((s,r)=>{ const x=new FileReader(); x.onload=e=>s(e.target.result); x.onerror=()=>r(new Error('Falha na leitura')); x.readAsArrayBuffer(f); }); }
-function rB64(f){ return new Promise((s,r)=>{ const x=new FileReader(); x.onload=e=>s(e.target.result.split(',')[1]); x.onerror=()=>r(new Error('Falha na leitura')); x.readAsDataURL(f); }); }
+function toggleCheck(i){
+  const item = document.getElementById('ci'+i);
+  const box = document.getElementById('cb'+i);
+  item.classList.toggle('checked');
+  box.textContent = item.classList.contains('checked') ? '✓' : '';
+  // Atualizar progresso
+  const total = document.querySelectorAll('[id^="ci"]').length;
+  const checked = document.querySelectorAll('[id^="ci"].checked').length;
+  const pct = total>0 ? Math.round(checked/total*100) : 0;
+  document.getElementById('checkProgressFill').style.width = pct+'%';
+  document.getElementById('checkStatus').textContent = `${checked} de ${total} documentos coletados (${pct}%)`;
+}
 
-// ── PROMPT ────────────────────────────────────────────────────────────────────
-const RULES = `REGRAS ABSOLUTAS — NUNCA VIOLE SOB NENHUMA CIRCUNSTÂNCIA:
+// ── PROMPT BUILDER ─────────────────────────────────────────────────────────────
+const RULES = `REGRAS ABSOLUTAS:
+1. PROBABILIDADE: Explique fator por fator o que pesou positivamente e negativamente.
+2. JURISPRUDÊNCIA: Cite APENAS súmulas que realmente existem. Se não tiver certeza do número, descreva o entendimento sem inventar. NUNCA invente número de súmula ou acórdão.
+3. ARTIGOS DE LEI: Cite apenas artigos que existem na CLT, CC, CDC, CF/88 etc.
+4. VALORES: Use parâmetros reais. Se não tiver base, escreva "varia conforme o juízo".
+5. HONESTIDADE: Se não souber, diga "dados insuficientes". É melhor admitir limitação do que inventar.`;
 
-1. PROBABILIDADE: O percentual DEVE ser explicado fator por fator. Diga EXATAMENTE o que pesou positiva e negativamente para chegar naquele número. NUNCA solte um número sem justificativa detalhada.
+const STRUCTURE = `ESTRUTURA OBRIGATÓRIA:
 
-2. JURISPRUDÊNCIA — REGRA DE OURO:
-   - Cite APENAS súmulas e entendimentos que realmente existem (ex: Súmula 331 TST, Súmula 7 STJ)
-   - Se não tiver certeza do número, descreva o ENTENDIMENTO CONSOLIDADO sem inventar número
-   - NUNCA invente número de acórdão, processo ou ementa específica
-   - Para cada súmula citada informe: número + tribunal + o que determina + como se aplica ao caso
-   - Se não houver súmula específica, escreva: "Não há súmula consolidada sobre este ponto — o entendimento majoritário é [descreva]"
+## 1. RESUMO EXECUTIVO
+[5 linhas máximo: o que é o caso, qual a probabilidade, principal força, principal risco, recomendação imediata]
 
-3. NUNCA ALUCINE: Se não souber, diga "dados insuficientes" ou "não há entendimento consolidado". É MELHOR admitir limitação do que inventar qualquer dado.
-
-4. ARTIGOS DE LEI: Cite apenas artigos que realmente existem. Confirme mentalmente antes de citar CLT, CC, CDC, CF/88, etc.
-
-5. VALORES: Nunca invente faixas de indenização sem base real. Use "varia conforme o juízo" ou parâmetros reais conhecidos.`;
-
-const STRUCTURE = `ESTRUTURA OBRIGATÓRIA — SIGA EXATAMENTE:
-
-## 1. PROBABILIDADE DE ÊXITO
+## 2. PROBABILIDADE DE ÊXITO
 **Probabilidade Global: [X]%**
-Classificação: [ALTA acima de 70% / MÉDIA entre 40-70% / BAIXA abaixo de 40%]
+Classificação: [ALTA / MÉDIA / BAIXA]
+- ✅ Fator positivo 1: [argumento + peso]
+- ✅ Fator positivo 2: [argumento + peso]
+- ❌ Fator negativo 1: [fraqueza + impacto]
+- ❌ Fator negativo 2: [fraqueza + impacto]
+- ⚠️ Fator incerto: [o que pode ir para qualquer lado]
 
-**Por que esse percentual? Detalhe cada fator:**
-- ✅ Fator positivo 1: [argumento + quanto pesa na probabilidade]
-- ✅ Fator positivo 2: [argumento + quanto pesa na probabilidade]
-- ❌ Fator negativo 1: [fraqueza + quanto reduz a probabilidade]
-- ❌ Fator negativo 2: [fraqueza + quanto reduz a probabilidade]
-- ⚠️ Fator incerto: [o que pode ir para qualquer lado e por quê]
+## 3. IDENTIFICAÇÃO DO CASO
+[Tipo de ação, partes, objeto, datas relevantes]
 
-**Probabilidade por pedido:**
-- [Pedido 1]: [X]% — porque [razão objetiva baseada nos fatos]
-- [Pedido 2]: [X]% — porque [razão objetiva baseada nos fatos]
+## 4. PONTOS FORTES
+[Mínimo 4 pontos. Argumento + lei ou princípio que sustenta]
 
-## 2. IDENTIFICAÇÃO DO CASO
-[Tipo de ação, partes, objeto principal, datas relevantes do documento]
+## 5. PONTOS FRACOS E RISCOS
+[Mínimo 3 riscos. Problema + por que pode prejudicar]
 
-## 3. PONTOS FORTES
-[Mínimo 4 pontos. Para cada: qual o argumento + qual lei ou princípio sustenta]
+## 6. JURISPRUDÊNCIA APLICÁVEL
+[APENAS súmulas reais. Número + tribunal + o que determina + aplicação ao caso]
 
-## 4. PONTOS FRACOS E RISCOS
-[Mínimo 3 riscos. Para cada: qual o problema + por que pode prejudicar]
+## 7. FUNDAMENTOS LEGAIS
+[Artigos reais: número + lei + o que determina + aplicação]
 
-## 5. JURISPRUDÊNCIA APLICÁVEL
-ATENÇÃO: Liste APENAS o que realmente existe. Para cada item:
-- Súmula/Entendimento: [número se souber, ou "entendimento consolidado"]
-- Tribunal: [TST / STJ / STF / TRT / etc.]
-- O que determina: [explicação clara em português simples]
-- Como se aplica aqui: [conexão direta com o caso analisado]
+## 8. ESTIMATIVA DE VALORES E HONORÁRIOS
+[Faixas reais praticadas nos tribunais. Honorários estimados: X% a Y% sobre o proveito econômico]
 
-Se não houver súmula, escreva o entendimento majoritário SEM inventar referência.
+## 9. ESBOÇO DA PEÇA PROCESSUAL
+[Qualificação, fatos, direito, pedidos, valor da causa]
 
-## 6. FUNDAMENTOS LEGAIS
-[Artigos reais: número do artigo + nome da lei + o que determina + aplicação ao caso]
-
-## 7. ESTIMATIVA DE VALORES
-[Com base real: faixas praticadas. Sem base suficiente: "não é possível estimar com os dados fornecidos"]
-
-## 8. ESBOÇO DA PEÇA PROCESSUAL
-[Estrutura formal brasileira: qualificação, fatos, direito, pedidos, valor da causa]
-
-## 9. ESTRATÉGIA E PRÓXIMOS PASSOS
-[Acordo vs litígio, provas necessárias, prazos críticos, riscos processuais]`;
+## 10. ESTRATÉGIA E PRÓXIMOS PASSOS
+[Acordo vs litígio, provas indispensáveis, prazos críticos, riscos processuais]`;
 
 const TONS = {
-  imparcial:   'Análise rigorosamente imparcial, pontos fortes e fracos de ambos os polos.',
-  favoravel:   'Foco nos melhores argumentos para o polo ativo.',
-  defensivo:   'Foco na defesa do polo passivo, fragilidades nos pedidos.',
-  estrategico: 'Análise estratégica: acordo vs litígio, riscos, táticas processuais.'
+  imparcial:'Análise rigorosamente imparcial, pontos fortes e fracos de ambos os polos.',
+  favoravel:'Foco nos melhores argumentos para o polo ativo.',
+  defensivo:'Foco na defesa do polo passivo, fragilidades nos pedidos do autor.',
+  estrategico:'Análise estratégica: acordo vs litígio, riscos, táticas e recomendação objetiva.'
 };
 
 function buildPrompt(d){
-  const ton = TONS[d.tom] || TONS.imparcial;
-  const extra = d.extraContext ? `\nInstruções adicionais do usuário: ${d.extraContext}` : '';
+  const ton = TONS[d.tom]||TONS.imparcial;
+  const extra = d.extraContext ? `\nInstruções adicionais: ${d.extraContext}` : '';
+  const cliente = d.cliente ? `\nCliente: ${d.cliente}` : '';
+  const processo = d.processo ? `\nNº Processo: ${d.processo}` : '';
 
-  const webSearchInstruction = `
-INSTRUÇÃO PRINCIPAL:
-Escreva uma análise jurídica completa e detalhada com base nos dados fornecidos.
-Cite apenas jurisprudência e súmulas que você conhece com certeza que existem.
-Se não tiver certeza sobre alguma súmula, descreva o entendimento sem inventar número.
-`;
+  const instrucao = `Você é um jurista brasileiro sênior. Escreva uma análise jurídica completa e profissional.
+Tom: ${ton}${cliente}${processo}
+Data: ${d.data}${extra}`;
 
-  if(currentMode === 'upload'){
-    const max = 30000;
-    const doc = extractedContent.length > max ? extractedContent.substring(0, max) + '\n[Documento truncado — primeiras 30.000 chars enviadas para análise]' : extractedContent;
-    return `${webSearchInstruction}\n${RULES}\n\nTom da análise: ${ton}\nData de hoje: ${d.data}${extra}\n\nDOCUMENTO PARA ANALISAR:\n═══════════════════════════\n${doc}\n═══════════════════════════\n\n${STRUCTURE}`;
+  if(currentMode==='upload'){
+    const max=30000;
+    const doc=extractedContent.length>max?extractedContent.substring(0,max)+'\n[Truncado]':extractedContent;
+    return `${instrucao}\n\n${RULES}\n\nDOCUMENTO:\n═══════════════\n${doc}\n═══════════════\n\n${STRUCTURE}`;
   }
-
-  return `${webSearchInstruction}\n${RULES}\n\nDADOS DO CASO:\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Área do Direito: ${d.area||'Não informado'}
-Tipo de Ação: ${d.tipo||'Não informado'}
-Polo Ativo (Autor): ${d.autor||'Não informado'}
-Polo Passivo (Réu): ${d.reu||'Não informado'}
+  return `${instrucao}\n\n${RULES}\n\nDADOS DO CASO:
+Área: ${d.area||'Não informado'}
+Tipo: ${d.tipo||'Não informado'}
+Autor: ${d.autor||'Não informado'}
+Réu: ${d.reu||'Não informado'}
 Pedidos: ${d.pedidos||'Não informado'}
-Tribunal/Instância: ${d.tribunal||'Não informado'}
-Valor da Causa: ${d.valor ? 'R$ '+d.valor : 'Não informado'}
-Data: ${d.data}
-Tom da análise: ${ton}${extra}
-
-FATOS E ARGUMENTOS DO CASO:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${d.fatos||'(Não informado)'}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Tribunal: ${d.tribunal||'Não informado'}
+Valor: ${d.valor?'R$ '+d.valor:'Não informado'}
+Fatos: ${d.fatos||'Não informado'}
 
 ${STRUCTURE}`;
 }
 
-// ── EXECUTAR ──────────────────────────────────────────────────────────────────
+// ── CHAMAR API GEMINI ──────────────────────────────────────────────────────────
+async function gemini(apiKey, messages, systemPrompt=''){
+  const modelos = ['gemini-2.5-flash','gemini-2.0-flash','gemini-1.5-flash'];
+  let ultimoErro = '';
+  for(const modelo of modelos){
+    try{
+      const body = {
+        contents: messages,
+        generationConfig: {maxOutputTokens:16000, temperature:0.3}
+      };
+      if(systemPrompt) body.system_instruction = {parts:[{text:systemPrompt}]};
+      const r = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${apiKey}`,
+        {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}
+      );
+      if(!r.ok){
+        const err=await r.json().catch(()=>({}));
+        ultimoErro = `${modelo}: ${err.error?.message||'HTTP '+r.status}`;
+        continue;
+      }
+      const data = await r.json();
+      // Extrai texto de TODOS os candidates e parts
+      let texto = '';
+      for(const cand of (data.candidates||[])){
+        for(const part of (cand?.content?.parts||[])){
+          if(part.text) texto += part.text;
+        }
+      }
+      if(texto.trim()) return texto.trim();
+      ultimoErro = `${modelo}: resposta vazia (finishReason: ${data.candidates?.[0]?.finishReason||'?'})`;
+    }catch(e){
+      ultimoErro = `${modelo}: ${e.message}`;
+    }
+  }
+  throw new Error('Falha em todos os modelos. Último erro: '+ultimoErro+'\n\nVerifique sua chave em aistudio.google.com');
+}
+
+// ── EXECUTAR ───────────────────────────────────────────────────────────────────
 async function executar(){
   const apiKey = document.getElementById('apiKeyInput').value.trim();
-  if(!apiKey || !apiKey.startsWith('AIza')){
-    alert('🔑 Cole sua chave de API primeiro!\n\nObtenha grátis em:\naistudio.google.com → Get API Key → Create API key');
-    document.getElementById('apiKeyInput').focus();
-    return;
+  if(!apiKey||!apiKey.startsWith('AIza')){
+    alert('🔑 Cole sua chave de API!\n\nObtena grátis em aistudio.google.com → Get API Key');
+    document.getElementById('apiKeyInput').focus(); return;
   }
-
   const d = {
+    cliente:      document.getElementById('nomeCliente').value.trim(),
+    processo:     document.getElementById('numProcesso').value.trim(),
     area:         document.getElementById('areaDir').value,
     tipo:         document.getElementById('tipoAcao').value.trim(),
     autor:        document.getElementById('autor').value.trim(),
@@ -714,478 +943,410 @@ async function executar(){
     extraContext: document.getElementById('extraContext').value.trim(),
     data:         new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'})
   };
+  if(currentMode==='upload'&&!extractedContent&&!extractedBase64){ alert('📎 Faça upload de um documento.'); return; }
+  if(currentMode==='manual'){ if(!d.area){alert('Selecione a Área do Direito.');return;} if(d.fatos.length<80){alert('Descreva os fatos com pelo menos 80 caracteres.');return;} }
 
-  if(currentMode === 'upload' && !extractedContent && !extractedBase64){
-    alert('📎 Faça upload de um documento primeiro.');
-    return;
-  }
-  if(currentMode === 'manual'){
-    if(!d.area){ alert('Selecione a Área do Direito.'); return; }
-    if(d.fatos.length < 80){ alert('Descreva os fatos com pelo menos 80 caracteres.'); return; }
-  }
-
-  document.getElementById('inputCard').style.display = 'none';
+  document.getElementById('inputCard').style.display='none';
   document.getElementById('loading').classList.add('visible');
   document.getElementById('resultCard').classList.remove('visible');
 
-  const steps = [
-    'Lendo documento...','Pesquisando jurisprudência na web...',
-    'Verificando súmulas nos tribunais superiores...','Analisando fundamentos jurídicos...',
-    'Calculando probabilidade com base nos fatos...','Cruzando com entendimentos do TST, STJ e STF...',
-    'Elaborando esboço da peça processual...','Definindo estratégia processual...',
-    'Compilando análise final completa...'
-  ];
-  let si = 0;
-  const iv = setInterval(() => {
-    document.getElementById('loadingStep').textContent = steps[si++ % steps.length];
-  }, 1800);
+  const steps=['Lendo documento...','Analisando fundamentos jurídicos...','Verificando jurisprudência...','Calculando probabilidade...','Elaborando esboço processual...','Definindo estratégia...','Estimando honorários...','Compilando análise completa...'];
+  let si=0; const iv=setInterval(()=>{ document.getElementById('loadingStep').textContent=steps[si++%steps.length]; },1800);
 
-  try {
-    const SYSTEM_PROMPT = `Você é um jurista brasileiro sênior com 30 anos de experiência nos tribunais. Sua reputação foi construída sobre uma única base: a VERDADE ABSOLUTA.
-
-IDENTIDADE PROFISSIONAL:
-Você é rigoroso, preciso e honesto. Cite apenas jurisprudência que você conhece com certeza que existe.
-
-REGRAS INVIOLÁVEIS:
-
-① JURISPRUDÊNCIA — SOMENTE O QUE EXISTE:
-- Cite APENAS súmulas e entendimentos que realmente existem
-- Formato obrigatório: "Súmula [N] do [Tribunal]: [o que determina] — Aplicação: [como se aplica ao caso]"
-- Se não tiver certeza do número, escreva: "Não há súmula consolidada sobre este ponto. O entendimento majoritário é: [descreva]"
-- NUNCA invente número de súmula, acórdão ou ementa
-
-② PROBABILIDADE — RACIOCÍNIO OBRIGATÓRIO:
-- Cada percentual precisa de justificativa explícita fator por fator
-- Liste o que favorece, o que prejudica e o que é incerto
-- Se não tiver dados suficientes para estimar, diga isso claramente
-
-③ ARTIGOS DE LEI:
-- Cite apenas artigos que realmente existem na legislação brasileira
-- Formato: "Art. [N] da [Lei/Código]: [o que determina]"
-
-④ VALORES E INDENIZAÇÕES:
-- Cite apenas parâmetros reais conhecidos e praticados
-- Se não tiver base suficiente: "Não é possível estimar sem mais dados"
-
-⑤ HONESTIDADE ACIMA DE TUDO:
-- É melhor dizer "não sei" ou "dados insuficientes" do que inventar qualquer dado
-- Sua credibilidade profissional depende de nunca alucinar`;
-
-    let parts = [];
-
-    // Se PDF/imagem, extrai texto via Gemini primeiro
-    if(currentMode === 'upload' && extractedBase64){
-      document.getElementById('loadingStep').textContent = 'Lendo e extraindo texto do arquivo...';
+  try{
+    // Extrai PDF/imagem primeiro se necessário
+    if(currentMode==='upload'&&extractedBase64&&!extractedContent){
+      document.getElementById('loadingStep').textContent='Extraindo texto do arquivo...';
       const mimeOk = extractedMime.startsWith('image/') ? extractedMime : 'application/pdf';
-
-      const resExtract = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            contents: [{role:'user', parts:[
-              {inline_data:{mime_type: mimeOk, data: extractedBase64}},
-              {text: 'Extraia e transcreva TODO o texto deste documento jurídico na íntegra, mantendo a estrutura original. Não resuma, não interprete — apenas transcreva o conteúdo completo.'}
-            ]}],
-            generationConfig: {maxOutputTokens: 12000, temperature: 0}
-          })
-        }
-      );
-
-      if(resExtract.ok){
-        const dataEx = await resExtract.json();
-        const textoExtraido = dataEx.candidates?.[0]?.content?.parts?.map(p => p.text||'').join('') || '';
-        if(textoExtraido){
-          extractedContent = textoExtraido;
-          document.getElementById('extractedTxt').textContent = textoExtraido.substring(0, 500) + '…';
-        }
-      }
+      try{
+        const txt = await gemini(apiKey,
+          [{role:'user',parts:[
+            {inline_data:{mime_type:mimeOk,data:extractedBase64}},
+            {text:'Transcreva TODO o texto deste documento jurídico na íntegra. Não resuma — transcreva completo.'}
+          ]}]
+        );
+        if(txt){ extractedContent=txt; document.getElementById('extractedTxt').textContent=txt.substring(0,400)+'…'; }
+      }catch(e){ console.warn('Extração de arquivo falhou:',e.message); }
     }
 
-    parts = [{text: buildPrompt(d)}];
-    document.getElementById('loadingStep').textContent = 'Conectando ao Gemini...';
-
-    // Função genérica para chamar a API
-    async function chamarAPI(modelo, comBusca) {
-      const body = {
-        system_instruction: {parts:[{text: SYSTEM_PROMPT}]},
-        contents: [{role:'user', parts}],
-        generationConfig: {maxOutputTokens: 16000, temperature: 0.3}
-      };
-      if(comBusca) body.tools = [{googleSearch: {}}];
-      const r = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${apiKey}`,
-        { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) }
-      );
-      if(!r.ok){
-        const err = await r.json().catch(()=>({}));
-        throw new Error(err.error?.message || 'Erro HTTP '+r.status);
-      }
-      return await r.json();
-    }
-
-    // Extrai texto - busca em TODOS os parts de TODOS os candidates
-    function extrairTexto(data) {
-      if(!data) throw new Error('Sem resposta da API');
-      // Varre todos os candidates e todos os parts para pegar qualquer texto
-      let texto = '';
-      const candidates = data.candidates || [];
-      for(const cand of candidates) {
-        const parts = cand?.content?.parts || [];
-        for(const part of parts) {
-          if(part.text) texto += part.text;
-        }
-      }
-      // Se ainda vazio, tenta pegar de grounding/search response
-      if(!texto && data.candidates?.[0]) {
-        const cand = data.candidates[0];
-        // Às vezes o texto vem em groundingMetadata
-        const gm = cand.groundingMetadata;
-        if(gm?.searchEntryPoint?.renderedContent) {
-          texto = gm.searchEntryPoint.renderedContent;
-        }
-      }
-      return texto.trim();
-    }
-
-    let data, text = '';
-
-    // Tentativa 1: gemini-2.5-flash SEM google_search (mais estável)
-    try {
-      document.getElementById('loadingStep').textContent = 'Analisando com Gemini 2.5 Flash...';
-      data = await chamarAPI('gemini-2.5-flash', false);
-      text = extrairTexto(data);
-      console.log('T1 ok, chars:', text.length);
-    } catch(e1) {
-      console.warn('T1 falhou:', e1.message);
-      // Tentativa 2: gemini-2.0-flash
-      try {
-        document.getElementById('loadingStep').textContent = 'Tentando Gemini 2.0 Flash...';
-        data = await chamarAPI('gemini-2.0-flash', false);
-        text = extrairTexto(data);
-        console.log('T2 ok, chars:', text.length);
-      } catch(e2) {
-        console.warn('T2 falhou:', e2.message);
-        // Tentativa 3: gemini-1.5-flash (mais compatível)
-        try {
-          document.getElementById('loadingStep').textContent = 'Usando Gemini 1.5 Flash...';
-          data = await chamarAPI('gemini-1.5-flash', false);
-          text = extrairTexto(data);
-          console.log('T3 ok, chars:', text.length);
-        } catch(e3) {
-          throw new Error('Todos os modelos falharam:\n' + e1.message + '\n' + e2.message + '\n' + e3.message);
-        }
-      }
-    }
-
-    if(!text) {
-      throw new Error('A API respondeu mas sem texto.\nVerifique se a chave de API tem acesso ao Gemini em aistudio.google.com');
-    }
+    const prompt = buildPrompt(d);
+    document.getElementById('loadingStep').textContent='Gerando análise completa...';
+    const text = await gemini(apiKey, [{role:'user',parts:[{text:prompt}]}]);
 
     clearInterval(iv);
-    analysisData = {formData: d, aiText: text, fileName: uploadedFile?.name || null};
+    analysisData = {formData:d, aiText:text, fileName:uploadedFile?.name||null};
+    chatHistory = [{role:'user',parts:[{text:prompt}]},{role:'model',parts:[{text:text}]}];
+    salvarHistorico(d, text);
     renderResult(d, text);
-  }
-  catch(e){
+  }catch(e){
     clearInterval(iv);
     document.getElementById('loading').classList.remove('visible');
-    document.getElementById('inputCard').style.display = 'block';
-    alert('⚠ Erro: ' + e.message);
+    document.getElementById('inputCard').style.display='block';
+    alert('⚠ Erro:\n\n'+e.message);
   }
 }
 
-// ── RENDER ────────────────────────────────────────────────────────────────────
+// ── RENDER ─────────────────────────────────────────────────────────────────────
 function renderResult(d, text){
   document.getElementById('loading').classList.remove('visible');
   document.getElementById('resultCard').classList.add('visible');
 
-  const m = text.match(/Probabilidade\s+Global[:\s*_]*(\d{1,3})\s*%/i) || text.match(/\*{0,2}(\d{1,3})\s*%\*{0,2}/);
-  const prob = m ? Math.min(97, Math.max(5, parseInt(m[1]))) : null;
-
-  if(prob !== null){
-    const cls = prob >= 70 ? 'high' : prob >= 40 ? 'medium' : 'low';
-    document.getElementById('probValue').textContent = prob + '%';
-    document.getElementById('probValue').className = 'prob-value ' + cls;
-    document.getElementById('probClass').textContent = prob >= 70 ? '⬆ Alta Probabilidade' : prob >= 40 ? '◈ Probabilidade Moderada' : '⬇ Baixa Probabilidade';
-    document.getElementById('probClass').style.color = prob >= 70 ? 'var(--green)' : prob >= 40 ? 'var(--yellow)' : 'var(--red)';
-    setTimeout(() => {
-      const b = document.getElementById('probBar');
-      b.className = 'prob-bar-fill ' + cls;
-      b.style.width = prob + '%';
-    }, 300);
-
-    const cap = v => Math.min(97, Math.max(6, Math.round(v)));
-    const r = (rng, off=0) => off + Math.round((Math.random()-.5)*rng);
-    const sc = [
-      {n:'Mérito Jurídico',    v: cap(prob+r(12,-3))},
-      {n:'Base Probatória',    v: cap(prob+r(10,-7))},
-      {n:'Jurisprudência',     v: cap(prob+r(15,-5))},
-      {n:'Posição do Tribunal',v: cap(prob+r(18,-10))}
-    ];
-    let h = '<div style="margin-top:13px">';
-    sc.forEach(s => {
-      h += `<div class="score-row"><div class="score-name">${s.n}</div><div class="score-mini-bar"><div class="score-mini-fill" data-val="${s.v}"></div></div><div class="score-pct">${s.v}%</div></div>`;
-    });
-    document.getElementById('scoreBreakdown').innerHTML = h + '</div>';
-    setTimeout(() => document.querySelectorAll('.score-mini-fill').forEach(el => { el.style.width = el.dataset.val + '%'; }), 500);
+  // Probabilidade
+  const m = text.match(/Probabilidade\s+Global[:\s*_]*(\d{1,3})\s*%/i)||text.match(/\*{0,2}(\d{1,3})\s*%\*{0,2}/);
+  const prob = m ? Math.min(97,Math.max(5,parseInt(m[1]))) : null;
+  if(prob!==null){
+    const cls = prob>=70?'high':prob>=40?'medium':'low';
+    document.getElementById('probValue').textContent=prob+'%';
+    document.getElementById('probValue').className='prob-value '+cls;
+    document.getElementById('probClass').textContent=prob>=70?'⬆ Alta Probabilidade':prob>=40?'◈ Probabilidade Moderada':'⬇ Baixa Probabilidade';
+    document.getElementById('probClass').style.color=prob>=70?'var(--green)':prob>=40?'var(--yellow)':'var(--red)';
+    setTimeout(()=>{ const b=document.getElementById('probBar'); b.className='prob-bar-fill '+cls; b.style.width=prob+'%'; },300);
+    const cap=v=>Math.min(97,Math.max(6,Math.round(v)));
+    const rnd=(rng,off=0)=>off+Math.round((Math.random()-.5)*rng);
+    const sc=[{n:'Mérito Jurídico',v:cap(prob+rnd(12,-3))},{n:'Base Probatória',v:cap(prob+rnd(10,-7))},{n:'Jurisprudência',v:cap(prob+rnd(15,-5))},{n:'Posição do Tribunal',v:cap(prob+rnd(18,-10))}];
+    let h='<div style="margin-top:11px">';
+    sc.forEach(s=>{ h+=`<div class="score-row"><div class="score-name">${s.n}</div><div class="score-mini-bar"><div class="score-mini-fill" data-val="${s.v}"></div></div><div class="score-pct">${s.v}%</div></div>`; });
+    document.getElementById('scoreBreakdown').innerHTML=h+'</div>';
+    setTimeout(()=>document.querySelectorAll('.score-mini-fill').forEach(el=>{ el.style.width=el.dataset.val+'%'; }),500);
   } else {
-    document.getElementById('probValue').textContent = 'N/D';
-    document.getElementById('probClass').textContent = 'Dados insuficientes';
-    document.getElementById('probClass').style.color = 'var(--muted)';
+    document.getElementById('probValue').textContent='N/D';
+    document.getElementById('probClass').textContent='Dados insuficientes';
   }
 
+  // Resumo executivo
+  const resumoMatch = text.match(/## 1\. RESUMO EXECUTIVO\n([\s\S]*?)(?=\n## 2\.)/i);
+  const resumoTxt = resumoMatch ? resumoMatch[1].trim() : '';
+  const itens = [
+    {label:'Cliente', val: d.cliente||'—'},
+    {label:'Processo', val: d.processo||'—'},
+    {label:'Área', val: d.area||currentMode==='upload'?'Documento':'—'},
+    {label:'Probabilidade', val: prob!==null?prob+'%':'N/D'},
+    {label:'Tom', val: d.tom||'imparcial'},
+    {label:'Data', val: d.data}
+  ];
+  let resumoHtml = '';
+  itens.forEach(it=>{ resumoHtml+=`<div class="resumo-item"><div class="resumo-item-label">${it.label}</div><div class="resumo-item-val">${it.val}</div></div>`; });
+  if(resumoTxt){
+    resumoHtml += `<div class="resumo-item" style="grid-column:1/-1"><div class="resumo-item-label">Resumo</div><div class="resumo-item-val" style="font-size:.78rem;font-weight:400;color:var(--muted)">${resumoTxt.replace(/\n/g,' ').substring(0,300)}</div></div>`;
+  }
+  document.getElementById('resumoItens').innerHTML = resumoHtml;
+
   document.getElementById('aiText').textContent = text;
-  const promptCopia = gerarPromptCopia(d, text);
-  document.getElementById('promptPreview').textContent = promptCopia;
-  window.scrollTo({top: 0, behavior: 'smooth'});
+
+  // Prompt para copiar
+  document.getElementById('promptPreview').textContent = gerarPromptCopia(d, text);
+
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// ── PARSE SEÇÕES ──────────────────────────────────────────────────────────────
+// ── CHAT ───────────────────────────────────────────────────────────────────────
+function chatSugest(btn){
+  document.getElementById('chatInput').value = btn.textContent;
+  enviarChat();
+}
+function chatKeydown(e){
+  if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); enviarChat(); }
+}
+async function enviarChat(){
+  const apiKey = document.getElementById('apiKeyInput').value.trim();
+  if(!apiKey){ alert('Configure a chave de API primeiro.'); return; }
+  if(!analysisData){ alert('Execute uma análise primeiro.'); return; }
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if(!msg) return;
+  input.value='';
+  document.getElementById('btnChatSend').disabled=true;
+
+  const msgs = document.getElementById('chatMessages');
+
+  // Mensagem do usuário
+  const userDiv=document.createElement('div');
+  userDiv.className='chat-msg user';
+  userDiv.textContent=msg;
+  msgs.appendChild(userDiv);
+
+  // Loading
+  const loadDiv=document.createElement('div');
+  loadDiv.className='chat-msg ai loading-msg';
+  loadDiv.textContent='Analisando...';
+  msgs.appendChild(loadDiv);
+  msgs.scrollTop=msgs.scrollHeight;
+
+  // Adiciona à história
+  chatHistory.push({role:'user',parts:[{text:msg}]});
+
+  try{
+    const resp = await gemini(apiKey, chatHistory,
+      `Você é um jurista brasileiro especialista. Responda APENAS sobre o caso jurídico já analisado. Seja direto e objetivo. Não invente jurisprudência.`
+    );
+    chatHistory.push({role:'model',parts:[{text:resp}]});
+    loadDiv.className='chat-msg ai';
+    loadDiv.textContent=resp;
+  }catch(e){
+    loadDiv.className='chat-msg ai';
+    loadDiv.textContent='Erro: '+e.message;
+  }
+  msgs.scrollTop=msgs.scrollHeight;
+  document.getElementById('btnChatSend').disabled=false;
+}
+
+// ── HISTÓRICO ──────────────────────────────────────────────────────────────────
+function salvarHistorico(d, text){
+  try{
+    const hist = JSON.parse(localStorage.getItem('v9_historico')||'[]');
+    const prob = text.match(/Probabilidade\s+Global[:\s*_]*(\d{1,3})\s*%/i);
+    hist.unshift({
+      id: Date.now(),
+      data: d.data,
+      cliente: d.cliente||'—',
+      tipo: d.tipo||d.area||'Documento',
+      prob: prob?parseInt(prob[1]):null,
+      texto: text,
+      formData: d,
+      fileName: analysisData?.fileName||null
+    });
+    // Manter apenas os 20 mais recentes
+    localStorage.setItem('v9_historico', JSON.stringify(hist.slice(0,20)));
+    atualizarContHist();
+  }catch(e){ console.warn('Erro ao salvar histórico:', e); }
+}
+function atualizarContHist(){
+  try{
+    const hist = JSON.parse(localStorage.getItem('v9_historico')||'[]');
+    document.getElementById('histCount').textContent = hist.length;
+  }catch(e){}
+}
+function toggleHist(){
+  const panel=document.getElementById('histPanel');
+  const overlay=document.getElementById('overlay');
+  const aberto=panel.classList.contains('open');
+  panel.classList.toggle('open',!aberto);
+  overlay.classList.toggle('open',!aberto);
+  if(!aberto) renderHistorico();
+}
+function renderHistorico(){
+  const list=document.getElementById('histList');
+  try{
+    const hist=JSON.parse(localStorage.getItem('v9_historico')||'[]');
+    if(!hist.length){ list.innerHTML='<div class="hist-empty">Nenhuma análise salva ainda.</div>'; return; }
+    list.innerHTML=hist.map(h=>{
+      const cls=h.prob>=70?'high':h.prob>=40?'medium':'low';
+      const probTxt=h.prob!==null?h.prob+'%':'N/D';
+      return `<div class="hist-item" onclick="carregarHistorico(${h.id})">
+        <div class="hist-item-titulo">${h.cliente!=='—'?h.cliente+' — ':''} ${h.tipo}</div>
+        <div class="hist-item-meta">
+          <span>${h.data}</span>
+          <span class="hist-item-prob ${cls}">${probTxt}</span>
+          ${h.fileName?`<span>📎 ${h.fileName.substring(0,20)}</span>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){ list.innerHTML='<div class="hist-empty">Erro ao carregar histórico.</div>'; }
+}
+function carregarHistorico(id){
+  try{
+    const hist=JSON.parse(localStorage.getItem('v9_historico')||'[]');
+    const item=hist.find(h=>h.id===id);
+    if(!item) return;
+    analysisData={formData:item.formData,aiText:item.texto,fileName:item.fileName};
+    chatHistory=[{role:'user',parts:[{text:'Análise carregada do histórico.'}]},{role:'model',parts:[{text:item.texto}]}];
+    document.getElementById('inputCard').style.display='none';
+    document.getElementById('resultCard').classList.add('visible');
+    renderResult(item.formData, item.texto);
+    toggleHist();
+  }catch(e){ alert('Erro ao carregar: '+e.message); }
+}
+function limparHistorico(){
+  if(!confirm('Apagar todo o histórico?')) return;
+  try{ localStorage.removeItem('v9_historico'); atualizarContHist(); renderHistorico(); }catch(e){}
+}
+
+// ── PARSE SEÇÕES ───────────────────────────────────────────────────────────────
 function parseSec(text){
-  if(!text) return [{title:'ANÁLISE COMPLETA', content: text}];
-  const s = [];
-  text.split(/(?=\n## \d+\.)/).forEach(p => {
-    const t = p.trim(); if(!t) return;
-    const lines = t.split('\n');
-    const title = lines[0].replace(/^#+\s*\d*\.?\s*/,'').replace(/\*\*/g,'').trim();
-    const content = lines.slice(1).join('\n').trim();
-    if(title && content) s.push({title, content});
+  if(!text) return [{title:'ANÁLISE COMPLETA',content:text}];
+  const s=[];
+  text.split(/(?=\n## \d+\.)/).forEach(p=>{
+    const t=p.trim(); if(!t) return;
+    const lines=t.split('\n');
+    const title=lines[0].replace(/^#+\s*\d*\.?\s*/,'').replace(/\*\*/g,'').trim();
+    const content=lines.slice(1).join('\n').trim();
+    if(title&&content) s.push({title,content});
   });
-  return s.length ? s : [{title:'ANÁLISE COMPLETA', content: text}];
+  return s.length?s:[{title:'ANÁLISE COMPLETA',content:text}];
 }
 
-// ── DOWNLOAD WORD ─────────────────────────────────────────────────────────────
+// ── DOWNLOAD WORD ──────────────────────────────────────────────────────────────
 async function dlWord(){
   if(!analysisData) return;
-  const btn = document.getElementById('btnWord');
-  btn.disabled = true; btn.textContent = '⏳ Gerando...';
-  document.getElementById('dlStatus').textContent = 'Preparando Word...';
+  const btn=document.getElementById('btnWord');
+  btn.disabled=true; btn.textContent='⏳ Gerando...';
+  document.getElementById('dlStatus').textContent='Preparando Word...';
   try{
-    const {Document,Packer,Paragraph,TextRun,AlignmentType,BorderStyle,Header,Footer,PageNumber} = docx;
-    const d = analysisData.formData, text = analysisData.aiText, secs = parseSec(text);
-    const p  = (t,o={}) => new Paragraph({children:[new TextRun({text:String(t||''),font:'Arial',size:22,...o})],spacing:{after:130},alignment:AlignmentType.JUSTIFIED});
-    const pc = (t,o={}) => new Paragraph({children:[new TextRun({text:String(t||''),font:'Arial',size:22,...o})],spacing:{after:110},alignment:AlignmentType.CENTER});
-    const h1 = (t)     => new Paragraph({children:[new TextRun({text:String(t||''),font:'Arial',size:26,bold:true,color:'8B6914'})],spacing:{before:340,after:130},border:{bottom:{style:BorderStyle.SINGLE,size:4,color:'C9A84C',space:4}}});
-    const sp = ()      => new Paragraph({children:[new TextRun({text:'',size:18})],spacing:{after:70}});
-    const cover = [sp(),sp(),sp(),sp(),
-      pc('V9 POWER EDITION',{size:52,bold:true,color:'C9A84C'}),
-      pc('ANÁLISE JURÍDICA COMPLETA',{size:28,bold:true,color:'8B6914'}),
+    const {Document,Packer,Paragraph,TextRun,AlignmentType,BorderStyle,Header,Footer,PageNumber}=docx;
+    const d=analysisData.formData,text=analysisData.aiText,secs=parseSec(text);
+    const p=(t,o={})=>new Paragraph({children:[new TextRun({text:String(t||''),font:'Arial',size:22,...o})],spacing:{after:120},alignment:AlignmentType.JUSTIFIED});
+    const pc=(t,o={})=>new Paragraph({children:[new TextRun({text:String(t||''),font:'Arial',size:22,...o})],spacing:{after:100},alignment:AlignmentType.CENTER});
+    const h1=(t)=>new Paragraph({children:[new TextRun({text:String(t||''),font:'Arial',size:26,bold:true,color:'8B6914'})],spacing:{before:320,after:120},border:{bottom:{style:BorderStyle.SINGLE,size:4,color:'C9A84C',space:4}}});
+    const sp=()=>new Paragraph({children:[new TextRun({text:'',size:18})],spacing:{after:60}});
+    const cover=[sp(),sp(),sp(),sp(),
+      pc('V9 PRO',{size:56,bold:true,color:'C9A84C'}),
+      pc('ANÁLISE JURÍDICA PROFISSIONAL',{size:28,bold:true,color:'8B6914'}),
       pc('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',{size:18,color:'C9A84C'}),sp()
     ];
-    if(analysisData.fileName) cover.push(pc('Documento: '+analysisData.fileName,{size:21}));
-    const flds = [['Área do Direito',d.area],['Tipo de Ação',d.tipo],['Polo Ativo',d.autor],['Polo Passivo',d.reu],['Tribunal',d.tribunal],['Valor da Causa',d.valor?'R$ '+d.valor:''],['Data',d.data]].filter(([,v])=>v);
-    flds.forEach(([k,v]) => cover.push(pc(`${k}: ${v}`,{size:21})));
-    cover.push(sp(), pc('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',{size:18,color:'C9A84C'}),sp(),sp(),
-      pc('Gerado por IA · V9 Power Edition',{size:17,italics:true,color:'888888'}),
-      pc('NÃO SUBSTITUI orientação jurídica de advogado habilitado.',{size:17,italics:true,color:'888888'})
+    if(analysisData.fileName) cover.push(pc('Documento: '+analysisData.fileName,{size:20}));
+    const flds=[['Cliente',d.cliente],['Nº do Processo',d.processo],['Área do Direito',d.area],['Tipo de Ação',d.tipo],['Polo Ativo',d.autor],['Polo Passivo',d.reu],['Tribunal',d.tribunal],['Valor da Causa',d.valor?'R$ '+d.valor:''],['Data',d.data]].filter(([,v])=>v);
+    flds.forEach(([k,v])=>cover.push(pc(`${k}: ${v}`,{size:20})));
+    cover.push(sp(),pc('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',{size:18,color:'C9A84C'}),sp(),sp(),
+      pc('Gerado por V9 Pro — Plataforma Jurídica Profissional',{size:16,italics:true,color:'888888'}),
+      pc('NÃO SUBSTITUI orientação jurídica de advogado habilitado.',{size:16,italics:true,color:'888888'})
     );
-    const body = [];
-    if(analysisData.fileName){body.push(h1('DOCUMENTO ANALISADO'));body.push(p(analysisData.fileName,{bold:true}));body.push(sp());}
-    if(flds.length){body.push(h1('DADOS DO PROCESSO'));flds.forEach(([k,v])=>body.push(p(`${k}: ${v}`)));body.push(sp());}
-    secs.forEach(sec => {
+    const body=[];
+    if(flds.length){ body.push(h1('DADOS DO PROCESSO')); flds.forEach(([k,v])=>body.push(p(`${k}: ${v}`))); body.push(sp()); }
+    secs.forEach(sec=>{
       body.push(h1(sec.title));
-      sec.content.split('\n').forEach(line => {
-        const cl = line.replace(/\*\*/g,'').replace(/^#+\s*/,'').trim();
+      sec.content.split('\n').forEach(line=>{
+        const cl=line.replace(/\*\*/g,'').replace(/^#+\s*/,'').trim();
         if(!cl){body.push(sp());return;}
-        const bold = /^\d+\.\s/.test(line.trim());
-        const ind  = /^[-•]\s/.test(line.trim());
-        body.push(new Paragraph({children:[new TextRun({text:cl.replace(/^[-•]\s*/,''),font:'Arial',size:22,...(bold?{bold:true}:{})})],spacing:{after:110},alignment:AlignmentType.JUSTIFIED,...(ind?{indent:{left:320}}:{})}));
+        const ind=/^[-•✅❌⚠️]\s/.test(line.trim());
+        body.push(new Paragraph({children:[new TextRun({text:cl.replace(/^[-•✅❌⚠️]\s*/,''),font:'Arial',size:22})],spacing:{after:100},alignment:AlignmentType.JUSTIFIED,...(ind?{indent:{left:300}}:{})}));
       });
       body.push(sp());
     });
-    body.push(pc('V9 Power Edition · '+d.data,{size:15,italics:true,color:'888888'}));
-    const wdoc = new Document({
-      styles:{default:{document:{run:{font:'Arial',size:22}}}},
+    body.push(pc('V9 Pro · '+d.data,{size:14,italics:true,color:'888888'}));
+    const wdoc=new Document({
       sections:[
         {properties:{page:{size:{width:11906,height:16838},margin:{top:1440,right:1440,bottom:1440,left:1440}}},children:cover},
         {
-          properties:{page:{size:{width:11906,height:16838},margin:{top:1440,right:1700,bottom:1440,left:1700}}},
-          headers:{default:new Header({children:[new Paragraph({children:[new TextRun({text:'V9 POWER EDITION  ·  ANÁLISE JURÍDICA',font:'Arial',size:15,color:'C9A84C',bold:true})],alignment:AlignmentType.CENTER,border:{bottom:{style:BorderStyle.SINGLE,size:3,color:'C9A84C',space:4}}})]})},
-          footers:{default:new Footer({children:[new Paragraph({children:[new TextRun({text:(d.area||'Análise')+'  ·  Pág. ',font:'Arial',size:15,color:'888888'}),new TextRun({children:[PageNumber.CURRENT],font:'Arial',size:15,color:'888888'})],alignment:AlignmentType.CENTER})]})},
+          properties:{page:{size:{width:11906,height:16838},margin:{top:1440,right:1600,bottom:1440,left:1600}}},
+          headers:{default:new Header({children:[new Paragraph({children:[new TextRun({text:'V9 PRO  ·  ANÁLISE JURÍDICA PROFISSIONAL',font:'Arial',size:14,color:'C9A84C',bold:true})],alignment:AlignmentType.CENTER,border:{bottom:{style:BorderStyle.SINGLE,size:3,color:'C9A84C',space:4}}})]})},
+          footers:{default:new Footer({children:[new Paragraph({children:[new TextRun({text:(d.area||d.tipo||'Análise')+'  ·  Pág. ',font:'Arial',size:14,color:'888888'}),new TextRun({children:[PageNumber.CURRENT],font:'Arial',size:14,color:'888888'})],alignment:AlignmentType.CENTER})]})},
           children:body
         }
       ]
     });
-    const buf = await Packer.toBuffer(wdoc);
-    const blob = new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url;
-    a.download = `V9_${(d.tipo||d.area||'Analise').replace(/\s+/g,'_').replace(/[^\w_]/g,'')}.docx`;
+    const buf=await Packer.toBuffer(wdoc);
+    const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url;
+    a.download=`V9Pro_${(d.cliente||d.tipo||d.area||'Analise').replace(/\s+/g,'_').replace(/[^\w_]/g,'')}_${d.data.replace(/\//g,'-')}.docx`;
     document.body.appendChild(a); a.click();
-    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 1000);
-    document.getElementById('dlStatus').textContent = '✓ Word gerado com sucesso!';
-  } catch(e){
-    document.getElementById('dlStatus').textContent = '✗ Erro: '+e.message;
-  }
-  btn.disabled = false; btn.textContent = '📄 Baixar Word (.docx)';
+    setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1000);
+    document.getElementById('dlStatus').textContent='✓ Word gerado com sucesso!';
+  }catch(e){ document.getElementById('dlStatus').textContent='✗ Erro: '+e.message; }
+  btn.disabled=false; btn.textContent='📄 Baixar Word (.docx)';
 }
 
-// ── DOWNLOAD PDF ──────────────────────────────────────────────────────────────
+// ── DOWNLOAD PDF ───────────────────────────────────────────────────────────────
 async function dlPDF(){
   if(!analysisData) return;
-  const btn = document.getElementById('btnPdf');
-  btn.disabled = true; btn.textContent = '⏳ Gerando...';
-  document.getElementById('dlStatus').textContent = 'Preparando PDF...';
+  const btn=document.getElementById('btnPdf');
+  btn.disabled=true; btn.textContent='⏳ Gerando...';
+  document.getElementById('dlStatus').textContent='Preparando PDF...';
   try{
-    const {jsPDF} = jspdf;
-    const doc = new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-    const d = analysisData.formData, text = analysisData.aiText;
+    const {jsPDF}=jspdf;
+    const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    const d=analysisData.formData,text=analysisData.aiText;
     const pw=210,ph=297,ml=18,mr=18,mb=18,cw=pw-ml-mr; let y=20;
-    const G=[201,168,76],GD=[139,105,20],GR=[110,100,85],LT=[200,190,170],BG=[10,10,10];
-    function np(){ doc.addPage(); doc.setFillColor(...BG); doc.rect(0,0,pw,ph,'F'); doc.setFillColor(22,20,14); doc.rect(0,0,pw,11,'F'); doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(...G); doc.text('V9 POWER EDITION  ·  ANÁLISE JURÍDICA',pw/2,7.5,{align:'center'}); doc.setDrawColor(...GD); doc.setLineWidth(0.25); doc.line(ml,11,pw-mr,11); y=19; }
+    const G=[201,168,76],GD=[139,105,20],GR=[110,100,85],LT=[200,190,170],BG=[8,8,8];
+    function np(){ doc.addPage(); doc.setFillColor(...BG); doc.rect(0,0,pw,ph,'F'); doc.setFillColor(20,18,12); doc.rect(0,0,pw,11,'F'); doc.setFont('helvetica','bold'); doc.setFontSize(6); doc.setTextColor(...G); doc.text('V9 PRO  ·  ANÁLISE JURÍDICA PROFISSIONAL',pw/2,7,{align:'center'}); doc.setDrawColor(...GD); doc.setLineWidth(0.2); doc.line(ml,11,pw-mr,11); y=19; }
     function ck(n=8){ if(y+n>ph-mb-8) np(); }
-    function sh(t){ ck(14); doc.setFillColor(24,22,12); doc.rect(ml-2,y-5,cw+4,9,'F'); doc.setDrawColor(...G); doc.setLineWidth(0.3); doc.line(ml-2,y+4,ml+cw+2,y+4); doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...G); doc.text(t.toUpperCase().substring(0,70),ml,y); y+=9; }
-    function bd(t,bold=false,ind=0){ if(!t||!t.trim()) return; doc.setFont('helvetica',bold?'bold':'normal'); doc.setFontSize(7.8); doc.setTextColor(...LT); doc.splitTextToSize(t.trim(),cw-ind).forEach(l=>{ ck(5.5); doc.text(l,ml+ind,y); y+=5; }); }
-    // Capa
+    function sh(t){ ck(14); doc.setFillColor(22,20,12); doc.rect(ml-2,y-5,cw+4,9,'F'); doc.setDrawColor(...G); doc.setLineWidth(0.25); doc.line(ml-2,y+4,ml+cw+2,y+4); doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(...G); doc.text(t.toUpperCase().substring(0,70),ml,y); y+=9; }
+    function bd(t,ind=0){ if(!t||!t.trim()) return; doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...LT); doc.splitTextToSize(t.trim(),cw-ind).forEach(l=>{ ck(5); doc.text(l,ml+ind,y); y+=4.8; }); }
     doc.setFillColor(...BG); doc.rect(0,0,pw,ph,'F');
-    doc.setDrawColor(...GD); doc.setLineWidth(0.3); doc.line(ml,14,pw-mr,14);
-    doc.setDrawColor(...G); doc.setLineWidth(0.6); doc.line(ml,16,pw-mr,16);
-    doc.setFont('helvetica','bold'); doc.setFontSize(28); doc.setTextColor(...G); doc.text('V9 POWER EDITION',pw/2,62,{align:'center'});
-    doc.setFontSize(13); doc.setTextColor(...GD); doc.text('ANÁLISE JURÍDICA COMPLETA',pw/2,72,{align:'center'});
-    doc.setFontSize(7.5); doc.setTextColor(...GR); doc.text('◈  ZERO ALUCINAÇÃO  ·  ANÁLISE BASEADA NOS DADOS FORNECIDOS  ◈',pw/2,79,{align:'center'});
-    doc.setDrawColor(...GD); doc.setLineWidth(0.3); doc.line(30,85,pw-30,85);
-    let cy=97;
-    if(analysisData.fileName){ doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...GD); doc.text('Documento:',ml+8,cy); doc.setFont('helvetica','normal'); doc.setTextColor(...LT); doc.text((analysisData.fileName||'').substring(0,50),ml+48,cy); cy+=8; }
-    const flds = [['Área',d.area],['Tipo',d.tipo],['Autor',d.autor],['Réu',d.reu],['Tribunal',d.tribunal],['Valor',d.valor?'R$ '+d.valor:''],['Data',d.data]].filter(([,v])=>v);
-    flds.forEach(([k,v]) => { doc.setFont('helvetica','bold'); doc.setFontSize(7.8); doc.setTextColor(...GD); doc.text(k+':',ml+8,cy); doc.setFont('helvetica','normal'); doc.setTextColor(...LT); doc.text((v||'').substring(0,55),ml+36,cy); cy+=7; });
+    doc.setDrawColor(...GD); doc.setLineWidth(0.25); doc.line(ml,14,pw-mr,14);
+    doc.setDrawColor(...G); doc.setLineWidth(0.5); doc.line(ml,16,pw-mr,16);
+    doc.setFont('helvetica','bold'); doc.setFontSize(26); doc.setTextColor(...G); doc.text('V9 PRO',pw/2,58,{align:'center'});
+    doc.setFontSize(12); doc.setTextColor(...GD); doc.text('ANÁLISE JURÍDICA PROFISSIONAL',pw/2,67,{align:'center'});
+    doc.setFontSize(7); doc.setTextColor(...GR); doc.text('ADVOGADOS  ·  ESCRITÓRIOS  ·  JURÍDICO INTERNO',pw/2,74,{align:'center'});
+    doc.setDrawColor(...GD); doc.setLineWidth(0.25); doc.line(30,80,pw-30,80);
+    let cy=92;
+    if(analysisData.fileName){ doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...GD); doc.text('Documento:',ml+8,cy); doc.setFont('helvetica','normal'); doc.setTextColor(...LT); doc.text((analysisData.fileName||'').substring(0,50),ml+40,cy); cy+=7; }
+    const flds=[['Cliente',d.cliente],['Processo',d.processo],['Área',d.area],['Tipo',d.tipo],['Autor',d.autor],['Réu',d.reu],['Tribunal',d.tribunal],['Valor',d.valor?'R$ '+d.valor:''],['Data',d.data]].filter(([,v])=>v);
+    flds.forEach(([k,v])=>{ doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...GD); doc.text(k+':',ml+8,cy); doc.setFont('helvetica','normal'); doc.setTextColor(...LT); doc.text((v||'').substring(0,55),ml+34,cy); cy+=6.5; });
     doc.setDrawColor(...GD); doc.line(30,cy+3,pw-30,cy+3);
-    doc.setFont('helvetica','italic'); doc.setFontSize(6.8); doc.setTextColor(...GR);
-    doc.text('Gerado por IA · V9 Power Edition · NÃO SUBSTITUI advogado habilitado.',pw/2,ph-16,{align:'center'});
-    // Análise
+    doc.setFont('helvetica','italic'); doc.setFontSize(6.5); doc.setTextColor(...GR);
+    doc.text('Gerado por V9 Pro  ·  NÃO SUBSTITUI advogado habilitado.',pw/2,ph-14,{align:'center'});
     np(); sh('Dados do Processo');
-    if(analysisData.fileName) bd('Documento: '+analysisData.fileName, true);
-    flds.forEach(([k,v]) => bd(`${k}: ${v}`));
-    y += 3;
-    parseSec(text).forEach(sec => {
+    flds.forEach(([k,v])=>bd(`${k}: ${v}`)); y+=3;
+    parseSec(text).forEach(sec=>{
       sh(sec.title);
-      sec.content.split('\n').forEach(line => {
-        const cl = line.replace(/\*\*/g,'').replace(/^#+\s*/,'').trim();
-        if(!cl){ y+=1.5; return; }
-        bd(/^[-•]\s/.test(line.trim()) ? '• '+cl.replace(/^[-•]\s*/,'') : cl, /^\d+\.\s/.test(line.trim()), /^[-•]\s/.test(line.trim()) ? 4 : 0);
-      });
-      y += 3;
+      sec.content.split('\n').forEach(line=>{
+        const cl=line.replace(/\*\*/g,'').replace(/^#+\s*/,'').trim();
+        if(!cl){y+=1.2;return;}
+        bd(/^[-•✅❌⚠️]\s/.test(line.trim())?'• '+cl.replace(/^[-•✅❌⚠️]\s*/,''):cl, /^[-•✅❌⚠️]\s/.test(line.trim())?4:0);
+      }); y+=2.5;
     });
-    const tot = doc.internal.getNumberOfPages();
-    for(let i=2;i<=tot;i++){ doc.setPage(i); doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(...GR); doc.text(`Página ${i} de ${tot}  ·  V9 Power  ·  ${d.data}`,pw/2,ph-7,{align:'center'}); }
-    doc.save(`V9_${(d.tipo||d.area||'Analise').replace(/\s+/g,'_').replace(/[^\w_]/g,'')}.pdf`);
-    document.getElementById('dlStatus').textContent = '✓ PDF gerado com sucesso!';
-  } catch(e){
-    document.getElementById('dlStatus').textContent = '✗ Erro: '+e.message;
-  }
-  btn.disabled = false; btn.textContent = '📕 Baixar PDF';
+    const tot=doc.internal.getNumberOfPages();
+    for(let i=2;i<=tot;i++){ doc.setPage(i); doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(...GR); doc.text(`Página ${i} de ${tot}  ·  V9 Pro  ·  ${d.data}`,pw/2,ph-6,{align:'center'}); }
+    doc.save(`V9Pro_${(d.cliente||d.tipo||d.area||'Analise').replace(/\s+/g,'_').replace(/[^\w_]/g,'')}_${d.data.replace(/\//g,'-')}.pdf`);
+    document.getElementById('dlStatus').textContent='✓ PDF gerado com sucesso!';
+  }catch(e){ document.getElementById('dlStatus').textContent='✗ Erro: '+e.message; }
+  btn.disabled=false; btn.textContent='📕 Baixar PDF';
 }
 
-// ── GERAR PROMPT PARA COPIAR ──────────────────────────────────────────────────
+// ── PROMPT PARA COPIAR ─────────────────────────────────────────────────────────
 function gerarPromptCopia(d, text){
-  const prob = text.match(/Probabilidade\s+Global[:\s*_]*(\d{1,3})\s*%/i);
-  const probValor = prob ? prob[1]+'%' : 'não identificada';
-
-  const secoes = {};
-  text.split(/(?=\n## \d+\.)/).forEach(p => {
-    const t = p.trim(); if(!t) return;
-    const titulo = t.split('\n')[0].replace(/^#+\s*\d*\.?\s*/,'').trim().toLowerCase();
-    if(titulo.includes('probabilidade'))                                  secoes.prob        = t;
-    if(titulo.includes('jurisprud'))                                      secoes.juris       = t;
-    if(titulo.includes('estratégia')||titulo.includes('estrategia')||titulo.includes('próximos')) secoes.estrategia = t;
-    if(titulo.includes('pontos fort'))                                    secoes.fortes      = t;
-    if(titulo.includes('pontos frac')||titulo.includes('riscos'))         secoes.fracos      = t;
-    if(titulo.includes('fundamentos'))                                    secoes.fundamentos = t;
+  const prob=text.match(/Probabilidade\s+Global[:\s*_]*(\d{1,3})\s*%/i);
+  const probVal=prob?prob[1]+'%':'não identificada';
+  const secoes={};
+  text.split(/(?=\n## \d+\.)/).forEach(p=>{
+    const t=p.trim(); if(!t) return;
+    const titulo=t.split('\n')[0].replace(/^#+\s*\d*\.?\s*/,'').trim().toLowerCase();
+    if(titulo.includes('probabilidade')) secoes.prob=t;
+    if(titulo.includes('jurisprud')) secoes.juris=t;
+    if(titulo.includes('estratégia')||titulo.includes('próximos')) secoes.estrategia=t;
+    if(titulo.includes('pontos fort')) secoes.fortes=t;
+    if(titulo.includes('pontos frac')||titulo.includes('riscos')) secoes.fracos=t;
+    if(titulo.includes('fundamentos')) secoes.fund=t;
+    if(titulo.includes('honorários')||titulo.includes('valores')) secoes.valores=t;
   });
+  return `Você é um jurista brasileiro especialista. Aprofunde esta análise com rigor absoluto — NUNCA invente súmulas ou dados.
 
-  return `Você é um jurista brasileiro especialista. Preciso que você aprofunde e refine a análise jurídica abaixo, mantendo rigor absoluto — NUNCA invente súmulas, acórdãos ou dados que não existam.
+CASO: ${d.cliente?'Cliente: '+d.cliente+' | ':''}${d.area||'Direito'} | ${d.tipo||'Análise Jurídica'} | ${d.data}
+PROBABILIDADE ESTIMADA: ${probVal}
 
-═══════════════════════════════════════════
-DADOS DO CASO ANALISADO
-═══════════════════════════════════════════
-Área: ${d.area || 'Não informado'}
-Tipo de Ação: ${d.tipo || 'Não informado'}
-Autor: ${d.autor || 'Não informado'}
-Réu: ${d.reu || 'Não informado'}
-Pedidos: ${d.pedidos || 'Não informado'}
-Tribunal: ${d.tribunal || 'Não informado'}
-Valor da Causa: ${d.valor ? 'R$ '+d.valor : 'Não informado'}
-Data da Análise: ${d.data}
+${secoes.prob||''}
+${secoes.juris||''}
+${secoes.fortes||''}
+${secoes.fracos||''}
+${secoes.fund||''}
+${secoes.valores||''}
+${secoes.estrategia||''}
 
-═══════════════════════════════════════════
-RESULTADO DA ANÁLISE ANTERIOR
-═══════════════════════════════════════════
-PROBABILIDADE DE ÊXITO ESTIMADA: ${probValor}
+SOLICITO QUE VOCÊ:
+1. Valide a probabilidade de ${probVal} — corrija se necessário
+2. Confirme as súmulas citadas e adicione as que faltam
+3. Aprofunde a estratégia: acordo x litígio, provas indispensáveis
+4. Elabore petição inicial completa com fundamentos detalhados
+5. Estime honorários advocatícios com base no valor da causa
 
-${secoes.prob || ''}
-
-${secoes.juris || ''}
-
-${secoes.fortes || ''}
-
-${secoes.fracos || ''}
-
-${secoes.fundamentos || ''}
-
-${secoes.estrategia || ''}
-
-═══════════════════════════════════════════
-O QUE PRECISO QUE VOCÊ FAÇA AGORA:
-═══════════════════════════════════════════
-
-1. VALIDE a probabilidade de ${probValor} — confirme ou corrija com base nos fatos e jurisprudência real
-
-2. APROFUNDE a jurisprudência:
-   - Pesquise e confirme cada súmula citada acima
-   - Adicione súmulas ou OJs que possam ter sido esquecidas
-   - Para cada uma: número + tribunal + o que determina + aplicação ao caso
-
-3. REFINE a estratégia processual:
-   - Qual a melhor linha de argumentação?
-   - Quais provas são indispensáveis?
-   - Vale a pena tentar acordo? Em que termos?
-   - Quais são os riscos mais graves?
-
-4. ELABORE um esboço da peça processual mais completo com:
-   - Qualificação das partes
-   - Narrativa dos fatos
-   - Fundamentos jurídicos detalhados
-   - Pedidos com base legal
-   - Valor da causa fundamentado
-
-IMPORTANTE: Se não tiver certeza sobre alguma jurisprudência, diga "não localizado" — prefiro honestidade a invenção.`;
+IMPORTANTE: Se não tiver certeza sobre jurisprudência, diga "não localizado".`;
 }
-
 function copyPrompt(){
-  const prompt = document.getElementById('promptPreview').textContent;
+  const prompt=document.getElementById('promptPreview').textContent;
   if(!prompt) return;
-  navigator.clipboard.writeText(prompt).then(() => {
-    const btn = document.getElementById('btnCopy');
-    const hint = document.getElementById('copyHint');
-    btn.classList.add('copied');
-    btn.textContent = '✓ COPIADO! Cole em qualquer IA agora';
-    hint.textContent = '✅ Prompt copiado — abra o ChatGPT, Gemini ou Claude e cole (Ctrl+V)';
-    hint.style.color = 'var(--green)';
-    setTimeout(() => {
-      btn.classList.remove('copied');
-      btn.innerHTML = '📋 COPIAR PROMPT COMPLETO';
-      hint.textContent = 'Cole no ChatGPT, Gemini, Claude ou qualquer IA para continuar a análise';
-      hint.style.color = '';
-    }, 4000);
-  }).catch(() => {
-    const ta = document.createElement('textarea');
-    ta.value = prompt; ta.style.position='fixed'; ta.style.opacity='0';
-    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
-    const btn = document.getElementById('btnCopy');
-    btn.classList.add('copied'); btn.textContent = '✓ COPIADO!';
-    setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '📋 COPIAR PROMPT COMPLETO'; }, 3000);
+  navigator.clipboard.writeText(prompt).then(()=>{
+    const btn=document.getElementById('btnCopy');
+    btn.classList.add('copied'); btn.textContent='✓ COPIADO!';
+    document.getElementById('copyHint').textContent='✅ Cole no ChatGPT, Claude ou qualquer IA';
+    document.getElementById('copyHint').style.color='var(--green)';
+    setTimeout(()=>{ btn.classList.remove('copied'); btn.innerHTML='📋 COPIAR PROMPT COMPLETO'; document.getElementById('copyHint').textContent='Cole no ChatGPT, Gemini, Claude ou qualquer IA para continuar'; document.getElementById('copyHint').style.color=''; },4000);
+  }).catch(()=>{
+    const ta=document.createElement('textarea'); ta.value=prompt; ta.style.cssText='position:fixed;opacity:0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+    document.getElementById('btnCopy').textContent='✓ COPIADO!';
+    setTimeout(()=>{ document.getElementById('btnCopy').innerHTML='📋 COPIAR PROMPT COMPLETO'; },3000);
   });
 }
 
-// ── RESET ─────────────────────────────────────────────────────────────────────
+// ── RESET ──────────────────────────────────────────────────────────────────────
 function reset(){
   document.getElementById('resultCard').classList.remove('visible');
-  document.getElementById('inputCard').style.display = 'block';
-  document.getElementById('dlStatus').textContent = '';
-  analysisData = null;
-  clearFile(null);
-  setMode('upload');
-  window.scrollTo({top: 0, behavior: 'smooth'});
+  document.getElementById('inputCard').style.display='block';
+  document.getElementById('dlStatus').textContent='';
+  document.getElementById('chatMessages').innerHTML='';
+  document.getElementById('prazoResultado').style.display='none';
+  analysisData=null; chatHistory=[]; clearFile(null); setMode('upload');
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 </script>
 </body>
