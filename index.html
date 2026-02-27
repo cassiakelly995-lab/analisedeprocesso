@@ -245,6 +245,14 @@ textarea{resize:vertical;min-height:120px}
 .btn-copy:hover{border-color:var(--gold);transform:translateY(-1px)}
 .btn-copy.copied{background:linear-gradient(135deg,rgba(46,204,113,.13),rgba(46,204,113,.06));border-color:var(--green);color:var(--green)}
 .copy-hint{font-size:.58rem;color:var(--muted);text-align:center;margin-top:7px}
+
+/* ── JURISPRUDÊNCIA AO VIVO ── */
+.juris-vivo{background:linear-gradient(135deg,rgba(52,152,219,.08),rgba(52,152,219,.03));border:1px solid rgba(52,152,219,.25);border-radius:6px;padding:18px;margin-bottom:16px;position:relative}
+.juris-vivo::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#3498db,transparent)}
+.juris-fonte{display:inline-flex;align-items:center;gap:6px;background:rgba(52,152,219,.12);border:1px solid rgba(52,152,219,.2);border-radius:3px;padding:3px 9px;font-size:.55rem;letter-spacing:.12em;color:#5dade2;text-transform:uppercase;margin-right:5px;margin-bottom:6px}
+.juris-vivo-txt{font-size:12.5px;color:#8ab4c8;line-height:1.85;white-space:pre-wrap;max-height:220px;overflow-y:auto;margin-top:10px;padding:10px;background:rgba(0,0,0,.25);border-radius:4px;border:1px solid rgba(52,152,219,.1)}
+.live-dot{width:7px;height:7px;background:var(--red);border-radius:50%;display:inline-block;animation:pulse 1.2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
 </style>
 </head>
 <body>
@@ -280,6 +288,7 @@ textarea{resize:vertical;min-height:120px}
     <span class="badge">Word &amp; PDF</span>
     <span class="badge">Chat com IA</span>
     <span class="badge">Prazos Processuais</span>
+    <span class="badge">🔴 STF · STJ · TST ao Vivo</span>
   </div>
 </header>
 
@@ -482,6 +491,20 @@ textarea{resize:vertical;min-height:120px}
 
 <!-- RESULTADO -->
 <div class="result-card" id="resultCard">
+
+  <!-- JURISPRUDÊNCIA AO VIVO -->
+  <div class="juris-vivo" id="jurisVivoCard" style="display:none">
+    <div class="slabel">
+      <span class="live-dot"></span> Jurisprudência Consultada ao Vivo
+    </div>
+    <div style="margin-bottom:4px">
+      <span class="juris-fonte">🔴 STF</span>
+      <span class="juris-fonte">🔴 STJ</span>
+      <span class="juris-fonte">🔴 TST</span>
+      <span style="font-size:.6rem;color:var(--muted)">Resultado da busca em tempo real nos tribunais superiores</span>
+    </div>
+    <div class="juris-vivo-txt" id="jurisVivoTxt"></div>
+  </div>
 
   <!-- RESUMO EXECUTIVO -->
   <div class="resumo-exec" id="resumoExec">
@@ -856,15 +879,27 @@ const TONS = {
   estrategico:'Análise estratégica: acordo vs litígio, riscos, táticas e recomendação objetiva.'
 };
 
-function buildPrompt(d){
+function buildPrompt(d, jurisprudenciaReal=''){
   const ton = TONS[d.tom]||TONS.imparcial;
   const extra = d.extraContext ? `\nInstruções adicionais: ${d.extraContext}` : '';
   const cliente = d.cliente ? `\nCliente: ${d.cliente}` : '';
   const processo = d.processo ? `\nNº Processo: ${d.processo}` : '';
 
-  const instrucao = `Você é um jurista brasileiro sênior. Escreva uma análise jurídica completa e profissional.
+  // Bloco de jurisprudência real buscada nos tribunais
+  const jurisBloco = jurisprudenciaReal && !jurisprudenciaReal.includes('indisponível')
+    ? `\n\n╔══════════════════════════════════════════════╗
+║  JURISPRUDÊNCIA REAL — BUSCADA AO VIVO       ║
+║  STF · STJ · TST (resultado da busca atual)  ║
+╚══════════════════════════════════════════════╝
+${jurisprudenciaReal}
+
+⚠ USE PRIORITARIAMENTE estas súmulas e jurisprudências acima na sua análise.
+Se alguma não se aplicar ao caso, justifique. Não invente outras.`
+    : '';
+
+  const instrucao = `Você é um jurista brasileiro sênior com 30 anos de experiência. Escreva uma análise jurídica completa e profissional.
 Tom: ${ton}${cliente}${processo}
-Data: ${d.data}${extra}`;
+Data: ${d.data}${extra}${jurisBloco}`;
 
   if(currentMode==='upload'){
     const max=30000;
@@ -885,7 +920,8 @@ ${STRUCTURE}`;
 }
 
 // ── CHAMAR API GEMINI ──────────────────────────────────────────────────────────
-async function gemini(apiKey, messages, systemPrompt=''){
+// comSearch=true usa Google Search grounding (busca real na web/tribunais)
+async function gemini(apiKey, messages, systemPrompt='', comSearch=false){
   const modelos = ['gemini-2.5-flash','gemini-2.0-flash','gemini-1.5-flash'];
   let ultimoErro = '';
   for(const modelo of modelos){
@@ -895,6 +931,8 @@ async function gemini(apiKey, messages, systemPrompt=''){
         generationConfig: {maxOutputTokens:16000, temperature:0.3}
       };
       if(systemPrompt) body.system_instruction = {parts:[{text:systemPrompt}]};
+      // Adiciona Google Search grounding quando solicitado
+      if(comSearch) body.tools = [{google_search:{}}];
       const r = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${apiKey}`,
         {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}
@@ -912,13 +950,27 @@ async function gemini(apiKey, messages, systemPrompt=''){
           if(part.text) texto += part.text;
         }
       }
-      if(texto.trim()) return texto.trim();
+      // Se texto vazio mas tem grounding, tenta extrair das fontes
+      if(!texto.trim() && comSearch){
+        const gm = data.candidates?.[0]?.groundingMetadata;
+        if(gm?.groundingChunks?.length){
+          texto = gm.groundingChunks.map(ch=>ch.web?.title||'').filter(Boolean).join(', ');
+          texto = '[Fontes consultadas: '+texto+']';
+        }
+      }
+      if(texto.trim()) return {texto:texto.trim(), data};
       ultimoErro = `${modelo}: resposta vazia (finishReason: ${data.candidates?.[0]?.finishReason||'?'})`;
     }catch(e){
       ultimoErro = `${modelo}: ${e.message}`;
     }
   }
   throw new Error('Falha em todos os modelos. Último erro: '+ultimoErro+'\n\nVerifique sua chave em aistudio.google.com');
+}
+
+// Helper: extrai só o texto do retorno
+async function geminiTexto(apiKey, messages, systemPrompt='', comSearch=false){
+  const r = await gemini(apiKey, messages, systemPrompt, comSearch);
+  return r.texto;
 }
 
 // ── EXECUTAR ───────────────────────────────────────────────────────────────────
@@ -950,7 +1002,7 @@ async function executar(){
   document.getElementById('loading').classList.add('visible');
   document.getElementById('resultCard').classList.remove('visible');
 
-  const steps=['Lendo documento...','Analisando fundamentos jurídicos...','Verificando jurisprudência...','Calculando probabilidade...','Elaborando esboço processual...','Definindo estratégia...','Estimando honorários...','Compilando análise completa...'];
+  const steps=['Lendo documento...','🔴 Buscando no STF...','🔴 Consultando STJ...','🔴 Pesquisando TST...','⚖ Analisando jurisprudência encontrada...','Calculando probabilidade...','Elaborando esboço processual...','Definindo estratégia...','Estimando honorários...','Compilando análise completa...'];
   let si=0; const iv=setInterval(()=>{ document.getElementById('loadingStep').textContent=steps[si++%steps.length]; },1800);
 
   try{
@@ -959,7 +1011,7 @@ async function executar(){
       document.getElementById('loadingStep').textContent='Extraindo texto do arquivo...';
       const mimeOk = extractedMime.startsWith('image/') ? extractedMime : 'application/pdf';
       try{
-        const txt = await gemini(apiKey,
+        const txt = await geminiTexto(apiKey,
           [{role:'user',parts:[
             {inline_data:{mime_type:mimeOk,data:extractedBase64}},
             {text:'Transcreva TODO o texto deste documento jurídico na íntegra. Não resuma — transcreva completo.'}
@@ -969,12 +1021,55 @@ async function executar(){
       }catch(e){ console.warn('Extração de arquivo falhou:',e.message); }
     }
 
-    const prompt = buildPrompt(d);
-    document.getElementById('loadingStep').textContent='Gerando análise completa...';
-    const text = await gemini(apiKey, [{role:'user',parts:[{text:prompt}]}]);
+    // ── ETAPA 1: BUSCA DE JURISPRUDÊNCIA REAL NOS TRIBUNAIS ──────────────────
+    let jurisprudenciaReal = '';
+    const area = d.area || (currentMode==='upload'?'direito':'direito');
+    const pedidos = d.pedidos || d.tipo || 'matéria jurídica';
+
+    // Monta queries específicas para cada tribunal
+    const queries = [
+      `site:stf.jus.br súmulas ${area} ${pedidos}`,
+      `site:stj.jus.br súmulas jurisprudência ${area} ${pedidos}`,
+      `site:tst.jus.br súmulas OJ jurisprudência ${area} ${pedidos}`
+    ];
+
+    document.getElementById('loadingStep').textContent='🔴 Buscando jurisprudência real nos tribunais...';
+
+    try{
+      // Busca nos 3 tribunais em paralelo usando Google Search grounding
+      const buscaPrompt = `Pesquise e liste as principais súmulas, OJs e jurisprudências do STF, STJ e TST relacionadas a: "${area}" com pedidos de "${pedidos}".
+
+Para cada item encontrado, forneça:
+- Número da súmula/OJ (exato)
+- Tribunal (STF/STJ/TST/TRT)
+- Texto resumido do que determina
+- Se está vigente ou cancelada
+
+Use as seguintes buscas:
+${queries.join('\n')}
+
+Retorne APENAS o que encontrar confirmado. Se não encontrar, informe claramente.`;
+
+      const buscaResult = await gemini(apiKey,
+        [{role:'user', parts:[{text:buscaPrompt}]}],
+        'Você é um pesquisador jurídico. Busque jurisprudência REAL nos sites oficiais dos tribunais brasileiros. Retorne apenas o que encontrar confirmado.',
+        true // com Google Search grounding
+      );
+      jurisprudenciaReal = buscaResult.texto;
+      console.log('Jurisprudência encontrada:', jurisprudenciaReal.substring(0,200));
+    }catch(e){
+      console.warn('Busca nos tribunais falhou, prosseguindo sem:', e.message);
+      jurisprudenciaReal = '(Busca em tempo real indisponível — usando base de conhecimento)';
+    }
+
+    // ── ETAPA 2: ANÁLISE COMPLETA COM A JURISPRUDÊNCIA ENCONTRADA ────────────
+    document.getElementById('loadingStep').textContent='⚖ Elaborando análise com jurisprudência real...';
+
+    const prompt = buildPrompt(d, jurisprudenciaReal);
+    const text = await geminiTexto(apiKey, [{role:'user',parts:[{text:prompt}]}]);
 
     clearInterval(iv);
-    analysisData = {formData:d, aiText:text, fileName:uploadedFile?.name||null};
+    analysisData = {formData:d, aiText:text, fileName:uploadedFile?.name||null, jurisprudencia:jurisprudenciaReal};
     chatHistory = [{role:'user',parts:[{text:prompt}]},{role:'model',parts:[{text:text}]}];
     salvarHistorico(d, text);
     renderResult(d, text);
@@ -1033,6 +1128,14 @@ function renderResult(d, text){
 
   document.getElementById('aiText').textContent = text;
 
+  // Painel de jurisprudência ao vivo
+  if(analysisData?.jurisprudencia && !analysisData.jurisprudencia.includes('indisponível')){
+    const jCard = document.getElementById('jurisVivoCard');
+    const jTxt = document.getElementById('jurisVivoTxt');
+    jCard.style.display = 'block';
+    jTxt.textContent = analysisData.jurisprudencia;
+  }
+
   // Prompt para copiar
   document.getElementById('promptPreview').textContent = gerarPromptCopia(d, text);
 
@@ -1076,7 +1179,7 @@ async function enviarChat(){
   chatHistory.push({role:'user',parts:[{text:msg}]});
 
   try{
-    const resp = await gemini(apiKey, chatHistory,
+    const resp = await geminiTexto(apiKey, chatHistory,
       `Você é um jurista brasileiro especialista. Responda APENAS sobre o caso jurídico já analisado. Seja direto e objetivo. Não invente jurisprudência.`
     );
     chatHistory.push({role:'model',parts:[{text:resp}]});
