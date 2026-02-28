@@ -20,25 +20,35 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;fo
 body::before{content:'';position:fixed;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold-dark) 20%,var(--gold-light) 50%,var(--gold-dark) 80%,transparent);z-index:1000}
 
 /* ── TOPBAR ── */
-.topbar{background:#0a0a0a;border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:500}
-.topbar-logo{font-family:'Cinzel',serif;font-size:.9rem;letter-spacing:.3em;background:linear-gradient(135deg,var(--gold-dark),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.topbar-actions{display:flex;gap:8px;align-items:center}
-.btn-hist{background:transparent;border:1px solid var(--border);border-radius:3px;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:.6rem;letter-spacing:.15em;padding:6px 12px;cursor:pointer;text-transform:uppercase;transition:all .2s}
+.topbar{background:#080808;border-bottom:1px solid #1a1a1a;padding:0 24px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:52px;position:sticky;top:2px;z-index:500}
+.topbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dark) 30%,var(--gold) 50%,var(--gold-dark) 70%,transparent)}
+.topbar-logo{font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:.35em;background:linear-gradient(135deg,var(--gold-dark),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:700}
+.topbar-center{display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:nowrap}
+.topbar-pill{display:inline-flex;align-items:center;gap:5px;font-size:.56rem;letter-spacing:.1em;color:var(--muted);border:1px solid #1e1e1e;border-radius:20px;padding:4px 10px;text-transform:uppercase;white-space:nowrap;transition:all .2s}
+.topbar-pill.active{color:var(--green);border-color:rgba(46,204,113,.25);background:rgba(46,204,113,.05)}
+.topbar-pill.gold{color:var(--gold-dark);border-color:rgba(201,168,76,.2);background:rgba(201,168,76,.04)}
+.topbar-pill-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+.topbar-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end}
+.btn-hist{background:transparent;border:1px solid #1e1e1e;border-radius:4px;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:.6rem;letter-spacing:.14em;padding:7px 14px;cursor:pointer;text-transform:uppercase;transition:all .2s;display:flex;align-items:center;gap:6px}
 .btn-hist:hover{border-color:var(--gold-dark);color:var(--gold)}
-.hist-count{background:var(--gold-dark);color:#000;font-size:.5rem;font-weight:700;border-radius:10px;padding:1px 5px;margin-left:4px}
-
-/* ── BUSCA RÁPIDA SÚMULAS ── */
-.btn-busca{background:transparent;border:1px solid rgba(52,152,219,.4);border-radius:3px;color:#5dade2;font-family:'Rajdhani',sans-serif;font-size:.6rem;letter-spacing:.15em;padding:6px 12px;cursor:pointer;text-transform:uppercase;transition:all .2s}
-.btn-busca:hover{border-color:#3498db;color:#3498db}
+.hist-count{background:var(--gold-dark);color:#000;font-size:.52rem;font-weight:800;border-radius:10px;padding:1px 6px;line-height:1.4}
 
 /* ── HEADER ── */
-header{text-align:center;padding:36px 20px 18px}
-.logo-text{font-family:'Cinzel',serif;font-size:clamp(1.4rem,4vw,2.3rem);letter-spacing:.4em;background:linear-gradient(135deg,var(--gold-dark),var(--gold-light),var(--gold),var(--gold-dark));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:inline-block}
-.logo-sub{font-size:.58rem;letter-spacing:.35em;color:var(--muted);margin-top:5px;text-transform:uppercase}
-.logo-badges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:9px}
-.badge{font-size:.48rem;letter-spacing:.18em;color:var(--gold-dark);border:1px solid var(--gold-dark);padding:2px 9px;border-radius:2px;text-transform:uppercase}
-.badge.new{color:var(--green);border-color:var(--green)}
-header::after{content:'';display:block;width:260px;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dark),var(--gold),var(--gold-dark),transparent);margin:12px auto 0}
+header{text-align:center;padding:48px 20px 28px;position:relative}
+header::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:1px;height:40px;background:linear-gradient(180deg,var(--gold-dark),transparent)}
+.logo-eyebrow{font-size:.52rem;letter-spacing:.45em;color:var(--gold-dark);text-transform:uppercase;margin-bottom:14px;font-family:'Rajdhani',sans-serif;font-weight:600}
+.logo-text{font-family:'Cinzel',serif;font-size:clamp(2rem,6vw,3.8rem);letter-spacing:.35em;background:linear-gradient(160deg,var(--gold-dark) 0%,var(--gold-light) 40%,var(--gold) 60%,var(--gold-dark) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:inline-block;line-height:1.1;font-weight:900}
+.logo-sub{font-size:.62rem;letter-spacing:.25em;color:var(--muted);margin-top:10px;text-transform:uppercase;font-family:'Rajdhani',sans-serif}
+.logo-divider{display:flex;align-items:center;gap:16px;margin:20px auto 0;width:fit-content}
+.logo-divider-line{width:80px;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dark))}
+.logo-divider-line.r{background:linear-gradient(90deg,var(--gold-dark),transparent)}
+.logo-divider-diamond{width:6px;height:6px;background:var(--gold);transform:rotate(45deg);flex-shrink:0}
+.logo-features{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+.feat-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.02);border:1px solid #1e1e1e;border-radius:4px;padding:7px 14px;font-size:.64rem;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;font-family:'Rajdhani',sans-serif;font-weight:600;transition:all .2s}
+.feat-chip:hover{border-color:var(--gold-dark);color:var(--gold-dark)}
+.feat-chip .chip-icon{font-size:.9rem}
+.feat-chip.highlight{border-color:rgba(46,204,113,.3);color:var(--green);background:rgba(46,204,113,.04)}
+header::after{content:'';display:block;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dark) 20%,var(--gold) 50%,var(--gold-dark) 80%,transparent);margin:28px auto 0;max-width:500px}
 
 .container{max-width:960px;margin:0 auto;padding:22px 16px 80px;position:relative;z-index:1}
 
@@ -48,9 +58,24 @@ header::after{content:'';display:block;width:260px;height:1px;background:linear-
 .slabel{font-size:.55rem;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px;font-weight:700}
 .slabel::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
 
-/* ── ANTI-ALUCINAÇÃO BADGE ── */
-.anti-hal-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.25);border-radius:3px;padding:4px 10px;font-size:.55rem;letter-spacing:.12em;color:var(--green);text-transform:uppercase;margin-bottom:12px}
-.shield-icon{font-size:.9rem}
+/* ── API KEY CARD (colapsável) ── */
+.apikey-card{background:var(--card);border:1px solid var(--border);border-radius:6px;margin-bottom:16px;overflow:hidden;transition:all .3s;position:relative}
+.apikey-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dark),var(--gold),var(--gold-dark),transparent)}
+.apikey-header{padding:14px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+.apikey-header:hover .apikey-toggle-icon{color:var(--gold)}
+.apikey-header-left{display:flex;align-items:center;gap:10px}
+.apikey-header-label{font-size:.55rem;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;font-weight:700}
+.apikey-header-status{display:flex;align-items:center;gap:6px;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase}
+.apikey-header-status.ok{color:var(--green)}
+.apikey-header-status.empty{color:var(--muted)}
+.apikey-status-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+.apikey-toggle-icon{font-size:.7rem;color:var(--muted);transition:all .3s;margin-left:8px}
+.apikey-body{padding:0 20px 18px;display:none}
+.apikey-body.open{display:block}
+.apikey-collapsed-row{display:flex;align-items:center;gap:8px}
+.apikey-mini-input{flex:1;background:transparent;border:none;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:13px;outline:none;letter-spacing:.04em;min-width:0}
+
+
 
 /* ── API KEY ── */
 .apikey-help{font-size:.66rem;color:var(--muted);line-height:1.6;margin-bottom:9px}
@@ -76,10 +101,11 @@ textarea{resize:vertical;min-height:120px}
 @media(max-width:640px){.grid2,.grid3{grid-template-columns:1fr}}
 
 /* ── MODE TOGGLE ── */
-.mode-toggle{display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:14px}
-.mode-btn{flex:1;padding:10px;background:var(--card2);border:none;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:.6rem;letter-spacing:.16em;cursor:pointer;transition:all .2s;text-transform:uppercase;font-weight:600}
-.mode-btn+.mode-btn{border-left:1px solid var(--border)}
-.mode-btn.active{background:linear-gradient(135deg,var(--gold-dark),rgba(201,168,76,.4));color:var(--gold-light)}
+.mode-toggle{display:flex;border:1px solid #1e1e1e;border-radius:5px;overflow:hidden;margin-bottom:14px;background:var(--card2)}
+.mode-btn{flex:1;padding:12px 16px;background:transparent;border:none;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:.65rem;letter-spacing:.16em;cursor:pointer;transition:all .25s;text-transform:uppercase;font-weight:600;position:relative}
+.mode-btn+.mode-btn{border-left:1px solid #1e1e1e}
+.mode-btn.active{background:linear-gradient(135deg,rgba(139,105,20,.5),rgba(201,168,76,.2));color:var(--gold-light);border-color:transparent}
+.mode-btn.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
 
 /* ── UPLOAD ── */
 .upload-zone{border:2px dashed var(--border);border-radius:5px;padding:26px 16px;text-align:center;cursor:pointer;transition:all .25s;background:var(--card2)}
@@ -342,6 +368,11 @@ textarea{resize:vertical;min-height:120px}
 <!-- TOPBAR -->
 <div class="topbar">
   <div class="topbar-logo">V9 PRO</div>
+  <div class="topbar-center">
+    <div class="topbar-pill active"><span class="topbar-pill-dot"></span>Anti-Alucinação</div>
+    <div class="topbar-pill gold"><span class="topbar-pill-dot"></span>Súmulas STF·STJ·TST</div>
+    <div class="topbar-pill"><span class="topbar-pill-dot"></span>Word &amp; PDF</div>
+  </div>
   <div class="topbar-actions">
     <button class="btn-hist" onclick="toggleHist()">
       📋 Histórico <span class="hist-count" id="histCount">0</span>
@@ -363,38 +394,51 @@ textarea{resize:vertical;min-height:120px}
 </div>
 
 <header>
+  <div class="logo-eyebrow">Plataforma Jurídica Profissional</div>
   <div class="logo-text">V9 POWER EDITION</div>
-  <div class="logo-sub">Plataforma Jurídica Profissional · Súmulas Verificadas · Zero Alucinação</div>
-  <div class="logo-badges">
-    <span class="badge">🛡 Anti-Alucinação Ativo</span>
-    <span class="badge">Word &amp; PDF</span>
-    <span class="badge">Chat com IA</span>
-    <span class="badge">Prazos Processuais</span>
-    <span class="badge new">✨ Geração de Petição</span>
-    <span class="badge">✅ Súmulas STF·STJ·TST</span>
+  <div class="logo-sub">Análise · Estratégia · Petições · Prazos · Zero Alucinação</div>
+  <div class="logo-divider">
+    <div class="logo-divider-line"></div>
+    <div class="logo-divider-diamond"></div>
+    <div class="logo-divider-line r"></div>
+  </div>
+  <div class="logo-features">
+    <span class="feat-chip highlight"><span class="chip-icon">🛡</span>Anti-Alucinação Ativo</span>
+    <span class="feat-chip"><span class="chip-icon">📄</span>Word &amp; PDF</span>
+    <span class="feat-chip"><span class="chip-icon">💬</span>Chat com IA</span>
+    <span class="feat-chip"><span class="chip-icon">⏱</span>Prazos Processuais</span>
+    <span class="feat-chip highlight"><span class="chip-icon">✨</span>Geração de Petição</span>
+    <span class="feat-chip"><span class="chip-icon">✅</span>Súmulas STF·STJ·TST</span>
   </div>
 </header>
 
 <div class="container">
 
-<!-- API KEY -->
-<div class="card">
-  <div class="slabel">🔑 Chave de API Gemini</div>
-  <div class="apikey-help">
-    Grátis em <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>
-    → Get API Key → Create API key. Salva automaticamente no seu navegador.
+<!-- API KEY — COLAPSÁVEL -->
+<div class="apikey-card" id="apikeyCard">
+  <div class="apikey-header" onclick="toggleApiCard()">
+    <div class="apikey-header-left">
+      <span style="font-size:1rem">🔑</span>
+      <span class="apikey-header-label">Chave de API Gemini</span>
+      <div class="apikey-header-status empty" id="apikeyHeaderStatus">
+        <span class="apikey-status-dot"></span>
+        <span id="apikeyHeaderTxt">Não configurada</span>
+      </div>
+    </div>
+    <span class="apikey-toggle-icon" id="apikeyToggleIcon">▼</span>
   </div>
-  <div class="apikey-row">
-    <input class="apikey-input" id="apiKeyInput" type="password" placeholder="AIza..." oninput="checkKey()" autocomplete="off" spellcheck="false"/>
-    <button class="apikey-eye" id="apiKeyEye" onclick="toggleEye()">👁</button>
+  <div class="apikey-body open" id="apikeyBody">
+    <div class="apikey-help">
+      Grátis em <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>
+      → Get API Key → Create API key. Salva automaticamente no seu navegador.
+    </div>
+    <div class="apikey-row">
+      <input class="apikey-input" id="apiKeyInput" type="password" placeholder="AIza..." oninput="checkKey()" autocomplete="off" spellcheck="false"/>
+      <button class="apikey-eye" id="apiKeyEye" onclick="toggleEye()">👁</button>
+    </div>
+    <div class="apikey-status" id="apiKeyStatus"></div>
+    <div class="apikey-note">🔒 Sua chave fica salva só no seu navegador — nunca sai do dispositivo.</div>
   </div>
-  <div class="apikey-status" id="apiKeyStatus"></div>
-  <div class="apikey-note">🔒 Sua chave fica salva só no seu navegador — nunca sai do dispositivo.</div>
-</div>
-
-<div class="disc">
-  <strong>⚖ V9 PRO:</strong> Análise jurídica profissional para advogados e escritórios.
-  A IA <strong>NUNCA inventa dados</strong>. Súmulas validadas por sistema Anti-Alucinação pós-geração.
 </div>
 
 <!-- FORMULÁRIO -->
@@ -723,7 +767,17 @@ let chatHistoryCompressed = false;
 
 // ── INIT ───────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  try { const k = localStorage.getItem('v9_apikey'); if(k){ document.getElementById('apiKeyInput').value=k; checkKey(); } } catch(e){}
+  try {
+    const k = localStorage.getItem('v9_apikey');
+    if(k){
+      document.getElementById('apiKeyInput').value = k;
+      checkKey();
+      // Se já tem chave salva, começa colapsado
+      const body = document.getElementById('apikeyBody');
+      body.classList.remove('open');
+      document.getElementById('apikeyToggleIcon').textContent = '▶';
+    }
+  } catch(e){}
 
   const zone = document.getElementById('uploadZone');
   const fi = document.getElementById('fileInput');
@@ -758,17 +812,36 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── API KEY ────────────────────────────────────────────────────────────────────
+function toggleApiCard(){
+  const body = document.getElementById('apikeyBody');
+  const icon = document.getElementById('apikeyToggleIcon');
+  const open = body.classList.contains('open');
+  body.classList.toggle('open', !open);
+  icon.textContent = open ? '▶' : '▼';
+}
+
 function checkKey(){
   const k = document.getElementById('apiKeyInput').value.trim();
   const st = document.getElementById('apiKeyStatus');
-  if(!k){ st.textContent=''; st.className='apikey-status'; return; }
+  const hSt = document.getElementById('apikeyHeaderStatus');
+  const hTxt = document.getElementById('apikeyHeaderTxt');
+  if(!k){ st.textContent=''; st.className='apikey-status'; hSt.className='apikey-header-status empty'; hTxt.textContent='Não configurada'; return; }
   if(k.startsWith('AIza') && k.length > 20){
     st.textContent = '✓ Chave válida — salva no navegador';
     st.className = 'apikey-status ok';
+    hSt.className = 'apikey-header-status ok';
+    hTxt.textContent = 'Configurada ✓';
     try{ localStorage.setItem('v9_apikey', k); }catch(e){}
+    // Auto-colapsa após 1.2s quando chave válida
+    setTimeout(()=>{
+      const body = document.getElementById('apikeyBody');
+      if(body.classList.contains('open')){ toggleApiCard(); }
+    }, 1200);
   } else {
     st.textContent = '✗ Formato inválido — deve começar com AIza';
     st.className = 'apikey-status err';
+    hSt.className = 'apikey-header-status empty';
+    hTxt.textContent = 'Inválida';
   }
 }
 function toggleEye(){
