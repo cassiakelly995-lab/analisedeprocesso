@@ -1563,319 +1563,468 @@ function cacheKey(d, mode){
 function cacheGet(key){ try{ const c=localStorage.getItem(key); if(!c) return null; const p=JSON.parse(c); if(Date.now()-p.ts>3600000*4) return null; return p.text; }catch(e){ return null; } }
 function cacheSet(key,text){ try{ localStorage.setItem(key,JSON.stringify({ts:Date.now(),text})); }catch(e){} }
 
-// ── PROMPT BUILDER (COMPACTO — MENOS TOKENS) ──────────────────────────────────
+// ── TONS ──────────────────────────────────────────────────────────────────────
 const TONS = {
-  imparcial:'Análise rigorosamente imparcial, pontos fortes e fracos de ambos os polos.',
-  favoravel:'Foco nos melhores argumentos para o polo ativo.',
-  defensivo:'Foco na defesa do polo passivo, fragilidades nos pedidos do autor.',
-  estrategico:'Análise estratégica: acordo vs litígio, riscos, táticas e recomendação objetiva.'
+  imparcial:  'Análise rigorosamente imparcial. Exponha forças e fraquezas de ambos os polos com igual profundidade.',
+  favoravel:  'Posicionamento ATIVO. Maximize cada argumento favorável ao cliente. Construa a narrativa mais poderosa possível.',
+  defensivo:  'Posicionamento DEFENSIVO. Identifique e destrua cada argumento do polo ativo. Encontre todas as preliminares e prejudiciais.',
+  estrategico:'Visão estratégica de negociação. Calcule o custo/benefício de litigar vs. acordar. Seja frio e objetivo como um CEO.'
 };
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// BUILD PROMPT — MOTOR DE ANÁLISE FORENSE V9 ULTRA
+// Sistema de leitura em 4 passagens: Fatos → Direito → Estratégia → Execução
+// ═══════════════════════════════════════════════════════════════════════════════
 function buildPrompt(d, sumulasVerificadas=[]){
-  const ton = TONS[d.tom]||TONS.imparcial;
-  const extra = d.extraContext ? `\nInstruções específicas do advogado: ${d.extraContext}` : '';
-  const cliente = d.cliente ? `Cliente/Representado: ${d.cliente}` : '';
-  const processo = d.processo ? `Nº do Processo: ${d.processo}` : '';
+  const ton   = TONS[d.tom] || TONS.imparcial;
+  const extra = d.extraContext ? `\n⚠️ INSTRUÇÃO PRIORITÁRIA DO ADVOGADO: ${d.extraContext}` : '';
+  const hdr   = [
+    d.cliente  ? `Cliente/Representado: ${d.cliente}`  : '',
+    d.processo ? `Nº do Processo: ${d.processo}`       : '',
+    `Data: ${d.data}`,
+    `Posicionamento: ${ton}`,
+  ].filter(Boolean).join('\n');
 
-  // ── BLOCO DE SÚMULAS VERIFICADAS ─────────────────────────────────────────────
-  let sumulasBloco = '';
+  // ── BLOCO DE SÚMULAS ────────────────────────────────────────────────────────
+  let sumulasBloco;
   if(sumulasVerificadas.length > 0){
     const lista = sumulasVerificadas.map(s => `  • ${s.n}: "${s.txt}"`).join('\n');
-    sumulasBloco = `
-╔══════════════════════════════════════════════════════════════════╗
-║  SÚMULAS AUTORIZADAS — LISTA FECHADA. NENHUMA OUTRA.            ║
-╚══════════════════════════════════════════════════════════════════╝
+    sumulasBloco = `╔══════════════════════════════════════════════════════╗
+║  SÚMULAS AUTORIZADAS — LISTA FECHADA. NENHUMA OUTRA  ║
+╚══════════════════════════════════════════════════════╝
 ${lista}
-
-🚫 PROIBIÇÃO TOTAL: Proibido citar qualquer súmula, OJ, tese ou precedente fora desta lista.
-🚫 SE NÃO CONSTAR: Escreva "Não há súmula verificada aplicável a este ponto."`;
+🚫 PROIBIDO citar qualquer súmula, OJ, tese ou precedente fora desta lista.
+🚫 SE NÃO CONSTAR: escreva "Não há súmula verificada aplicável a este ponto."`;
   } else {
-    sumulasBloco = `
-╔══════════════════════════════════════════════════════════════════╗
-║  NENHUMA SÚMULA AUTORIZADA — NÃO CITAR NÚMERO ALGUM            ║
-╚══════════════════════════════════════════════════════════════════╝
-🚫 PROIBIÇÃO TOTAL: NÃO cite nenhuma súmula, OJ ou tese por número.
-✅ Mencione apenas princípios legais gerais sem número.`;
+    sumulasBloco = `╔══════════════════════════════════════════════════════╗
+║  NENHUMA SÚMULA AUTORIZADA — NÃO CITAR NÚMERO ALGUM  ║
+╚══════════════════════════════════════════════════════╝
+🚫 PROIBIDO citar qualquer súmula, OJ ou tese por número.
+✅ Mencione apenas princípios legais gerais, sem número.`;
   }
 
-  const prompt = `Você é um JURISTA FORENSE SÊNIOR BRASILEIRO com 35 anos de experiência, especialista em litigância estratégica, reconhecido pelos maiores escritórios do país. Sua análise é temida pela parte adversa e respeitada pelos magistrados.
+  // ── PROMPT PRINCIPAL ────────────────────────────────────────────────────────
+  const instrucoes = `
+Você é um JURISTA FORENSE SÊNIOR BRASILEIRO — 35 anos de experiência, ex-procurador, ex-desembargador, com centenas de teses aprovadas em STJ e STF. Você já viu tudo. Você sabe onde os casos são ganhos e perdidos antes mesmo de ir a juízo. Sua análise não é apenas técnica — é cirúrgica.
 
-IDENTIDADE DO CASO:
-${cliente}
-${processo}
-Data da Análise: ${d.data}
-Tom/Posicionamento: ${ton}
-${extra}
+${hdr}${extra}
 
 ${sumulasBloco}
 
-══════════════════════════════════════════════════════════════════
-REGRAS DE INTEGRIDADE ABSOLUTA:
-1. SÚMULAS: Apenas as da lista acima. Zero tolerância para invenção.
-2. ARTIGOS DE LEI: Cite SOMENTE artigos de que você tem certeza absoluta (ex: art. 477 CLT, art. 186 CC, art. 6º CDC, art. 37 CF). Se tiver dúvida do número, descreva o conteúdo sem citar número.
-3. PROBABILIDADE: Todo percentual deve ter justificativa concreta, não estimativa vaga.
-4. HONESTIDADE: "Não verificado" é infinitamente melhor que inventar.
-══════════════════════════════════════════════════════════════════
+══════════════════════ REGRAS ABSOLUTAS DE INTEGRIDADE ══════════════════════
+R1. SÚMULAS: apenas as listadas acima. Violação = zero credibilidade.
+R2. ARTIGOS: só cite se tiver certeza absoluta (ex: art. 477 CLT, art. 186 CC,
+    art. 6º CDC, art. 927 CC, art. 37 CF). Se dúvida: descreva sem número.
+R3. PROBABILIDADE: todo percentual exige justificativa factual. Proibido "chute".
+R4. OMISSÕES: se um dado falta, diga — não invente. "Não identificado" = honesto.
+R5. PROFUNDIDADE: nenhum ponto pode ser superficial. Se um argumento existe,
+    desenvolva-o completamente. Respostas rasas são piores que nenhuma resposta.
+═════════════════════════════════════════════════════════════════════════════
 
-ANÁLISE JURÍDICA FORENSE COMPLETA — ESTRUTURA OBRIGATÓRIA:
+METODOLOGIA OBRIGATÓRIA — 4 PASSAGENS DE LEITURA:
 
-═══════════════════════════════════════════════
-## 1. 🎯 DIAGNÓSTICO EXECUTIVO (máximo 6 linhas)
-═══════════════════════════════════════════════
-Natureza do caso, probabilidade geral, o maior trunfo, o maior risco, e a recomendação de ação imediata. Seja direto e incisivo.
+PASSAGEM 1 — LEITURA FACTUAL (o que realmente aconteceu)
+Antes de qualquer análise jurídica, reconstrua os fatos cronologicamente.
+Identifique: quem fez o quê, quando, onde, como, com quais consequências.
+Sinalize contradições, lacunas e pontos controvertidos nos fatos.
 
-═══════════════════════════════════════════════
-## 2. 📊 PROBABILIDADE DE ÊXITO — ANÁLISE MULTIFATORIAL
-═══════════════════════════════════════════════
-**Probabilidade Global: [X]% — [ALTA/MÉDIA/BAIXA/CRÍTICA]**
+PASSAGEM 2 — LEITURA JURÍDICA (o que o direito diz sobre isso)
+Mapeie TODOS os enquadramentos jurídicos possíveis — mesmo os desfavoráveis.
+Não filtre: inclua teses que podem ser usadas contra o cliente.
+Identifique o que está cristalizado na jurisprudência vs. o que ainda é controvertido.
 
-FATORES QUE FORTALECEM A TESE:
-✅ [Argumento 1]: [fundamento jurídico + impacto no resultado estimado]
-✅ [Argumento 2]: [fundamento jurídico + impacto]
-✅ [Argumento 3]: [fundamento jurídico + impacto]
+PASSAGEM 3 — LEITURA ESTRATÉGICA (como ganhar ou perder menos)
+Simule as decisões do magistrado e do advogado adverso.
+Identifique o momento processual atual e o que acontece a seguir.
+Calcule qual movimento maximiza o resultado para o cliente.
 
-FATORES DE RISCO E FRAQUEZA:
-❌ [Risco 1]: [vulnerabilidade + como a parte adversa vai explorar isso]
-❌ [Risco 2]: [vulnerabilidade + impacto se não mitigado]
+PASSAGEM 4 — LEITURA DE EXECUÇÃO (o que fazer, exatamente, e em qual ordem)
+Produza um roteiro concreto: ações, documentos, prazos, alertas.
+Nada genérico. Tudo específico ao caso analisado.
 
-FATORES INCERTOS (definem o resultado):
-⚠️ [Fator]: [o que precisa acontecer para virar a favor]
+══════════════════════════════════════════════════════════════════════════════
+ESTRUTURA OBRIGATÓRIA DA ANÁLISE — EXECUTE TODAS AS SEÇÕES:
+══════════════════════════════════════════════════════════════════════════════
 
-═══════════════════════════════════════════════
-## 3. ⚔️ MAPA ESTRATÉGICO OFENSIVO
-═══════════════════════════════════════════════
-[Estratégia de ataque principal — como maximizar a posição do cliente]
+## 🎯 1. DIAGNÓSTICO INICIAL — O QUE ESTE CASO REALMENTE É
+Antes de qualquer análise técnica: qual é a ESSÊNCIA deste conflito?
+Qual interesse real está em jogo além do pedido formal?
+O que o cliente precisa ouvir que ninguém vai ter coragem de dizer?
+Probabilidade inicial (provisória, antes da análise completa): [X]%
 
-LINHA DE ARGUMENTAÇÃO PRIORITÁRIA:
-1. [Argumento mais forte — desenvolvimento completo com fundamento]
-2. [Segundo argumento — como conecta ao primeiro]
-3. [Argumento subsidiário — caso o principal falhe]
+## 🔬 2. RADIOGRAFIA FACTUAL — PASSAGEM 1
+Reconstrução cronológica COMPLETA dos fatos:
+→ [Data/Evento 1]: o que aconteceu, quem estava envolvido, qual a consequência
+→ [Data/Evento 2]: idem
+→ [continuar para todos os eventos identificados]
 
-ARGUMENTOS DE SURPRESA (que a parte adversa não espera):
-• [Tese jurídica não óbvia que pode ser explorada]
-• [Precedente ou princípio que inverte o ônus]
+CONTRADIÇÕES E LACUNAS IDENTIFICADAS:
+⚠️ [Ponto controvertido 1]: o que está claro vs. o que é ambíguo
+⚠️ [Ponto controvertido 2]: dado ausente e sua importância para o caso
 
-PEDIDOS RECOMENDADOS (além do óbvio):
-• [Pedido principal com fundamento]
-• [Pedido alternativo estratégico]
-• [Pedido de tutela de urgência se cabível, com fundamento]
-• [Pedido de danos morais/materiais se aplicável]
+FATOS QUE MAIS IMPORTAM (os que um juiz vai ponderar primeiro):
+① [Fato decisivo 1 + por que é decisivo]
+② [Fato decisivo 2 + por que é decisivo]
+③ [Fato decisivo 3 + por que é decisivo]
 
-═══════════════════════════════════════════════
-## 4. 🛡️ MAPA ESTRATÉGICO DEFENSIVO
-═══════════════════════════════════════════════
-[Antecipação dos movimentos da parte adversa]
+## ⚖️ 3. ENQUADRAMENTO JURÍDICO COMPLETO — PASSAGEM 2
+TODOS os institutos jurídicos aplicáveis ao caso:
+→ [Instituto 1]: [base legal] → [como se aplica aos fatos específicos]
+→ [Instituto 2]: idem
+→ [Instituto 3]: idem
 
-O QUE A PARTE CONTRÁRIA VAI ALEGAR:
-• [Argumento adverso mais provável + como neutralizar]
-• [Segunda linha de ataque adverso + defesa]
-• [Tese defensiva que costuma funcionar neste tipo de caso]
+MATÉRIAS JURÍDICAS FAVORÁVEIS (explorar):
+✅ [Tese 1]: [fundamento completo + precedente/princípio + impacto esperado]
+✅ [Tese 2]: idem
+✅ [Tese 3]: idem — este é o argumento de surpresa que a parte adversa não espera
 
-COMO BLINDAR A TESE:
-• [Prova que precisa ser produzida e por quê]
-• [Documento que precisa ser juntado urgente]
-• [Argumento preventivo que fecha uma brecha]
+MATÉRIAS JURÍDICAS DESFAVORÁVEIS (antecipar e neutralizar):
+❌ [Tese adversa 1]: [por que existe + como enfraquecer]
+❌ [Tese adversa 2]: idem
 
-RISCOS PROCESSUAIS A EVITAR:
-• [Erro procedimental que pode comprometer o caso]
-• [Prazo crítico ou preclusão a monitorar]
+QUESTÕES PROCESSUAIS DETECTADAS:
+→ Competência: [análise]
+→ Legitimidade ativa/passiva: [análise]
+→ Interesse de agir: [análise]
+→ Prescrição/Decadência: [calcular prazo, verificar se ocorreu ou está próximo]
+→ Litisconsórcio necessário: [há outros que deveriam estar no polo?]
+→ Conexão/Continência: [existe processo relacionado?]
 
-═══════════════════════════════════════════════
-## 5. ⚖️ FUNDAMENTAÇÃO JURÍDICA
-═══════════════════════════════════════════════
-LEGISLAÇÃO APLICÁVEL (somente artigos com certeza):
-• [Lei + artigo + conteúdo + aplicação específica ao caso]
-• [Segundo fundamento legal]
+## 📊 4. PROBABILIDADE DE ÊXITO — ANÁLISE MULTIFATORIAL
+**Probabilidade Global: [X]% — [ALTA / MÉDIA / BAIXA / CRÍTICA]**
 
-SÚMULAS E JURISPRUDÊNCIA:
-[Apenas as súmulas da lista autorizada acima. Se inaplicáveis: "Não há súmula verificada aplicável."]
+FATORES POSITIVOS (cada um com peso estimado):
+✅ [Fator 1] — peso: [alto/médio/baixo] — fundamento: [...]
+✅ [Fator 2] — peso: [...] — fundamento: [...]
+✅ [Fator 3] — peso: [...] — fundamento: [...]
 
-PRINCÍPIOS CONSTITUCIONAIS E INFRACONSTITUCIONAIS:
-• [Princípio + como sustenta a tese]
+FATORES NEGATIVOS (cada um com impacto estimado):
+❌ [Fator 1] — impacto: [alto/médio/baixo] — como a parte adversa vai usar: [...]
+❌ [Fator 2] — impacto: [...] — [...]
 
-═══════════════════════════════════════════════
-## 6. 💰 MAPA ECONÔMICO DO CASO
-═══════════════════════════════════════════════
-ESTIMATIVA DE CONDENAÇÃO/RECUPERAÇÃO:
-• Valor mínimo estimado: R$ [X]
-• Valor médio de mercado: R$ [X]  
-• Valor máximo plausível: R$ [X]
-• Fundamento do cálculo: [metodologia]
+FATORES INCERTOS (determinam o resultado):
+⚠️ [Fator]: o que precisa acontecer para virar a favor — probabilidade: [X]%
+
+ANÁLISE COMPARATIVA:
+Como casos similares foram decididos:
+→ [Tendência dos tribunais neste tipo de caso]
+→ [O que geralmente faz um juiz decidir a favor / contra]
+→ [Entendimento do tribunal competente nesta matéria]
+
+## ⚔️ 5. ESTRATÉGIA OFENSIVA — PASSAGEM 3
+LINHA DE ATAQUE PRINCIPAL:
+① [Argumento mais forte — desenvolvimento completo, com linguagem que convence magistrado]
+② [Segundo argumento — como reforça o primeiro e fecha o raciocínio]
+③ [Argumento subsidiário — caso o principal falhe, este sustenta sozinho]
+
+ARGUMENTOS QUE O ADVERSÁRIO NÃO ESPERA:
+• [Tese não óbvia 1]: [por que ela existe neste caso + como apresentar]
+• [Tese não óbvia 2]: [idem]
+• [Questão que inverte o ônus da prova — se existir]
+
+PEDIDOS RECOMENDADOS (lista completa, incluindo o que o advogado pode ter esquecido):
+→ [Pedido principal] — fundamento: [...]
+→ [Pedido alternativo] — fundamento: [...]
+→ [Tutela de urgência/antecipação] — cabível? [sim/não] — requisitos: [...]
+→ [Danos morais] — cabível? [sim/não] — valor sugerido: R$ [X]
+→ [Danos materiais] — cabível? [sim/não] — metodologia de cálculo: [...]
+→ [Honorários] — percentual + base de cálculo
+→ [Outros pedidos específicos do caso — detalhar]
+
+## 🛡️ 6. ESTRATÉGIA DEFENSIVA — SIMULAÇÃO DO ADVERSÁRIO
+Agora você é o advogado da PARTE CONTRÁRIA. O que você faria?
+
+ESTRATÉGIA ADVERSA MAIS PROVÁVEL:
+① [Argumento adverso 1 — desenvolvido como se fosse o advogado da outra parte]
+② [Argumento adverso 2]
+③ [Preliminar processual que provavelmente será levantada]
+
+COMO NEUTRALIZAR CADA UM:
+→ Contra [Argumento 1]: [contra-argumento + prova que destrói]
+→ Contra [Argumento 2]: [idem]
+→ Contra [Preliminar]: [idem]
+
+PONTOS DE VULNERABILIDADE DO CLIENTE (que precisam ser blindados agora):
+⚠️ [Vulnerabilidade 1]: [o que é + como proteger]
+⚠️ [Vulnerabilidade 2]: [idem]
+
+PROVAS QUE O ADVERSÁRIO VAI TENTAR PRODUZIR:
+→ [Prova adversa 1]: como ela prejudica + como contestar
+→ [Prova adversa 2]: idem
+
+## 🔍 7. AUDITORIA DO PROCESSO — NADA PASSA
+VERIFICAÇÃO DE NULIDADES E IRREGULARIDADES:
+→ Nulidade processual: [existe? qual? pode ser arguida?]
+→ Cerceamento de defesa: [há indícios?]
+→ Vícios formais na inicial/contestação: [identificar]
+→ Irregularidade na citação/intimação: [verificar]
+→ Violação ao contraditório ou ampla defesa: [analisar]
+→ Decisão ultra/extra/citra petita: [se houver decisão no processo]
+→ Fundamentação deficiente de decisões: [se aplicável]
+
+VERIFICAÇÃO DE PRAZOS CRÍTICOS:
+→ Prescrição: [prazo aplicável + quando iniciou + quando vence]
+→ Decadência: [idem]
+→ Prazo recursal: [se há decisão — qual prazo, quando vence]
+→ Prazo para próxima manifestação: [se identificado]
+→ ALERTA: [qualquer prazo próximo do vencimento]
+
+DOCUMENTOS QUE DEVEM ESTAR NOS AUTOS (e podem estar faltando):
+→ [Documento obrigatório 1]: presente? [sim/não/verificar]
+→ [Documento obrigatório 2]: idem
+
+## 📋 8. SÚMULAS E FUNDAMENTAÇÃO JURÍDICA
+SÚMULAS APLICÁVEIS:
+[Apenas as da lista autorizada. Para cada uma: número + texto + aplicação exata ao caso]
+[Se nenhuma se aplica: "Não há súmula verificada aplicável a este caso."]
+
+ARTIGOS DE LEI (apenas com certeza absoluta):
+→ [Lei + Art. XX]: [conteúdo] → [aplicação específica ao fato X do caso]
+→ [repetir para cada fundamento]
+
+PRINCÍPIOS JURÍDICOS APLICÁVEIS:
+→ [Princípio constitucional/legal]: [como sustenta a tese principal]
+
+## 💰 9. MAPA ECONÔMICO COMPLETO
+ESTIMATIVA DE VALOR DA CONDENAÇÃO/RECUPERAÇÃO:
+→ Valor mínimo (cenário conservador): R$ [X] — metodologia: [...]
+→ Valor médio (cenário realista): R$ [X] — metodologia: [...]
+→ Valor máximo (cenário favorável): R$ [X] — metodologia: [...]
+→ Como o juiz provavelmente vai calcular: [metodologia judicial]
 
 HONORÁRIOS ADVOCATÍCIOS:
-• Percentual usual neste tipo de ação: [X]%
-• Valor estimado: R$ [X]
-• Honorários sucumbenciais: [análise]
+→ Percentual usual neste tipo de ação: [X]%
+→ Valor estimado sobre o proveito econômico: R$ [X]
+→ Honorários sucumbenciais (se ganhar): R$ [X]
+→ Risco de pagar honorários (se perder): R$ [X]
 
-CUSTO-BENEFÍCIO:
-• Relação risco/retorno: [análise objetiva]
-• Recomendação: [prosseguir / negociar / aguardar / desistir + por quê]
+ANÁLISE DE CUSTO-BENEFÍCIO:
+→ Custo estimado de levar até o fim: R$ [X] (honorários + custas + tempo)
+→ Retorno esperado: R$ [X]
+→ Relação risco/retorno: [análise objetiva]
+→ RECOMENDAÇÃO: [litigar / negociar / aguardar / desistir] — por quê: [...]
 
-═══════════════════════════════════════════════
-## 7. 📋 ESBOÇO DA PEÇA PROCESSUAL
-═══════════════════════════════════════════════
-[Estrutura completa da peça recomendada com os principais argumentos redigidos]
+## 📄 10. ESBOÇO DA PEÇA PROCESSUAL
+[Peça completa com argumentação estratégica já estruturada — não apenas tópicos]
 
-EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) [tipo de vara]
+EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) [DA VARA IDENTIFICADA]
 
-[Qualificação das partes]
+[NOME COMPLETO DO AUTOR/RÉU], [qualificação], vem respeitosamente perante Vossa Excelência, por meio de seu advogado, apresentar [TIPO DE PEÇA], pelos fatos e fundamentos a seguir:
 
-DOS FATOS
-[Narrativa estratégica dos fatos — apresente os fatos da forma mais favorável ao cliente]
+I — DOS FATOS
+[Narrativa estratégica dos fatos: apresente a versão mais favorável ao cliente, sem mentir, mas enfatizando o que convence. Cada parágrafo deve construir o argumento jurídico que vem a seguir.]
 
-DO DIREITO
-[Argumentação jurídica com os fundamentos identificados acima]
+II — DO DIREITO
+[Para cada fundamento identificado na seção 3 e 5: desenvolva o argumento completo, cite o dispositivo legal, conecte com os fatos, conclua.]
 
-DOS PEDIDOS
-[Lista completa de pedidos]
+III — DA JURISPRUDÊNCIA
+[Súmulas autorizadas + tendências jurisprudenciais identificadas]
 
-═══════════════════════════════════════════════
-## 8. 🗓️ PLANO DE AÇÃO IMEDIATO
-═══════════════════════════════════════════════
-PRÓXIMAS 48 HORAS:
-□ [Ação urgente 1]
-□ [Ação urgente 2]
+IV — DOS PEDIDOS
+Ante o exposto, requer:
+a) [Pedido principal]
+b) [Pedidos complementares da lista da seção 5]
+c) [Tutela de urgência, se cabível]
+d) A condenação em custas e honorários advocatícios
 
-PRÓXIMOS 7 DIAS:
-□ [Providência 1]
-□ [Providência 2]
+Termos em que, pede deferimento.
+[Local], [data].
 
-PONTOS DE ATENÇÃO CRÍTICA:
-⚠️ [Prazo ou risco que não pode ser ignorado]
-⚠️ [Questão que pode mudar o desfecho]
+## 🗺️ 11. SIMULAÇÃO DE CENÁRIOS
+CENÁRIO A — OTIMISTA ([X]% de chance):
+O que acontece: [descrição]
+O que precisa ocorrer para esse cenário: [condições]
+Resultado financeiro neste cenário: R$ [X]
 
-═══════════════════════════════════════════════
-## 9. 🔍 ANÁLISE DE CENÁRIOS
-═══════════════════════════════════════════════
-CENÁRIO OTIMISTA (se tudo correr bem):
-• Resultado provável + condições para que aconteça
+CENÁRIO B — REALISTA ([X]% de chance):
+O que acontece: [descrição]
+O que determina esse caminho: [fatores]
+Resultado financeiro: R$ [X]
 
-CENÁRIO REALISTA (mais provável):
-• Resultado esperado + o que determina esse caminho
+CENÁRIO C — PESSIMISTA ([X]% de chance):
+O que acontece: [descrição]
+Como evitar: [ações]
+Resultado financeiro: R$ [X]
 
-CENÁRIO PESSIMISTA (se as fraquezas forem exploradas):
-• Pior resultado possível + como evitar
+CENÁRIO D — ACORDO:
+Momento ideal para propor: [fase processual]
+Valor mínimo aceitável: R$ [X]
+Argumentos de barganha: [táticas de negociação]
+Recomendação: [propor agora / aguardar / recusar]
 
-CENÁRIO DE ACORDO:
-• Valor mínimo aceitável para acordo + estratégia de negociação`;
+## 📅 12. PLANO DE EXECUÇÃO — PASSAGEM 4
+PRÓXIMAS 24 HORAS (URGENTE):
+☐ [Ação 1 — específica, não genérica]
+☐ [Ação 2]
+☐ [Prazo crítico se identificado: vence em DD/MM]
 
-  if(currentMode==='upload'){
-    const max = 28000;
+SEMANA 1:
+☐ [Providência 1]
+☐ [Documento a obter: onde, como]
+☐ [Prova a preservar: qual, por quê urgente]
+
+MESES 1-3:
+☐ [Estratégia de desenvolvimento do caso]
+☐ [Momento de propor/aceitar acordo, se for o caso]
+☐ [Recurso a preparar, se for o caso]
+
+ALERTAS PERMANENTES:
+🔴 [Risco crítico que pode destruir o caso se ignorado]
+🟡 [Risco médio — monitorar]
+🟢 [Oportunidade que pode surgir durante o processo]`;
+
+  // ── MONTAR PROMPT FINAL ─────────────────────────────────────────────────────
+  if(currentMode === 'upload'){
+    const max = 30000;
     const doc = extractedContent.length > max
-      ? extractedContent.substring(0, max) + '\n[Documento truncado por tamanho — análise baseada nos primeiros 28.000 caracteres]'
+      ? extractedContent.substring(0, max) + '\n\n[⚠️ Documento truncado nos 30.000 caracteres — análise baseada neste trecho]'
       : extractedContent;
-    return `${prompt}\n\n${'═'.repeat(60)}\nDOCUMENTO PARA ANÁLISE FORENSE:\n${'═'.repeat(60)}\n${doc}\n${'═'.repeat(60)}`;
+    return `${instrucoes}\n\n${'═'.repeat(64)}\nDOCUMENTO SUBMETIDO À ANÁLISE FORENSE:\n${'═'.repeat(64)}\n${doc}\n${'═'.repeat(64)}`;
   }
 
-  return `${prompt}\n\n${'═'.repeat(60)}\nDADOS DO CASO:\n${'═'.repeat(60)}\nÁrea do Direito: ${d.area||'Não informado'}
+  return `${instrucoes}\n\n${'═'.repeat(64)}\nDADOS DO CASO:\n${'═'.repeat(64)}\nÁrea do Direito: ${d.area||'Não informado'}
 Tipo de Ação/Peça: ${d.tipo||'Não informado'}
 Polo Ativo (Autor): ${d.autor||'Não informado'}
 Polo Passivo (Réu): ${d.reu||'Não informado'}
-Pedidos: ${d.pedidos||'Não informado'}
+Pedidos formulados: ${d.pedidos||'Não informado'}
 Tribunal/Instância: ${d.tribunal||'Não informado'}
 Valor da Causa: ${d.valor ? 'R$ '+d.valor : 'Não informado'}
-Fatos, Provas e Contexto:
+Fatos, provas e contexto completo:
 ${d.fatos||'Não informado'}
-${'═'.repeat(60)}`;
+${'═'.repeat(64)}`;
 }
 
-// ── PROMPT DE CÓPIA (para ChatGPT, Claude, etc.) ──────────────────────────────
-// Versão ainda mais letal: instrui a IA a fazer a análise em camadas
+// ── PROMPT DE CÓPIA — 12 DIMENSÕES FORENSES ─────────────────────────────────
+// Para usar no ChatGPT-4o, Claude Opus, Gemini Ultra — máxima profundidade
 function gerarPromptCopia(d, analiseV9=''){
-  const intro = analiseV9
-    ? `# ANÁLISE JURÍDICA V9 PRO — APROFUNDAMENTO ESTRATÉGICO
+  const cliente  = d.cliente  || 'identificar no documento';
+  const area     = d.area     || (currentMode==='upload' ? 'extrair do documento' : 'não informada');
+  const autor    = d.autor    || 'ver documento';
+  const reu      = d.reu      || 'ver documento';
+  const pedidos  = d.pedidos  || 'ver documento';
+  const tribunal = d.tribunal || 'a definir';
+  const valor    = d.valor    ? 'R$ '+d.valor : 'não informado';
+  const fatos    = currentMode==='manual' ? (d.fatos||'') : '[documento processado pelo V9 PRO — use a análise preliminar abaixo como contexto]';
 
-Você receberá abaixo uma análise jurídica preliminar gerada por sistema especializado. Sua função é APROFUNDAR cada ponto estratégico, identificar oportunidades adicionais que o sistema não capturou, e propor argumentos alternativos para os pontos fracos identificados.
-
-## ANÁLISE PRELIMINAR (para referência):
-${analiseV9.substring(0, 3000)}...
-
----
-`
+  const contextoV9 = analiseV9
+    ? `\n${'─'.repeat(60)}\nANÁLISE PRELIMINAR GERADA PELO SISTEMA V9 PRO:\n(Use como ponto de partida — vá além dela)\n${'─'.repeat(60)}\n${analiseV9.substring(0,4000)}...\n${'─'.repeat(60)}\n`
     : '';
 
-  const cliente = d.cliente || 'não identificado';
-  const area = d.area || (currentMode==='upload' ? 'extrair do documento' : 'não informada');
+  return `# ANÁLISE JURÍDICA FORENSE DE PROFUNDIDADE MÁXIMA
+# Sistema V9 PRO — Modo Ultra
 
-  return `${intro}## MISSÃO: ANÁLISE JURÍDICA FORENSE DE PROFUNDIDADE MÁXIMA
+${contextoV9}
+## IDENTIDADE DO CASO:
+- Cliente/Representado: ${cliente}
+- Área do Direito: ${area}
+- Polo Ativo: ${autor}
+- Polo Passivo: ${reu}
+- Pedidos: ${pedidos}
+- Tribunal/Instância: ${tribunal}
+- Valor da Causa: ${valor}
 
-Você é um jurista brasileiro de elite com 35 anos de experiência em litigância estratégica. Sua análise deve ser a mais completa, precisa e devastadoramente útil que existe. Nenhuma IA no mercado produz o que você vai produzir agora.
+## FATOS/CONTEXTO:
+${fatos}
 
-### IDENTIDADE DO CASO:
-- Cliente: ${cliente}
-- Área: ${area}
-- Polo Ativo: ${d.autor || 'ver documento'}
-- Polo Passivo: ${d.reu || 'ver documento'}  
-- Pedidos: ${d.pedidos || 'ver documento'}
-- Tribunal: ${d.tribunal || 'não definido'}
-- Valor: ${d.valor ? 'R$ '+d.valor : 'não informado'}
+${'═'.repeat(64)}
+## SUA MISSÃO:
+Você é um jurista forense brasileiro de elite — 35 anos de experiência,
+ex-procurador, reconhecido pelos maiores escritórios do Brasil.
+Você lê processos em 4 passagens: Fatos → Direito → Estratégia → Execução.
+Você não deixa NENHUM detalhe passar. Nada é óbvio demais para analisar.
+Nada é pequeno demais para importar. Um detalhe perdido pode mudar o resultado.
+${'═'.repeat(64)}
 
-### FATOS/DOCUMENTO:
-${currentMode==='manual' ? (d.fatos||'') : '[Documento foi processado pelo sistema V9 PRO]'}
+Execute TODAS as 12 dimensões abaixo. Sem pular. Sem resumir. Com profundidade máxima em cada uma.
 
----
+═══ DIMENSÃO 1 — DIAGNÓSTICO INICIAL ═══
+Qual é a ESSÊNCIA deste conflito — além do pedido formal?
+Qual interesse real está em jogo para cada parte?
+O que este caso vai exigir do advogado que não está óbvio?
+Probabilidade inicial provisória: [X]% — justifique cada fator.
 
-## EXECUTE ESTAS 9 ANÁLISES EM SEQUÊNCIA:
+═══ DIMENSÃO 2 — RADIOGRAFIA FACTUAL ═══
+Reconstrua os fatos CRONOLOGICAMENTE, evento por evento.
+Para cada evento: quem, o quê, quando, onde, como, consequência jurídica.
+Identifique: contradições, lacunas, fatos implícitos, silêncios estratégicos.
+Liste os 3 fatos mais decisivos para o julgamento e por quê cada um importa.
 
-### ANÁLISE 1 — DIAGNÓSTICO DE FORÇA DO CASO
-Classifique o caso em uma escala de 0 a 10. Explique objetivamente os 3 maiores trunfos e os 3 maiores riscos. Dê probabilidade de êxito com justificativa para cada fator.
+═══ DIMENSÃO 3 — ENQUADRAMENTO JURÍDICO TOTAL ═══
+Mapeie TODOS os institutos jurídicos aplicáveis — favoráveis E desfavoráveis.
+Para cada um: base legal → como se aplica aos fatos → impacto no resultado.
+Inclua: questões processuais (competência, legitimidade, prescrição, decadência,
+litisconsórcio, conexão, nulidades, vícios formais).
+O que está cristalizado na jurisprudência vs. o que ainda é controvertido?
 
-### ANÁLISE 2 — ESTRATÉGIA OFENSIVA MÁXIMA
-Desenvolva a linha de ataque mais poderosa possível. Inclua:
-a) Argumento principal com toda a fundamentação
-b) 2 argumentos alternativos se o principal falhar  
-c) Teses jurídicas não óbvias que a parte adversa não espera
-d) Como sequenciar os argumentos para máximo impacto
+═══ DIMENSÃO 4 — PROBABILIDADE MULTIFATORIAL ═══
+Nota do caso de 0 a 10. Probabilidade global com justificativa fatorial.
+Para cada fator: peso estimado + fundamento concreto.
+Como casos similares foram decididos? Qual a tendência do tribunal competente?
+O que um juiz experiente vai pensar ao ler este caso pela primeira vez?
 
-### ANÁLISE 3 — MAPEAMENTO DA DEFESA ADVERSA
-O que o advogado da parte contrária vai fazer? Escreva como se você fosse ele:
-a) Os 3 principais argumentos que ele vai usar
-b) As provas que ele vai tentar produzir
-c) As preliminares processuais que pode levantar
-d) Para cada argumento adverso: como neutralizar
+═══ DIMENSÃO 5 — ESTRATÉGIA OFENSIVA MÁXIMA ═══
+Linha de argumentação: primário → secundário → subsidiário.
+Argumentos de surpresa que o adversário não espera.
+Lista COMPLETA de pedidos — incluindo os que o advogado provavelmente esqueceu.
+Tutela de urgência: cabível? Fumus boni iuris? Periculum in mora? Como redigir?
 
-### ANÁLISE 4 — JURISPRUDÊNCIA ESTRATÉGICA
-Identifique os entendimentos dominantes dos tribunais para este tipo de caso. Para cada precedente mencionado: explique como ele se aplica especificamente aos fatos. ATENÇÃO: só cite precedentes que você tem certeza que existem. Se não tiver certeza, descreva a tendência sem inventar número.
+═══ DIMENSÃO 6 — SIMULAÇÃO DO ADVERSÁRIO ═══
+Vista a toga do advogado da parte contrária. O que ele vai fazer?
+Seus 3 melhores argumentos. Suas preliminares. Suas provas.
+Para cada argumento adverso: como neutralizar completamente.
+Vulnerabilidades do cliente que precisam ser blindadas AGORA.
 
-### ANÁLISE 5 — ENGENHARIA DOS PEDIDOS
-Elabore a lista completa de pedidos otimizados:
-a) Pedido principal com fundamento
-b) Pedidos alternativos e subsidiários
-c) Pedidos que o advogado provavelmente não pensou
-d) Tutela de urgência: cabível? Por quê? Requisitos preenchidos?
-e) Valor de cada pedido estimado individualmente
+═══ DIMENSÃO 7 — AUDITORIA DE NULIDADES ═══
+Varra o processo em busca de:
+- Nulidades processuais (absolutas e relativas)
+- Vícios formais na peça ou nos documentos
+- Irregularidades na citação/intimação
+- Cerceamento de defesa
+- Decisão ultra/extra/citra petita
+- Fundamentação deficiente
+- Violação ao contraditório
+- Qualquer irregularidade que possa ser arguida
 
-### ANÁLISE 6 — MAPA DE PROVAS
-Quais provas são essenciais, quais são complementares, quais são arriscadas?
-a) Provas que existem e devem ser juntadas imediatamente
-b) Provas que precisam ser produzidas (pericial, testemunhal, documental)
-c) Provas que a parte adversa pode usar contra — e como mitigar
-d) Ordem estratégica de produção de provas
+═══ DIMENSÃO 8 — MAPA TEMPORAL E PRAZOS ═══
+Calcule: prescrição (quando iniciou, quando vence, está em risco?).
+Calcule: decadência (idem).
+Todos os prazos processuais identificáveis.
+Alertas de urgência: o que vence nos próximos 30 dias?
 
-### ANÁLISE 7 — CENÁRIOS E SIMULAÇÃO DE RESULTADO
-Simule o julgamento em 3 instâncias:
-- 1ª Instância: resultado mais provável + fundamento
-- 2ª Instância (recurso): como o acórdão deve ser elaborado
-- STJ/STF: existe matéria recursal relevante?
-Para cada cenário: o que determina vitória ou derrota
+═══ DIMENSÃO 9 — FUNDAMENTAÇÃO JURÍDICA ═══
+Legislação aplicável: cite apenas artigos com certeza absoluta.
+Para cada artigo: lei + número + conteúdo + aplicação exata ao caso.
+Princípios constitucionais e infraconstitucionais aplicáveis.
+SÚMULAS: apenas as que você tem certeza que existem. Se não tiver certeza, descreva a tendência sem inventar número.
 
-### ANÁLISE 8 — ESTRATÉGIA DE ACORDO
-a) O caso deve ser levado a acordo ou litigado até o fim? Por quê?
-b) Qual o valor mínimo aceitável para acordo?
-c) Qual o momento processual ideal para propor/aceitar acordo?
-d) Argumentos de barganha para a negociação
+═══ DIMENSÃO 10 — MAPA ECONÔMICO ═══
+Valor mínimo / realista / máximo — metodologia de cálculo para cada.
+Como o magistrado provavelmente vai calcular.
+Honorários: percentual usual + valor estimado + honorários sucumbenciais.
+Custo total de litigar vs. benefício esperado. Recomendação objetiva.
 
-### ANÁLISE 9 — PLANO DE AÇÃO 30/60/90 DIAS
-Liste as ações concretas:
-- Próximas 48h: [ações urgentes com fundamento]
-- Semana 1: [providências essenciais]
-- Mês 1: [estratégia inicial]
-- Mês 2-3: [desenvolvimento do caso]
-- Alertas críticos: prazos, preclusões, riscos processuais
+═══ DIMENSÃO 11 — ESBOÇO DA PEÇA PROCESSUAL ═══
+Escreva a peça com argumentação completa — não apenas tópicos.
+Narrativa estratégica dos fatos (versão mais favorável, sem mentir).
+Argumentação jurídica desenvolvida (não apenas mencionada).
+Lista completa de pedidos com fundamentos.
 
----
-REGRA FINAL: Se não tiver certeza sobre um número de lei, artigo ou súmula — descreva o conteúdo sem inventar o número. Precisão é mais valiosa que completude.`;
+═══ DIMENSÃO 12 — PLANO DE EXECUÇÃO ═══
+Próximas 24h: ações urgentes específicas (não genéricas).
+Semana 1: providências e documentos.
+Meses 1-3: estratégia de desenvolvimento.
+Alertas permanentes: o que pode destruir o caso se ignorado.
+Estratégia de acordo: quando propor, valor mínimo, táticas de barganha.
+
+${'═'.repeat(64)}
+REGRA FINAL INEGOCIÁVEL:
+Se não tiver certeza sobre número de lei, artigo, súmula ou dado —
+descreva o conteúdo sem inventar o número.
+Precisão > completude. Honestidade > impressionar.
+Um dado errado destrói a credibilidade de toda a análise.
+${'═'.repeat(64)}`;
 }
+
 
 // ── CHAMAR API GEMINI ──────────────────────────────────────────────────────────
 async function gemini(apiKey, messages, systemPrompt=''){
