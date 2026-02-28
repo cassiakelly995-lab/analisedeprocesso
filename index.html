@@ -34,21 +34,15 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:2px;backgroun
 .hist-count{background:var(--gold-dark);color:#000;font-size:.52rem;font-weight:800;border-radius:10px;padding:1px 6px;line-height:1.4}
 
 /* ── HEADER ── */
-header{text-align:center;padding:48px 20px 28px;position:relative}
-header::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:1px;height:40px;background:linear-gradient(180deg,var(--gold-dark),transparent)}
-.logo-eyebrow{font-size:.52rem;letter-spacing:.45em;color:var(--gold-dark);text-transform:uppercase;margin-bottom:14px;font-family:'Rajdhani',sans-serif;font-weight:600}
-.logo-text{font-family:'Cinzel',serif;font-size:clamp(2rem,6vw,3.8rem);letter-spacing:.35em;background:linear-gradient(160deg,var(--gold-dark) 0%,var(--gold-light) 40%,var(--gold) 60%,var(--gold-dark) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:inline-block;line-height:1.1;font-weight:900}
-.logo-sub{font-size:.62rem;letter-spacing:.25em;color:var(--muted);margin-top:10px;text-transform:uppercase;font-family:'Rajdhani',sans-serif}
-.logo-divider{display:flex;align-items:center;gap:16px;margin:20px auto 0;width:fit-content}
+header{text-align:center;padding:28px 20px 20px;position:relative}
+.logo-eyebrow{font-size:.52rem;letter-spacing:.45em;color:var(--gold-dark);text-transform:uppercase;margin-bottom:10px;font-family:'Rajdhani',sans-serif;font-weight:600}
+.logo-text{font-family:'Cinzel',serif;font-size:clamp(2rem,6vw,3.2rem);letter-spacing:.35em;background:linear-gradient(160deg,var(--gold-dark) 0%,var(--gold-light) 40%,var(--gold) 60%,var(--gold-dark) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:inline-block;line-height:1.1;font-weight:900}
+.logo-sub{font-size:.6rem;letter-spacing:.2em;color:var(--muted);margin-top:8px;text-transform:uppercase;font-family:'Rajdhani',sans-serif}
+.logo-divider{display:flex;align-items:center;gap:16px;margin:16px auto 0;width:fit-content}
 .logo-divider-line{width:80px;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dark))}
 .logo-divider-line.r{background:linear-gradient(90deg,var(--gold-dark),transparent)}
 .logo-divider-diamond{width:6px;height:6px;background:var(--gold);transform:rotate(45deg);flex-shrink:0}
-.logo-features{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:22px}
-.feat-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.02);border:1px solid #1e1e1e;border-radius:4px;padding:7px 14px;font-size:.64rem;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;font-family:'Rajdhani',sans-serif;font-weight:600;transition:all .2s}
-.feat-chip:hover{border-color:var(--gold-dark);color:var(--gold-dark)}
-.feat-chip .chip-icon{font-size:.9rem}
-.feat-chip.highlight{border-color:rgba(46,204,113,.3);color:var(--green);background:rgba(46,204,113,.04)}
-header::after{content:'';display:block;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dark) 20%,var(--gold) 50%,var(--gold-dark) 80%,transparent);margin:28px auto 0;max-width:500px}
+header::after{content:'';display:block;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dark) 20%,var(--gold) 50%,var(--gold-dark) 80%,transparent);margin:18px auto 0;max-width:500px}
 
 .container{max-width:960px;margin:0 auto;padding:22px 16px 80px;position:relative;z-index:1}
 
@@ -371,7 +365,7 @@ textarea{resize:vertical;min-height:120px}
   <div class="topbar-center">
     <div class="topbar-pill active"><span class="topbar-pill-dot"></span>Anti-Alucinação</div>
     <div class="topbar-pill gold"><span class="topbar-pill-dot"></span>Súmulas STF·STJ·TST</div>
-    <div class="topbar-pill"><span class="topbar-pill-dot"></span>Word &amp; PDF</div>
+    <div class="topbar-pill gold"><span class="topbar-pill-dot"></span>Word &amp; PDF</div>
   </div>
   <div class="topbar-actions">
     <button class="btn-hist" onclick="toggleHist()">
@@ -401,14 +395,6 @@ textarea{resize:vertical;min-height:120px}
     <div class="logo-divider-line"></div>
     <div class="logo-divider-diamond"></div>
     <div class="logo-divider-line r"></div>
-  </div>
-  <div class="logo-features">
-    <span class="feat-chip highlight"><span class="chip-icon">🛡</span>Anti-Alucinação Ativo</span>
-    <span class="feat-chip"><span class="chip-icon">📄</span>Word &amp; PDF</span>
-    <span class="feat-chip"><span class="chip-icon">💬</span>Chat com IA</span>
-    <span class="feat-chip"><span class="chip-icon">⏱</span>Prazos Processuais</span>
-    <span class="feat-chip highlight"><span class="chip-icon">✨</span>Geração de Petição</span>
-    <span class="feat-chip"><span class="chip-icon">✅</span>Súmulas STF·STJ·TST</span>
   </div>
 </header>
 
@@ -554,59 +540,6 @@ textarea{resize:vertical;min-height:120px}
   </button>
 </div>
 
-<!-- CALCULADORA DE PRAZOS -->
-<div class="card">
-  <div class="slabel">⏱ Calculadora de Prazos Processuais</div>
-  <div class="prazo-input-row">
-    <div>
-      <label>Data do Ato / Intimação</label>
-      <input type="text" id="prazoDataAto" placeholder="DD/MM/AAAA" maxlength="10" oninput="maskData(this)"/>
-    </div>
-    <div>
-      <label>Tipo de Prazo</label>
-      <select id="prazoTipo">
-        <option value="15">Contestação – 15 dias (Cível)</option>
-        <option value="30">Reclamação Trabalhista – 30 dias</option>
-        <option value="5">Embargos de Declaração – 5 dias</option>
-        <option value="15">Apelação – 15 dias</option>
-        <option value="8">Recurso Ordinário Trabalhista – 8 dias</option>
-        <option value="15">Agravo de Instrumento – 15 dias</option>
-        <option value="15">Recurso Especial/Extraordinário – 15 dias</option>
-        <option value="120">Mandado de Segurança – 120 dias</option>
-        <option value="2">Embargos de Declaração Trabalhista – 2 dias</option>
-        <option value="custom">Personalizado...</option>
-      </select>
-    </div>
-    <div id="prazoCustomDiv" class="hidden">
-      <label>Dias</label>
-      <input type="text" id="prazoCustomDias" placeholder="Ex: 10"/>
-    </div>
-    <button class="btn-calc-prazo" onclick="calcularPrazo()">Calcular</button>
-  </div>
-  <div class="prazo-resultado" id="prazoResultado"></div>
-</div>
-
-<!-- CHECKLIST DE DOCUMENTOS -->
-<div class="card">
-  <div class="slabel">📋 Checklist de Documentos</div>
-  <div class="grid2" style="margin-bottom:10px">
-    <div>
-      <label>Tipo de Ação para Checklist</label>
-      <select id="checklistTipo" onchange="gerarChecklist()">
-        <option value="">Selecione para gerar...</option>
-        <option value="trabalhista">Reclamação Trabalhista</option>
-        <option value="indenizacao">Ação de Indenização</option>
-        <option value="consumidor">Direito do Consumidor</option>
-        <option value="previdenciario">Previdenciário / INSS</option>
-        <option value="familia">Direito de Família</option>
-        <option value="cobranca">Ação de Cobrança</option>
-        <option value="contrato">Revisão de Contrato</option>
-      </select>
-    </div>
-  </div>
-  <div id="checklistArea"></div>
-</div>
-
 <!-- LOADING -->
 <div class="loading" id="loading">
   <div class="spinner"></div>
@@ -750,10 +683,78 @@ textarea{resize:vertical;min-height:120px}
   <button class="btn-nova" onclick="reset()">← NOVA ANÁLISE</button>
 </div>
 
+<!-- FERRAMENTAS AUXILIARES -->
+<div style="margin-top:8px">
+<!-- CALCULADORA DE PRAZOS -->
+<div class="card" id="prazoCard">
+  <div class="slabel">⏱ Calculadora de Prazos Processuais</div>
+  <div class="prazo-input-row">
+    <div>
+      <label>Data do Ato / Intimação</label>
+      <input type="text" id="prazoDataAto" placeholder="DD/MM/AAAA" maxlength="10" oninput="maskData(this)"/>
+    </div>
+    <div>
+      <label>Tipo de Prazo</label>
+      <select id="prazoTipo">
+        <option value="15">Contestação – 15 dias (Cível)</option>
+        <option value="30">Reclamação Trabalhista – 30 dias</option>
+        <option value="5">Embargos de Declaração – 5 dias</option>
+        <option value="15">Apelação – 15 dias</option>
+        <option value="8">Recurso Ordinário Trabalhista – 8 dias</option>
+        <option value="15">Agravo de Instrumento – 15 dias</option>
+        <option value="15">Recurso Especial/Extraordinário – 15 dias</option>
+        <option value="120">Mandado de Segurança – 120 dias</option>
+        <option value="2">Embargos de Declaração Trabalhista – 2 dias</option>
+        <option value="custom">Personalizado...</option>
+      </select>
+    </div>
+    <div id="prazoCustomDiv" class="hidden">
+      <label>Dias</label>
+      <input type="text" id="prazoCustomDias" placeholder="Ex: 10"/>
+    </div>
+    <button class="btn-calc-prazo" onclick="calcularPrazo()">Calcular</button>
+  </div>
+  <div class="prazo-resultado" id="prazoResultado"></div>
+</div>
+
+<!-- CHECKLIST DE DOCUMENTOS -->
+<div class="card" id="checklistCard">
+  <div class="slabel">📋 Checklist de Documentos</div>
+  <div class="grid2" style="margin-bottom:10px">
+    <div>
+      <label>Tipo de Ação para Checklist</label>
+      <select id="checklistTipo" onchange="gerarChecklist()">
+        <option value="">Selecione para gerar...</option>
+        <option value="trabalhista">Reclamação Trabalhista</option>
+        <option value="indenizacao">Ação de Indenização</option>
+        <option value="consumidor">Direito do Consumidor</option>
+        <option value="previdenciario">Previdenciário / INSS</option>
+        <option value="familia">Direito de Família</option>
+        <option value="cobranca">Ação de Cobrança</option>
+        <option value="contrato">Revisão de Contrato</option>
+      </select>
+    </div>
+  </div>
+  <div id="checklistArea"></div>
+</div>
+
+</div>
+
 </div><!-- /container -->
 
 <script>
 'use strict';
+
+// ── SHOW/HIDE DE VIEWS ─────────────────────────────────────────────────────────
+function showView(view){
+  // 'form' = formulário, 'loading' = carregando, 'result' = resultado
+  const inputCard = document.getElementById('inputCard');
+  const loading   = document.getElementById('loading');
+  const resultCard= document.getElementById('resultCard');
+  inputCard.style.display   = view==='form'    ? 'block' : 'none';
+  loading.classList.toggle('visible', view==='loading');
+  resultCard.classList.toggle('visible', view==='result');
+}
 
 // ── STATE ──────────────────────────────────────────────────────────────────────
 let currentMode = 'upload';
@@ -1619,9 +1620,7 @@ async function executar(){
   if(currentMode==='upload'&&!extractedContent&&!extractedBase64){ alert('📎 Faça upload de um documento.'); return; }
   if(currentMode==='manual'){ if(!d.area){alert('Selecione a Área do Direito.');return;} if(d.fatos.length<80){alert('Descreva os fatos com pelo menos 80 caracteres.');return;} }
 
-  document.getElementById('inputCard').style.display='none';
-  document.getElementById('loading').classList.add('visible');
-  document.getElementById('resultCard').classList.remove('visible');
+  showView('loading');
   document.getElementById('loadingCache').textContent='';
 
   const steps=['Lendo documento...','📚 Consultando banco de súmulas...','⚖ Verificando jurisprudência aplicável...','Analisando fundamentos jurídicos...','Calculando probabilidade...','Elaborando esboço processual...','Definindo estratégia...','Estimando honorários...'];
@@ -1691,8 +1690,7 @@ async function executar(){
     renderResult(d, text);
   }catch(e){
     clearInterval(iv);
-    document.getElementById('loading').classList.remove('visible');
-    document.getElementById('inputCard').style.display='block';
+    showView('form');
     alert('⚠ Erro:\n\n'+e.message);
   }
 }
@@ -1708,8 +1706,7 @@ function capitalize(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
 
 // ── RENDER ─────────────────────────────────────────────────────────────────────
 function renderResult(d, text){
-  document.getElementById('loading').classList.remove('visible');
-  document.getElementById('resultCard').classList.add('visible');
+  showView('result');
 
   // Probabilidade
   const m = text.match(/Probabilidade\s+Global[:\s*_]*(\d{1,3})\s*%/i)||text.match(/\*{0,2}(\d{1,3})\s*%\*{0,2}/);
@@ -2060,8 +2057,7 @@ function carregarHistorico(id){
       {role:'user',parts:[{text:`Caso: ${item.formData.cliente||''} | ${item.formData.area||''}\n${item.texto.substring(0,2000)}`}]},
       {role:'model',parts:[{text:'Contexto carregado.'}]}
     ];
-    document.getElementById('inputCard').style.display='none';
-    document.getElementById('resultCard').classList.add('visible');
+    showView('result');
     renderResult(item.formData, item.texto);
     toggleHist();
   }catch(e){ alert('Erro ao carregar: '+e.message); }
@@ -2241,7 +2237,7 @@ function maskData(el){
 // ── RESET ──────────────────────────────────────────────────────────────────────
 function reset(){
   document.getElementById('resultCard').classList.remove('visible');
-  document.getElementById('inputCard').style.display='block';
+  showView('form');
   document.getElementById('dlStatus').textContent='';
   document.getElementById('chatMessages').innerHTML='';
   document.getElementById('prazoResultado').style.display='none';
