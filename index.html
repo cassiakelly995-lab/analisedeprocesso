@@ -645,10 +645,10 @@ textarea{resize:vertical;min-height:120px}
     <div class="slabel">◈ Análise Jurídica Completa</div>
     <div class="tab-group" id="tabGroup">
       <button class="tab-btn active" onclick="setTab('completa',this)">Análise Completa</button>
-      <button class="tab-btn" onclick="setTab('fortes',this)">Pontos Fortes</button>
-      <button class="tab-btn" onclick="setTab('riscos',this)">Riscos</button>
+      <button class="tab-btn" onclick="setTab('fortes',this)">Estratégia Ofensiva</button>
+      <button class="tab-btn" onclick="setTab('riscos',this)">Probabilidade</button>
       <button class="tab-btn" onclick="setTab('sumulas',this)">Súmulas/Leis</button>
-      <button class="tab-btn" onclick="setTab('estrategia',this)">Estratégia</button>
+      <button class="tab-btn" onclick="setTab('estrategia',this)">Plano de Ação</button>
     </div>
     <div id="tabCompleta" class="tab-panel active">
       <div id="aiText" class="ai-text"></div>
@@ -860,8 +860,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   } catch(e){}
 
-  const zone = document.getElementById('uploadZone');
-  // clique gerenciado pelo <label for="fileInput"> — sem JS adicional necessário
+  // clique no uploadZone gerenciado pelo <label for="fileInput"> — sem JS adicional necessário
 
   document.querySelectorAll('.tone-btn').forEach(b => {
     b.addEventListener('click', () => {
@@ -2040,7 +2039,7 @@ async function gemini(apiKey, messages, systemPrompt=''){
         contents: messages,
         generationConfig: {maxOutputTokens:12000, temperature:0.15} // Temperatura menor = menos criatividade = menos alucinação
       };
-      if(systemPrompt) body.system_instruction = {parts:[{text:systemPrompt}]};
+      if(systemPrompt) body.systemInstruction = {parts:[{text:systemPrompt}]};
       const r = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${apiKey}`,
         {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}
@@ -2068,7 +2067,7 @@ async function gemini(apiKey, messages, systemPrompt=''){
 async function executar(){
   const apiKey = document.getElementById('apiKeyInput').value.trim();
   if(!apiKey||!apiKey.startsWith('AIza')){
-    alert('🔑 Cole sua chave de API!\n\nObtena grátis em aistudio.google.com → Get API Key');
+    alert('🔑 Cole sua chave de API!\n\nObtenha grátis em aistudio.google.com → Get API Key');
     document.getElementById('apiKeyInput').focus(); return;
   }
   const d = {
@@ -2141,12 +2140,11 @@ async function executar(){
     }
 
     if(!analysisData){
-      const sumulasVerificadas = buscarSumulasLocais(d.area, d.pedidos||d.tipo||'', d.fatos||extractedContent.substring(0,500));
-      const halResult = validarAntiAlucinacao(text, sumulasVerificadas);
-      analysisData = {formData:d, aiText:text, fileName:uploadedFile?.name||null, sumulasUsadas:sumulasVerificadas, halResult};
+      const sumulasVerificadas2 = buscarSumulasLocais(d.area, d.pedidos||d.tipo||'', d.fatos||extractedContent.substring(0,500));
+      const halResult2 = validarAntiAlucinacao(text, sumulasVerificadas2);
+      analysisData = {formData:d, aiText:text, fileName:uploadedFile?.name||null, sumulasUsadas:sumulasVerificadas2, halResult:halResult2};
+      clearInterval(iv);
     }
-
-    clearInterval(iv);
 
     // Chat context — comprimido para economizar tokens
     chatHistory = [
@@ -2200,7 +2198,7 @@ function renderResult(d, text){
   }
 
   // Resumo executivo
-  const resumoMatch = text.match(/## 1\. RESUMO EXECUTIVO\n([\s\S]*?)(?=\n## 2\.)/i);
+  const resumoMatch = text.match(/## (?:🎯\s*)?1\.\s*DIAGN[ÓO]STICO[\s\S]*?\n([\s\S]*?)(?=\n## (?:🔬\s*)?2\.)/i);
   const resumoTxt = resumoMatch ? resumoMatch[1].trim() : '';
   const itens = [
     {label:'Cliente', val: d.cliente||'—'},
@@ -2221,10 +2219,10 @@ function renderResult(d, text){
   document.getElementById('aiText').textContent = text;
 
   // Extrair seções para abas
-  renderSecao(text, 'PONTOS FORTES', 'secFortes');
-  renderSecao(text, 'PONTOS FRACOS', 'secRiscos', 'RISCOS');
-  renderSecao(text, 'SÚMULAS', 'secSumulas', 'JURISPRUDÊNCIA');
-  renderSecao(text, 'ESTRATÉGIA', 'secEstrategia', 'PRÓXIMOS PASSOS');
+  renderSecao(text, 'ESTRATÉGIA OFENSIVA', 'secFortes', 'PONTOS FORTES');
+  renderSecao(text, 'PROBABILIDADE DE ÊXITO', 'secRiscos', 'RISCOS');
+  renderSecao(text, 'SÚMULAS E FUNDAMENTAÇÃO', 'secSumulas', 'JURISPRUDÊNCIA');
+  renderSecao(text, 'PLANO DE EXECUÇÃO', 'secEstrategia', 'PRÓXIMOS PASSOS');
 
   // Painel de súmulas
   const sumulasUsadas = analysisData?.sumulasUsadas || [];
@@ -2674,14 +2672,6 @@ function copyPrompt(){
     document.getElementById('btnCopy').textContent='✓ COPIADO!';
     setTimeout(()=>{ document.getElementById('btnCopy').innerHTML='📋 COPIAR PROMPT COMPLETO'; },3000);
   });
-}
-
-// ── CALCULADORA DE PRAZOS ──────────────────────────────────────────────────────
-function maskData(el){
-  let v=el.value.replace(/\D/g,'');
-  if(v.length>=3) v=v.substring(0,2)+'/'+v.substring(2);
-  if(v.length>=6) v=v.substring(0,5)+'/'+v.substring(5,9);
-  el.value=v;
 }
 
 // ── RESET ──────────────────────────────────────────────────────────────────────
