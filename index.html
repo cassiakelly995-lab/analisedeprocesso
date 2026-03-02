@@ -1538,9 +1538,9 @@ function validarAntiAlucinacao(texto, sumulasAutorizadas){
 
 // ── CACHE DE ANÁLISE ──────────────────────────────────────────────────────────
 function cacheKey(d, mode){
-  const base = mode==='upload' ?
-    extractedContent.substring(0,200) :
-    [d.area,d.tipo,d.pedidos,d.fatos?.substring(0,100)].join('|');
+  const base = mode==='upload'
+    ? [extractedContent.substring(0,200), d.cliente, d.extraContext].join('|')
+    : [d.area, d.tipo, d.pedidos, d.fatos?.substring(0,100), d.extraContext].join('|');
   return 'v9cache_'+btoa(encodeURIComponent(base+d.tom).replace(/%../g, c => String.fromCharCode(parseInt(c.slice(1),16)))).substring(0,40);
 }
 function cacheGet(key){ try{ const c=localStorage.getItem(key); if(!c) return null; const p=JSON.parse(c); if(Date.now()-p.ts>3600000*4) return null; return p.text; }catch(e){ return null; } }
