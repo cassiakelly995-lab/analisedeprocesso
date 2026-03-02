@@ -246,7 +246,6 @@ textarea{resize:vertical;min-height:120px}
 .sec-confianca{display:inline-flex;align-items:center;gap:4px;font-size:.5rem;letter-spacing:.08em;padding:2px 7px;border-radius:10px;text-transform:uppercase;font-weight:700;margin-left:8px;vertical-align:middle}
 .sec-confianca.alta{background:rgba(46,204,113,.15);color:var(--green);border:1px solid rgba(46,204,113,.3)}
 .sec-confianca.media{background:rgba(243,156,18,.15);color:var(--yellow);border:1px solid rgba(243,156,18,.3)}
-.sec-confianca.baixa{background:rgba(231,76,60,.15);color:var(--red);border:1px solid rgba(231,76,60,.3)}
 
 /* ── SEÇÕES RENDERIZADAS ── */
 .secao-bloco{margin-bottom:22px}
@@ -496,8 +495,6 @@ textarea{resize:vertical;min-height:120px}
       <div class="extracted-lbl">◈ Conteúdo Extraído</div>
       <div class="extracted-txt" id="extractedTxt"></div>
     </div>
-    <label style="margin-top:13px">Instruções Adicionais <small style="color:var(--muted)">(opcional)</small></label>
-    <textarea id="extraContext" style="min-height:65px" placeholder="Ex: Foque na cláusula de multa. Analise o risco para o credor..."></textarea>
   </div>
 
   <!-- MANUAL -->
@@ -558,6 +555,9 @@ textarea{resize:vertical;min-height:120px}
   </div>
 
   <!-- TOM -->
+  <label style="margin-top:16px">Instruções Adicionais <small style="color:var(--muted)">(opcional — visível em ambos os modos)</small></label>
+  <textarea id="extraContext" style="min-height:65px" placeholder="Ex: Foque na cláusula de multa. Analise o risco para o credor..."></textarea>
+
   <label style="margin-top:16px">Tom da Análise</label>
   <div class="tone-group">
     <button class="tone-btn active" data-tone="imparcial">Imparcial</button>
@@ -1493,7 +1493,7 @@ function extrairReferencias(texto){
   const refs = [];
   const patterns = [
     /S[úu]mula\s+(?:n[º°]?\s*)?(\d+)\s*(?:d[ao]?\s*)?(STF|STJ|TST|TNU|TRT\s*\d*)/gi,
-    /OJ\s+(?:n[º°]?\s*)?(\d+)\s+([A-Z\-]+(?:\s+[A-Z]+)*)/gi,
+    /OJ\s+(?:n[º°]?\s*)?(\d+)\s+([A-Z0-9\-]+(?:\s+[A-Z0-9\-]+)*)/gi,
   ];
   for(const pat of patterns){
     let m;
@@ -2047,12 +2047,12 @@ async function gemini(apiKey, messages, systemPrompt=''){
 let isRunning = false;
 async function executar(){
   if(isRunning) return;
-  isRunning = true;
   const apiKey = document.getElementById('apiKeyInput').value.trim();
   if(!apiKey||!apiKey.startsWith('AIza')){
     alert('🔑 Cole sua chave de API!\n\nObtenha grátis em aistudio.google.com → Get API Key');
     document.getElementById('apiKeyInput').focus(); return;
   }
+  if(currentMode==='upload'&&!extractedContent&&!extractedBase64){ alert('📎 Faça upload de um documento.'); return; }
   const d = {
     cliente:      document.getElementById('nomeCliente').value.trim(),
     processo:     document.getElementById('numProcesso').value.trim(),
@@ -2068,8 +2068,8 @@ async function executar(){
     extraContext: document.getElementById('extraContext').value.trim(),
     data:         new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'})
   };
-  if(currentMode==='upload'&&!extractedContent&&!extractedBase64){ alert('📎 Faça upload de um documento.'); return; }
   if(currentMode==='manual'){ if(!d.area){alert('Selecione a Área do Direito.');return;} if(d.fatos.length<80){alert('Descreva os fatos com pelo menos 80 caracteres.');return;} }
+  isRunning = true;
 
   showView('loading');
   document.getElementById('loadingCache').textContent='';
@@ -2090,7 +2090,12 @@ async function executar(){
           ]}]
         );
         if(txt){ extractedContent=txt; }
-      }catch(e){ console.warn('Extração falhou:',e.message); }
+      }catch(e){
+        console.warn('Extração falhou:',e.message);
+        // Avisa o usuário que o documento não pôde ser lido
+        const continuar = confirm('⚠️ Não foi possível extrair o texto do documento.\n\nDeseja continuar a análise sem o conteúdo do arquivo?\n(A IA só terá acesso aos dados preenchidos manualmente)');
+        if(!continuar){ clearInterval(iv); showView('form'); isRunning=false; return; }
+      }
     }
 
     // Verificar cache (economiza API)
@@ -2161,7 +2166,7 @@ function renderResult(d, text){
   showView('result');
 
   // Probabilidade
-  const m = text.match(/Probabilidade\s+Global[:\s*_]*(\d{1,3})\s*%/i)||text.match(/\*{0,2}(\d{1,3})\s*%\*{0,2}/);
+  const m = text.match(/Probabilidade\s+Global[:\s*_]*(\d{1,3})\s*%/i);
   const prob = m ? Math.min(97,Math.max(5,parseInt(m[1], 10))) : null;
   if(prob!==null){
     const cls = prob>=70?'high':prob>=40?'medium':'low';
@@ -2195,17 +2200,17 @@ function renderResult(d, text){
   const resumoMatch = text.match(/## (?:🎯\s*)?1\.\s*DIAGN[ÓO]STICO[\s\S]*?\n([\s\S]*?)(?=\n## (?:🔬\s*)?2\.)/i);
   const resumoTxt = resumoMatch ? resumoMatch[1].trim() : '';
   const itens = [
-    {label:'Cliente', val: d.cliente||'—'},
-    {label:'Processo', val: d.processo||'—'},
-    {label:'Área', val: d.area||'Documento'},
+    {label:'Cliente', val: escHtml(d.cliente||'—')},
+    {label:'Processo', val: escHtml(d.processo||'—')},
+    {label:'Área', val: escHtml(d.area||'Documento')},
     {label:'Probabilidade', val: prob!==null?prob+'%':'N/D'},
     {label:'Tom', val: d.tom||'imparcial'},
-    {label:'Data', val: d.data}
+    {label:'Data', val: escHtml(d.data)}
   ];
   let resumoHtml = '';
   itens.forEach(it=>{ resumoHtml+=`<div class="resumo-item"><div class="resumo-item-label">${it.label}</div><div class="resumo-item-val">${it.val}</div></div>`; });
   if(resumoTxt){
-    resumoHtml += `<div class="resumo-item" style="grid-column:1/-1"><div class="resumo-item-label">Resumo</div><div class="resumo-item-val" style="font-size:.78rem;font-weight:400;color:var(--muted)">${resumoTxt.replace(/\n/g,' ').substring(0,300)}</div></div>`;
+    resumoHtml += `<div class="resumo-item" style="grid-column:1/-1"><div class="resumo-item-label">Resumo</div><div class="resumo-item-val" style="font-size:.78rem;font-weight:400;color:var(--muted)">${escHtml(resumoTxt.replace(/\n/g,' ').substring(0,300))}</div></div>`;
   }
   document.getElementById('resumoItens').innerHTML = resumoHtml;
 
@@ -2604,7 +2609,7 @@ async function dlWord(){
     const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a'); a.href=url;
-    a.download=`V9Pro_${(d.cliente||d.tipo||d.area||'Analise').replace(/\s+/g,'_').replace(/[^\w_]/g,'')}_${d.data.replace(/\//g,'-')}.docx`;
+    a.download=`V9Pro_${(d.cliente||d.tipo||d.area||'Analise').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'_').replace(/[^\w_]/g,'')}_${d.data.replace(/\//g,'-')}.docx`;
     document.body.appendChild(a); a.click();
     setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1000);
     document.getElementById('dlStatus').textContent='✓ Word gerado com sucesso!';
@@ -2654,7 +2659,7 @@ async function dlPDF(){
     });
     const tot=doc.internal.getNumberOfPages();
     for(let i=2;i<=tot;i++){ doc.setPage(i); doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(...GR); doc.text(`Página ${i} de ${tot}  ·  V9 Pro  ·  ${d.data}`,pw/2,ph-6,{align:'center'}); }
-    doc.save(`V9Pro_${(d.cliente||d.tipo||d.area||'Analise').replace(/\s+/g,'_').replace(/[^\w_]/g,'')}_${d.data.replace(/\//g,'-')}.pdf`);
+    doc.save(`V9Pro_${(d.cliente||d.tipo||d.area||'Analise').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'_').replace(/[^\w_]/g,'')}_${d.data.replace(/\//g,'-')}.pdf`);
     document.getElementById('dlStatus').textContent='✓ PDF gerado com sucesso!';
   }catch(e){ document.getElementById('dlStatus').textContent='✗ Erro: '+e.message; }
   btn.disabled=false; btn.textContent='📕 Baixar PDF';
@@ -2692,6 +2697,18 @@ function reset(){
   document.getElementById('chatMessages').innerHTML='';
   document.getElementById('prazoResultado').style.display='none';
   document.getElementById('peticaoOutput').classList.remove('visible');
+  // Limpar todos os campos do formulário
+  ['nomeCliente','numProcesso','tipoAcao','autor','reu','pedidos','valorCausa','fatos','extraContext','prazoDataAto','prazoCustomDias'].forEach(id=>{
+    const el = document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('areaDir').selectedIndex = 0;
+  document.getElementById('tribunal').selectedIndex = 0;
+  document.getElementById('charsCount').textContent = '0';
+  document.getElementById('checklistArea').innerHTML = '';
+  document.getElementById('checklistTipo').selectedIndex = 0;
+  // Resetar tom para imparcial
+  document.querySelectorAll('.tone-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.tone-btn[data-tone="imparcial"]').classList.add('active');
   analysisData=null; chatHistory=[]; clearFile(null); setMode('upload');
   window.scrollTo({top:0,behavior:'smooth'});
 }
