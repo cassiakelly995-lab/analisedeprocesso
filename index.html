@@ -757,15 +757,14 @@ textarea{resize:vertical;min-height:120px}
     <div>
       <label>Tipo de Prazo</label>
       <select id="prazoTipo">
-        <option value="15">Contestação – 15 dias (Cível)</option>
-        <option value="30">Reclamação Trabalhista – 30 dias</option>
-        <option value="5">Embargos de Declaração – 5 dias</option>
-        <option value="15">Apelação – 15 dias</option>
-        <option value="8">Recurso Ordinário Trabalhista – 8 dias</option>
-        <option value="15">Agravo de Instrumento – 15 dias</option>
-        <option value="15">Recurso Especial/Extraordinário – 15 dias</option>
-        <option value="120">Mandado de Segurança – 120 dias</option>
-        <option value="2">Embargos de Declaração Trabalhista – 2 dias</option>
+        <option value="15">Contestação – 15 dias úteis (Cível, CPC art. 335)</option>
+        <option value="30">Reclamação Trabalhista – 30 dias úteis</option>
+        <option value="5">Embargos de Declaração – 5 dias úteis (Cível)</option>
+        <option value="15">Apelação – 15 dias úteis (CPC art. 1.003)</option>
+        <option value="8">Recurso Ordinário Trabalhista – 8 dias úteis (CLT art. 895)</option>
+        <option value="15">Agravo de Instrumento – 15 dias úteis (CPC art. 1.003)</option>
+        <option value="15">Recurso Especial/Extraordinário – 15 dias úteis (CPC art. 1.003)</option>
+        <option value="2">Embargos de Declaração Trabalhista – 2 dias úteis (CLT art. 897-A)</option>
         <option value="custom">Personalizado...</option>
       </select>
     </div>
@@ -776,7 +775,9 @@ textarea{resize:vertical;min-height:120px}
     <button class="btn-calc-prazo" onclick="calcularPrazo()">Calcular</button>
   </div>
   <div class="prazo-resultado" id="prazoResultado"></div>
-</div>
+  <div style="font-size:.58rem;color:var(--muted);margin-top:8px;background:rgba(243,156,18,.05);border:1px solid rgba(243,156,18,.15);border-radius:3px;padding:7px 10px">
+    ⚠ <strong style="color:var(--yellow)">Mandado de Segurança:</strong> O prazo decadencial de 120 dias (Lei 12.016/09, art. 23) é contado em dias <strong style="color:var(--yellow)">corridos</strong>, não úteis. Use "Personalizado" e conte manualmente, ou consulte o tribunal.
+  </div>
 
 <!-- CHECKLIST DE DOCUMENTOS -->
 <div class="card" id="checklistCard">
@@ -1561,7 +1562,7 @@ function cacheKey(d, mode){
   const base = mode==='upload' ?
     extractedContent.substring(0,200) :
     [d.area,d.tipo,d.pedidos,d.fatos?.substring(0,100)].join('|');
-  return 'v9cache_'+btoa(unescape(encodeURIComponent(base+d.tom))).substring(0,40);
+  return 'v9cache_'+btoa(encodeURIComponent(base+d.tom).replace(/%../g, c => String.fromCharCode(parseInt(c.slice(1),16)))).substring(0,40);
 }
 function cacheGet(key){ try{ const c=localStorage.getItem(key); if(!c) return null; const p=JSON.parse(c); if(Date.now()-p.ts>3600000*4) return null; return p.text; }catch(e){ return null; } }
 function cacheSet(key,text){ try{ localStorage.setItem(key,JSON.stringify({ts:Date.now(),text})); }catch(e){} }
@@ -2064,7 +2065,10 @@ async function gemini(apiKey, messages, systemPrompt=''){
 }
 
 // ── EXECUTAR ───────────────────────────────────────────────────────────────────
+let isRunning = false;
 async function executar(){
+  if(isRunning) return;
+  isRunning = true;
   const apiKey = document.getElementById('apiKeyInput').value.trim();
   if(!apiKey||!apiKey.startsWith('AIza')){
     alert('🔑 Cole sua chave de API!\n\nObtenha grátis em aistudio.google.com → Get API Key');
@@ -2155,9 +2159,11 @@ async function executar(){
 
     salvarHistorico(d, text);
     renderResult(d, text);
+    isRunning = false;
   }catch(e){
     clearInterval(iv);
     showView('form');
+    isRunning = false;
     alert('⚠ Erro:\n\n'+e.message);
   }
 }
@@ -2271,8 +2277,8 @@ function renderSecao(texto, palavraTitulo, elId, palavraAlt=''){
       if(!l) continue;
       if(l.startsWith('##')){
         const titulo = l.replace(/^#+\s*\d*\.?\s*/,'').replace(/\*\*/g,'').trim();
-        const conf = palavraTitulo.includes('FORTE')||palavraTitulo.includes('SÚMULA') ? 'alta' :
-                     palavraTitulo.includes('FRAC')||palavraTitulo.includes('RISCO') ? 'media' : 'alta';
+        const conf = palavraTitulo.includes('OFENSIVA')||palavraTitulo.includes('SÚMULAS') ? 'alta' :
+                     palavraTitulo.includes('PROBABILIDADE')||palavraTitulo.includes('RISCO') ? 'media' : 'alta';
         html += `<div class="secao-titulo">${titulo}<span class="sec-confianca ${conf}">${conf==='alta'?'✓ Alta':'⚠ Média'}</span></div>`;
       } else if(/^[-•✅❌⚠️]/.test(l)){
         const icone = l.startsWith('✅')?'✅':l.startsWith('❌')?'❌':l.startsWith('⚠')?'⚠️':'•';
@@ -2493,6 +2499,8 @@ function toggleHist(){
   overlay.classList.toggle('open',!aberto);
   if(!aberto) renderHistorico();
 }
+function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
 function renderHistorico(){
   const list=document.getElementById('histList');
   try{
@@ -2502,11 +2510,11 @@ function renderHistorico(){
       const cls=h.prob>=70?'high':h.prob>=40?'medium':'low';
       const probTxt=h.prob!==null?h.prob+'%':'N/D';
       return `<div class="hist-item" onclick="carregarHistorico(${h.id})">
-        <div class="hist-item-titulo">${h.cliente!=='—'?h.cliente+' — ':''} ${h.tipo}</div>
+        <div class="hist-item-titulo">${h.cliente!=='—'?escHtml(h.cliente)+' — ':''} ${escHtml(h.tipo)}</div>
         <div class="hist-item-meta">
-          <span>${h.data}</span>
+          <span>${escHtml(h.data)}</span>
           <span class="hist-item-prob ${cls}">${probTxt}</span>
-          ${h.fileName?`<span>📎 ${h.fileName.substring(0,20)}</span>`:''}
+          ${h.fileName?`<span>📎 ${escHtml(h.fileName.substring(0,20))}</span>`:''}
         </div>
       </div>`;
     }).join('');
