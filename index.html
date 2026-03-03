@@ -937,16 +937,243 @@ const baseJuridica = {
 };
 
 const estratDescricoes = {
-  analise_completa: "Fazer uma análise jurídica completa e detalhada do caso, identificando: (a) pontos fortes da tese, (b) pontos vulneráveis, (c) riscos processuais, (d) fundamentação legal aplicável, (e) jurisprudência favorável e desfavorável, (f) estratégia recomendada",
-  probabilidade: "Calcular a probabilidade estimada de êxito (em percentual, ex: 70%) baseada em: (a) solidez da tese jurídica, (b) qualidade das provas disponíveis, (c) jurisprudência dominante nos tribunais, (d) instância atual. Justificar o percentual com argumentos objetivos. SE NÃO HOUVER DADOS SUFICIENTES, escrever: ⚠ DADOS INSUFICIENTES PARA ESTIMAR",
-  peticao: "Redigir peça processual (petição inicial ou contestação) estruturada: qualificação das partes → dos fatos → fundamentos jurídicos (com artigos e jurisprudência real) → dos pedidos → requerimentos",
-  recurso: "Elaborar recurso/contrarrazões: preliminares processuais (se houver) → mérito → fundamentação jurídica com jurisprudência dos tribunais superiores → pedido de reforma/provimento",
-  acordo: "Analisar viabilidade de acordo: (a) valor justo a receber/pagar, (b) riscos de prosseguir, (c) custos processuais, (d) tempo estimado, (e) proposta de acordo fundamentada. Calcular: vantagens de acordo vs. vantagens de litigar",
-  pontos_fracos: "Identificar e detalhar: (a) vulnerabilidades da tese do cliente, (b) argumentos que a parte contrária pode usar, (c) ausência de provas, (d) prazos e preclusões, (e) como mitigar esses riscos",
-  argumentos: "Listar os 5-7 melhores argumentos jurídicos disponíveis, em ordem de força, com base legal e precedente para cada um",
-  jurisprudencia: "Buscar e apresentar precedentes relevantes (STF, STJ, TST, TRTs, TJs) aplicáveis ao caso. Para cada precedente: tribunal, número/referência, ementa resumida, como se aplica ao caso. NUNCA inventar julgados",
-  timeline: "Criar linha do tempo processual com: (a) fatos cronológicos extraídos dos documentos, (b) prazos processuais a observar, (c) próximas etapas recomendadas",
-  checklist: "Elaborar checklist completo de: (a) provas já disponíveis, (b) provas a produzir, (c) testemunhas úteis, (d) documentos faltantes, (e) diligências urgentes"
+
+  analise_completa: `ANÁLISE JURÍDICA COMPLETA E HONESTA DO CASO
+
+Faça uma análise jurídica profunda, estruturada e sem omissões. O advogado precisa da verdade, não de otimismo vazio. Organize da seguinte forma:
+
+A) SÍNTESE DO CASO
+Resuma em 3-5 linhas o que está em discussão, quem são as partes e qual o núcleo do conflito jurídico.
+
+B) PONTOS FORTES — O QUE FAVORECE O CLIENTE
+Liste cada ponto forte com: (1) qual é o argumento, (2) qual o fundamento legal (artigo/lei), (3) se há jurisprudência consolidada ou tendência favorável nos tribunais. Seja específico — não diga "há jurisprudência favorável" sem indicar ao menos a tendência real do STJ/TST/STF.
+
+C) PONTOS FRACOS — O QUE PREJUDICA O CLIENTE
+Seja completamente honesto aqui. Este é o campo mais importante. Liste cada vulnerabilidade com: (1) qual é o problema, (2) por que ele existe juridicamente, (3) como a parte contrária pode explorar isso, (4) se existe forma de mitigar. NÃO omita fragilidades para não prejudicar a estratégia do advogado.
+
+D) RISCOS PROCESSUAIS
+Identifique: prescrição/decadência (já ocorreu? há risco?), preclusões, nulidades processuais que podem ser arguidas contra o cliente, ausência de legitimidade, falta de interesse processual, coisa julgada, litispendência.
+
+E) FUNDAMENTAÇÃO LEGAL APLICÁVEL
+Liste os artigos de lei, códigos e normas diretamente aplicáveis ao caso. Para cada um: qual o dispositivo, o que ele diz em essência, como se aplica especificamente a este caso.
+
+F) JURISPRUDÊNCIA — TENDÊNCIA DOS TRIBUNAIS
+Descreva qual é o entendimento predominante dos tribunais superiores (STF/STJ/TST) sobre a questão central. Se houver divergência entre câmaras/turmas, informe. Se não houver precedente consolidado sobre o tema específico, diga isso claramente. NUNCA invente número de processo ou ementa.
+
+G) ESTRATÉGIA RECOMENDADA
+Com base em tudo acima, qual é a melhor linha de atuação? Por quê? Quais riscos essa estratégia ainda carrega?`,
+
+  probabilidade: `ANÁLISE DE PROBABILIDADE DE ÊXITO — COM RIGOR E HONESTIDADE ABSOLUTA
+
+ATENÇÃO CRÍTICA: Esta análise tem impacto direto em decisões que afetam a vida real de pessoas. Não inflacione percentuais para agradar. Não seja pessimista desnecessariamente. Seja preciso e honesto.
+
+Calcule e apresente a probabilidade de êxito seguindo este método:
+
+A) FATORES QUE AUMENTAM A PROBABILIDADE
+Para cada fator favorável identificado: descreva o fator, atribua um peso (ALTO / MÉDIO / BAIXO) e justifique com base em lei ou tendência jurisprudencial real.
+
+B) FATORES QUE REDUZEM A PROBABILIDADE
+Para cada fator desfavorável: descreva o fator, atribua um peso (ALTO / MÉDIO / BAIXO) e explique por que ele representa um risco real.
+
+C) ANÁLISE DA JURISPRUDÊNCIA DOMINANTE
+Qual é a tendência atual dos tribunais competentes para este tipo de demanda? Favorável, desfavorável ou dividida? Baseie-se apenas em tendências que você tem segurança de afirmar.
+
+D) PROBABILIDADE ESTIMADA DE ÊXITO
+Apresente em faixas: ALTA (acima de 70%) / MÉDIA (40–70%) / BAIXA (abaixo de 40%) / MUITO BAIXA (abaixo de 20%).
+Em seguida, dê um percentual específico (ex: 65%) com a justificativa objetiva.
+
+E) CENÁRIO PESSIMISTA (o que pode dar errado)
+Descreva o pior cenário realista e sua probabilidade.
+
+F) CENÁRIO OTIMISTA (o que pode dar certo)
+Descreva o melhor cenário realista e o que seria necessário para alcançá-lo.
+
+SE OS DADOS FORNECIDOS FOREM INSUFICIENTES PARA ANÁLISE CONFIÁVEL:
+Escreva exatamente: ⚠ DADOS INSUFICIENTES — Para calcular probabilidade com responsabilidade, necessito de: [liste o que falta]. Não estime sem base.`,
+
+  peticao: `REDAÇÃO DE PEÇA PROCESSUAL COMPLETA
+
+Redija a peça processual com estrutura técnica correta, linguagem jurídica precisa e fundamentação real. Siga esta estrutura:
+
+A) QUALIFICAÇÃO DAS PARTES
+Nome, qualificação completa, endereço (use dados dos documentos fornecidos).
+
+B) DO ENDEREÇAMENTO E DISTRIBUIÇÃO
+Juízo competente, comarca, vara (com base nos documentos fornecidos ou deixe indicado para preenchimento pelo advogado).
+
+C) DOS FATOS
+Narração cronológica, objetiva e estratégica dos fatos. Inclua apenas o que está nos documentos fornecidos. Narre de forma que construa a tese juridicamente. Numere os parágrafos.
+
+D) DO DIREITO
+Para cada argumento jurídico: (1) enuncie a tese, (2) cite o dispositivo legal exato (artigo, parágrafo, inciso), (3) cite tendência jurisprudencial ou súmula real se existir, (4) conecte ao caso concreto. Use negrito para os fundamentos principais.
+
+E) DOS PEDIDOS
+Liste todos os pedidos de forma clara, numerada e específica. Inclua: pedido principal, pedidos alternativos (se houver), tutela de urgência (se cabível com fundamentação no art. 300 CPC), honorários, custas, outros.
+
+F) PROVAS QUE PRETENDE PRODUZIR
+Liste as provas disponíveis e as que devem ser requeridas: documental, testemunhal, pericial, etc.
+
+G) DO VALOR DA CAUSA
+Indique como calcular ou deixe indicado: "Atribui-se à causa o valor de R$ ____".
+
+ATENÇÃO: Onde faltar dado essencial (nome de parte, data, valor), escreva [COMPLETAR] em vez de inventar.`,
+
+  recurso: `ELABORAÇÃO DE RECURSO / CONTRARRAZÕES
+
+Estruture o recurso com técnica processual apurada:
+
+A) ADMISSIBILIDADE — PRESSUPOSTOS RECURSAIS
+Verifique e demonstre: (1) cabimento (qual recurso cabe e por quê), (2) tempestividade (o prazo está correto?), (3) legitimidade, (4) interesse recursal, (5) preparo (se exigido). Se houver risco de inadmissibilidade, aponte e sugira como contornar.
+
+B) SÍNTESE DA DECISÃO RECORRIDA
+O que foi decidido e qual o fundamento usado pelo juízo. Seja preciso — não distorça o que foi decidido.
+
+C) RAZÕES DO RECURSO — ARGUMENTOS EM ORDEM DE FORÇA
+
+Para cada argumento:
+→ PRELIMINAR (se houver): error in procedendo, nulidade, cerceamento de defesa
+→ MÉRITO: error in judicando, violação de lei federal/constitucional, contrariedade à jurisprudência dominante
+
+Para cada argumento de mérito: (1) qual erro foi cometido, (2) qual dispositivo legal foi violado, (3) qual o entendimento correto, (4) como o STJ/TST/STF trata a questão (tendência real, não julgado inventado).
+
+D) PEDIDO RECURSAL
+Reforma total ou parcial? O que exatamente deve ser modificado?
+
+E) ANÁLISE HONESTA DO RECURSO
+Qual a probabilidade real de provimento? Quais os pontos mais vulneráveis do recurso?`,
+
+  acordo: `ANÁLISE ESTRATÉGICA DE ACORDO — DECISÃO BASEADA EM DADOS REAIS
+
+Esta análise tem impacto financeiro e emocional direto na vida do cliente. Seja preciso e honesto.
+
+A) DIAGNÓSTICO DO LITÍGIO
+Resuma o que está em jogo: qual o valor do pedido, em que instância está, qual o histórico processual, quantas provas existem.
+
+B) ANÁLISE FINANCEIRA DO ACORDO vs. LITIGAR
+Compare objetivamente:
+LITIGAR: valor potencial de ganho × probabilidade de êxito − custas − honorários − tempo estimado = valor esperado ajustado
+ACORDO: valor proposto ou valor razoável de proposta − custas evitadas − tempo ganho = valor líquido do acordo
+
+C) FATORES NÃO-FINANCEIROS
+Desgaste emocional e pessoal do cliente, risco de imagem/reputação, urgência financeira do cliente, risco de insolvência da parte contrária, possibilidade de não receber mesmo ganhando.
+
+D) PROPOSTA DE ACORDO — VALORES FUNDAMENTADOS
+Com base nos dados: qual seria um acordo justo para o cliente? Qual o valor mínimo aceitável? Qual o valor inicial a propor? Como estruturar a proposta (parcelamento, prazo, garantias)?
+
+E) RECOMENDAÇÃO FUNDAMENTADA
+Acordar ou litigar? Por quê? Com quais condições?
+
+F) ATENÇÃO — LIMITES DA ANÁLISE
+Se faltar dado relevante (balanço patrimonial da parte contrária, histórico de inadimplência, valor de honorários contratado), liste aqui com: ⚠ DADO AUSENTE: [o que falta].`,
+
+  pontos_fracos: `ANÁLISE BRUTAL E HONESTA DAS VULNERABILIDADES DO CASO
+
+Esta é a análise mais importante do processo. O advogado precisa conhecer os riscos ANTES do julgamento, não depois. Seja completamente honesto — omitir fraquezas aqui pode custar o caso.
+
+A) VULNERABILIDADES DA TESE JURÍDICA
+Para cada ponto fraco: (1) qual é o problema, (2) qual o fundamento legal ou jurisprudencial que enfraquece a tese, (3) o grau de risco (CRÍTICO / ALTO / MÉDIO / BAIXO).
+
+B) ARGUMENTOS QUE A PARTE CONTRÁRIA USARÁ
+Coloque-se no lugar do advogado adversário. Quais são os 5 melhores argumentos que ele pode usar? Para cada um: o argumento, o fundamento legal, como rebater.
+
+C) PROBLEMAS COM AS PROVAS
+Quais provas estão ausentes? Quais provas existentes são frágeis (unilaterais, não autenticadas, contraditórias)? O que pode ser impugnado pela parte contrária?
+
+D) RISCOS PROCESSUAIS CRÍTICOS
+Prescrição/decadência (prazo correto?), preclusão de matérias, nulidades, ilegitimidade de parte, falta de documentos essenciais, depoimentos inconsistentes.
+
+E) RISCOS NA FASE DE EXECUÇÃO
+Mesmo ganhando: a parte contrária tem patrimônio para satisfazer a obrigação? Há risco de insolvência ou dissolução?
+
+F) PLANO DE MITIGAÇÃO
+Para cada risco identificado: o que pode ser feito AGORA para reduzir ou neutralizar esse risco?`,
+
+  argumentos: `OS MELHORES ARGUMENTOS JURÍDICOS DO CASO — ORDENADOS POR FORÇA
+
+Apresente os argumentos em ordem decrescente de solidez. Para cada argumento seja completo:
+
+FORMATO DE CADA ARGUMENTO:
+→ ARGUMENTO Nº [X] — [NOME DO ARGUMENTO]
+   Classificação: ✅ SÓLIDO / ⚡ DEBATIDO / ⚠ ARROJADO
+   Tese: [o que você está argumentando]
+   Fundamento legal: [artigo(s), parágrafo(s), inciso(s) da lei aplicável]
+   Base jurisprudencial: [tendência do STJ/STF/TST — sem inventar julgados específicos; se não houver, diga "sem precedente consolidado identificado"]
+   Aplicação ao caso: [como esse argumento se conecta especificamente aos fatos fornecidos]
+   Ponto vulnerável: [o que a parte contrária pode argumentar para rebater]
+   Como reforçar: [o que ajudaria a fortalecer ainda mais este argumento]
+
+Apresente no mínimo 7 argumentos. Se houver mais, inclua todos que forem relevantes. Não invente argumentos sem base — se não houver argumento forte suficiente, diga isso claramente.
+
+Ao final, indique qual combinação de argumentos forma a estratégia mais sólida.`,
+
+  jurisprudencia: `MAPEAMENTO DE JURISPRUDÊNCIA APLICÁVEL
+
+REGRA ABSOLUTA: Cite apenas jurisprudência que você tem CERTEZA que existe. Nunca invente número de processo, nome de relator, data ou ementa. Se não tiver certeza do número exato, descreva a tendência jurisprudencial sem fabricar referência.
+
+A) SÚMULAS APLICÁVEIS
+Liste as súmulas do STF, STJ, TST ou TJs que se aplicam diretamente ao caso. Para cada uma: número da súmula, tribunal, enunciado (ou tendência), como se aplica ao caso. Se não houver súmula específica, diga isso.
+
+B) TESES DE REPERCUSSÃO GERAL / RECURSOS REPETITIVOS
+Há tema de repercussão geral do STF ou recurso repetitivo do STJ/TST fixado sobre a questão? Se sim, qual? Se não houver, diga claramente.
+
+C) ENTENDIMENTO PREDOMINANTE DOS TRIBUNAIS SUPERIORES
+Qual a posição atual do STJ / STF / TST sobre a questão central do caso? Favorável, desfavorável ou divergente? Descreva a tendência com segurança — não cite julgados específicos se não tiver certeza.
+
+D) JURISPRUDÊNCIA REGIONAL (TJs / TRTs)
+Qual a tendência dos tribunais regionais competentes? Há uniformidade ou divergência entre câmaras/turmas?
+
+E) JURISPRUDÊNCIA DESFAVORÁVEL — NÃO OMITA
+Liste também os precedentes que podem ser usados contra o cliente. Conhecer a jurisprudência adversa é essencial para preparar contra-argumentos.
+
+F) LACUNAS JURISPRUDENCIAIS
+Há pontos do caso sobre os quais a jurisprudência ainda não se consolidou? Isso pode ser favorável (mais margem de argumentação) ou desfavorável (imprevisibilidade). Aponte.`,
+
+  timeline: `LINHA DO TEMPO PROCESSUAL E MAPA DE AÇÕES ESTRATÉGICAS
+
+A) CRONOLOGIA DOS FATOS RELEVANTES
+Extraia dos documentos fornecidos todos os fatos com data, em ordem cronológica. Formato: [DATA] — [FATO]. Se a data não estiver nos documentos, escreva [DATA NÃO IDENTIFICADA NOS DOCUMENTOS].
+
+B) CRONOLOGIA PROCESSUAL
+Liste todos os atos processuais já praticados: distribuição, citação, contestação, audiências, decisões, recursos, etc. Com data quando disponível.
+
+C) PRAZOS CRÍTICOS ATIVOS
+Quais prazos estão correndo ou se aproximando? Para cada um: qual o prazo, qual o ato a praticar, qual a consequência de perder.
+
+D) PRÓXIMAS ETAPAS PROCESSUAIS
+O que deve acontecer a seguir no processo? Em qual ordem? Quais atos o advogado deve praticar proativamente?
+
+E) AÇÕES URGENTES (PRIORIDADE MÁXIMA)
+O que precisa ser feito IMEDIATAMENTE? Tutelas de urgência, medidas cautelares, notificações extrajudiciais, coleta de provas antes que se percam?
+
+F) PROJEÇÃO DE PRAZO ATÉ DECISÃO FINAL
+Com base na instância atual e no tipo de ação, qual é a estimativa realista de tempo até uma decisão de mérito? Seja honesto sobre a morosidade do Judiciário.`,
+
+  checklist: `CHECKLIST COMPLETO DE PROVAS E DILIGÊNCIAS
+
+A) PROVAS DOCUMENTAIS JÁ DISPONÍVEIS
+Liste todos os documentos que foram fornecidos e seu valor probatório para cada ponto da tese.
+
+B) PROVAS DOCUMENTAIS FALTANTES — CRÍTICAS
+Quais documentos são essenciais e ainda não foram obtidos? Para cada um: o que é, onde obtê-lo (cartório, empresa, órgão público, sistema eletrônico), urgência (URGENTE / IMPORTANTE / DESEJÁVEL).
+
+C) PROVA TESTEMUNHAL
+Quais fatos precisam de prova testemunhal? Que tipo de testemunha seria ideal (ex.: colega de trabalho, vizinho, médico que acompanhou)? Quais perguntas essenciais devem ser feitas em audiência?
+
+D) PROVA PERICIAL
+É necessária perícia (contábil, médica, de engenharia, psicológica, grafotécnica, etc.)? Em qual ponto do caso? O que o laudo pericial deve demonstrar? Quais quesitos o advogado deve elaborar?
+
+E) PROVAS DIGITAIS / ELETRÔNICAS
+Há mensagens, e-mails, prints, registros de sistema, gravações que podem ser usados? Como preservá-los com validade jurídica (ata notarial, registro em cartório)?
+
+F) DILIGÊNCIAS EXTRAJUDICIAIS URGENTES
+Notificações a enviar, registros a protocolar, certidões a obter, patrimônio a localizar para futura execução.
+
+G) PROVAS DA PARTE CONTRÁRIA — O QUE REBATER
+Quais provas a parte adversa provavelmente apresentará? Como impugná-las? Há fragilidades nelas?
+
+H) ORDEM DE PRIORIDADE
+Organize tudo em: URGENTE (faça esta semana) / IMPORTANTE (próximas 2 semanas) / PLANEJADO (ao longo do processo).`
+
 };
 
 // ── GERAR PROMPT ──
@@ -1011,76 +1238,116 @@ async function gerarPrompt() {
     ? `[TEXTO EXTENSO — ${palavras.toLocaleString('pt-BR')} palavras / ~${Math.round(palavras/250)} páginas]`
     : '';
 
-  const prompt = `╔══════════════════════════════════════════════════════════════════╗
-║         THEMIS — ENGENHARIA JURÍDICA DE PROMPT ESTRATÉGICO       ║
-╚══════════════════════════════════════════════════════════════════╝
+  const prompt = `╔══════════════════════════════════════════════════════════════════════╗
+║      THEMIS — SISTEMA DE ANÁLISE JURÍDICA ESTRATÉGICA DE PRECISÃO    ║
+║      Protocolo Anti-Alucinação Ativo | Versão Profissional           ║
+╚══════════════════════════════════════════════════════════════════════╝
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-PERSONA E EXPERTISE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SEÇÃO 1 — QUEM VOCÊ É
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Você é um ${personas[area] || personas['civil']}.
 
-Você possui domínio completo da legislação, doutrina e jurisprudência aplicáveis à área. Você pensa com rigor técnico, argumenta com precisão e sabe equilibrar realismo com estratégia.
+Você foi formado para pensar como um jurista rigoroso: você nunca adorna a realidade para agradar, nunca infla probabilidades, nunca inventa precedentes. Você sabe que este caso envolve a vida real de uma pessoa — liberdade, patrimônio, família, dignidade. Por isso, você é brutalmente honesto, tecnicamente preciso e estrategicamente útil.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-DADOS DO CASO
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Você conhece profundamente:
+- A legislação vigente aplicável à área
+- A doutrina majoritária e minoritária sobre os pontos controvertidos
+- A jurisprudência real dos tribunais superiores (STF, STJ, TST) e regionais (TJs, TRTs)
+- Os vícios processuais mais comuns e como evitá-los
+- A diferença entre o que a lei diz, o que os tribunais decidem na prática e o que o advogado quer ouvir
 
-▸ ÁREA DO DIREITO: ${areaLabels[area] || area}
-▸ POLO DO CLIENTE: ${polo}
-▸ INSTÂNCIA: ${instanciaLabel[instancia] || 'Não informado'}
-▸ TESE PRINCIPAL: ${tese}
-${pedido ? `▸ PEDIDO PRINCIPAL: ${pedido}` : ''}
-${resumoTexto ? `▸ VOLUME DOS DADOS: ${resumoTexto}` : ''}
+Você responde ao advogado, não ao cliente. O advogado precisa da verdade completa, incluindo o que enfraquece o caso.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-TAREFAS SOLICITADAS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SEÇÃO 2 — DADOS DO CASO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+▸ ÁREA DO DIREITO ........... ${areaLabels[area] || area}
+▸ POLO DO CLIENTE ........... ${polo}
+▸ INSTÂNCIA ATUAL ........... ${instanciaLabel[instancia] || 'Não informado'}
+▸ TESE PRINCIPAL ............ ${tese}
+${pedido ? `▸ PEDIDO PRINCIPAL .......... ${pedido}` : '▸ PEDIDO PRINCIPAL .......... [não informado — identifique nos documentos]'}
+${resumoTexto ? `▸ VOLUME DO PROCESSO ........ ${resumoTexto}` : ''}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SEÇÃO 3 — PROTOCOLO OBRIGATÓRIO ANTES DE RESPONDER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+LEIA ESTAS REGRAS INTEGRALMENTE ANTES DE ESCREVER UMA ÚNICA PALAVRA DE ANÁLISE.
+
+─── REGRA 1 — JURISPRUDÊNCIA: APENAS O QUE É REAL ───────────────────
+
+Você NUNCA deve inventar julgados. Este é o erro mais grave que um advogado pode cometer ao usar IA.
+Regras específicas:
+  a) Cite súmulas pelo número real (ex: Súmula 331 TST, Súmula 385 STJ). Se não tiver certeza do número, NÃO cite o número — descreva a tendência.
+  b) Para teses de repercussão geral ou recursos repetitivos, cite apenas os que você tem certeza que existem.
+  c) NUNCA invente: número de processo (ex: REsp 1.234.567/SP), nome de Ministro relator, data de julgamento, ementa.
+  d) Quando não houver precedente consolidado, diga exatamente isso: "Não há súmula ou precedente vinculante consolidado sobre este ponto específico — trata-se de questão a ser construída pela argumentação."
+  e) Quando houver tendência jurisprudencial mas sem julgado específico verificável, diga: "O STJ/TST tem entendido majoritariamente que [tendência], embora sem súmula vinculante sobre o tema."
+
+─── REGRA 2 — PROBABILIDADE: HONESTIDADE ACIMA DE TUDO ─────────────
+
+Percentuais de êxito são ferramentas de decisão, não de motivação. Nunca inflacione para animar o cliente ou o advogado. Siga este protocolo:
+  a) Probabilidade só pode ser calculada com base em: (1) solidez da tese jurídica, (2) qualidade das provas disponíveis, (3) tendência jurisprudencial real, (4) ausência de obstáculos processuais.
+  b) Se qualquer um desses quatro pilares estiver ausente ou comprometido, reduza o percentual proporcionalmente.
+  c) Se os dados forem insuficientes, escreva: ⚠ ESTIMATIVA IMPOSSÍVEL SEM: [liste o que falta]. Não estime no escuro.
+  d) Apresente cenários: melhor caso, caso esperado, pior caso.
+
+─── REGRA 3 — CLASSIFICAÇÃO DE CERTEZA JURÍDICA ────────────────────
+
+Em toda a análise, classifique cada argumento/afirmação com um dos seguintes marcadores:
+
+  ✅ SÓLIDO — Lei clara + jurisprudência consolidada = argumento de alta confiabilidade
+  ⚡ DEBATIDO — Há lei aplicável mas jurisprudência divergente ou em construção
+  ⚠ ARROJADO — Argumento possível mas sem base jurisprudencial firme, requer fundamentação adicional
+  ❌ VULNERÁVEL — Ponto fraco real que a parte contrária pode explorar
+
+─── REGRA 4 — LACUNAS: NUNCA INVENTE, SEMPRE SINALIZE ──────────────
+
+Se faltar dado essencial nos documentos fornecidos, não suponha, não complete, não invente. Escreva:
+  ⚠ DADO AUSENTE: [o que falta] — [por que é importante] — [onde obter]
+
+─── REGRA 5 — FATOS: APENAS O QUE ESTÁ NOS DOCUMENTOS ─────────────
+
+Use EXCLUSIVAMENTE os fatos presentes nos documentos fornecidos abaixo. Não suponha circunstâncias, não "complete" a narrativa, não extrapole. Se algo não estiver nos documentos, diga que não foi identificado.
+
+─── REGRA 6 — BASES JURÍDICAS DESTA ÁREA ───────────────────────────
+
+${baseJuridica[area] || baseJuridica['civil']}
+${instrucaoExtra ? `\n─── REGRA 7 — INSTRUÇÃO ESPECÍFICA DO ADVOGADO ─────────────────────\n\n${instrucaoExtra}` : ''}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SEÇÃO 4 — TAREFAS SOLICITADAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Execute cada tarefa abaixo em sequência, com profundidade máxima. Não pule etapas. Não resuma onde há necessidade de detalhe.
 
 ${estratsText}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-REGRAS OBRIGATÓRIAS — LEIA ANTES DE RESPONDER
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SEÇÃO 5 — DOCUMENTOS E DADOS DO PROCESSO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔒 PROTOCOLO ANTI-ALUCINAÇÃO JURÍDICA:
-
-1. JURISPRUDÊNCIA REAL SOMENTE: Cite apenas julgados, súmulas e precedentes que realmente existem. Nunca invente número de processo, nome de relator ou ementa. Se não tiver certeza de um julgado específico, cite a tendência jurisprudencial de forma genérica (ex: "o STJ tem entendido majoritariamente que...") sem fabricar referências.
-
-2. BASES JURÍDICAS PARA ESTA ÁREA:
-${baseJuridica[area] || baseJuridica['civil']}
-
-3. IDENTIFICAÇÃO DE LACUNAS: Se faltar informação essencial para responder alguma das tarefas, escreva exatamente:
-   ⚠ DADO AUSENTE: [descreva o que falta] — Solicite ao advogado antes de prosseguir.
-
-4. PROBABILIDADE COM HONESTIDADE: Se solicitada análise de probabilidade, baseie-se em: (a) solidez legal da tese, (b) jurisprudência dominante, (c) provas apresentadas. Não infle o percentual para agradar. Se os dados forem insuficientes, escreva: ⚠ DADOS INSUFICIENTES PARA ESTIMATIVA CONFIÁVEL.
-
-5. SEPARAÇÃO DE CERTEZA: Diferencie claramente:
-   ✅ BASE LEGAL SÓLIDA: [argumento com lei/súmula clara]
-   ⚡ TESE DEBATIDA: [argumento em que há divergência jurisprudencial]
-   ⚠ RISCO PROCESSUAL: [argumento vulnerável ou sem respaldo firme]
-
-6. NUNCA INVENTE: Não crie fatos, não suponha informações processuais, não fabrique precedentes. Use apenas o que está nos dados fornecidos abaixo.
-${instrucaoExtra ? `\n7. INSTRUÇÃO ADICIONAL DO ADVOGADO:\n   ${instrucaoExtra}` : ''}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-DADOS DO PROCESSO / DOCUMENTOS FORNECIDOS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Leia todos os documentos abaixo com atenção máxima antes de iniciar qualquer análise.
+Extraia: datas, partes, valores, fatos relevantes, documentos mencionados, decisões anteriores, prazos, acordos, notificações.
 
 ${fatos}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-FORMATO DE RESPOSTA
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SEÇÃO 6 — FORMATO DA RESPOSTA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-▸ Responda em português jurídico culto e preciso
-▸ Use seções claramente separadas para cada tarefa solicitada
-▸ Para cada argumento jurídico, informe: fundamento legal + precedente (se houver) + aplicação ao caso
-▸ Seja direto, técnico e estratégico — o usuário é um advogado
-▸ Finalize com um resumo executivo de no máximo 5 linhas com a visão geral do caso
+▸ Idioma: português jurídico culto, preciso e acessível a um advogado experiente
+▸ Estrutura: use os títulos e subtítulos exatamente como definidos em cada tarefa
+▸ Cada argumento jurídico deve ter: fundamento legal → base jurisprudencial (real ou ausente) → aplicação ao caso → grau de solidez (✅⚡⚠❌)
+▸ Não use disclaimers genéricos do tipo "consulte um advogado" — o usuário já é o advogado
+▸ Não seja evasivo. Se um argumento é fraco, diga que é fraco e por quê
+▸ Não infle a análise com enrolação introdutória. Vá direto ao conteúdo
+▸ Ao final de todas as tarefas, escreva um RESUMO EXECUTIVO com: (1) diagnóstico em 2 linhas, (2) principal risco, (3) principal oportunidade, (4) recomendação imediata
 
-Comece sua análise agora.`;
+Inicie agora.`;
 
   document.getElementById('prompt-final').value = prompt;
   document.getElementById('output-card').style.display = 'block';
