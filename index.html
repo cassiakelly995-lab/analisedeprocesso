@@ -497,6 +497,68 @@ textarea { resize: vertical; min-height: 140px; line-height: 1.6; }
 /* BLINK */
 .blink { animation: blink 1.2s step-end infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* IA SELECTOR */
+.ia-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:18px; }
+@media(max-width:600px){.ia-grid{grid-template-columns:repeat(2,1fr);}}
+.ia-card { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:14px 12px; cursor:pointer; transition:0.2s; text-align:center; }
+.ia-card:hover { border-color:var(--gold); }
+.ia-card.active { border-color:var(--gold); background:rgba(185,150,63,0.08); box-shadow:0 0 18px rgba(185,150,63,0.12); }
+.ia-logo { font-size:22px; margin-bottom:4px; }
+.ia-nome { font-size:13px; font-weight:800; letter-spacing:1px; }
+.ia-modelo { font-size:9px; color:var(--muted); letter-spacing:1px; margin-top:2px; }
+.ia-limit { font-family:"DM Mono",monospace; font-size:10px; color:var(--gold2); margin-top:6px; font-weight:500; }
+.ia-badge { display:inline-block; margin-top:7px; font-size:7.5px; font-weight:900; letter-spacing:0.8px; text-transform:uppercase; padding:3px 7px; border-radius:3px; }
+.ia-badge.best { background:rgba(95,175,122,0.15); color:#5faf7a; border:1px solid rgba(95,175,122,0.3); }
+.ia-badge.mid  { background:rgba(217,162,74,0.15); color:var(--warn); border:1px solid rgba(217,162,74,0.3); }
+.ia-badge.low  { background:rgba(217,95,95,0.12); color:var(--danger); border:1px solid rgba(217,95,95,0.25); }
+.ia-status-box { border-radius:8px; padding:16px 18px; margin-bottom:14px; border:1px solid; }
+.ia-status-box.ok   { background:rgba(95,175,122,0.07); border-color:rgba(95,175,122,0.3); }
+.ia-status-box.warn { background:rgba(217,162,74,0.07); border-color:rgba(217,162,74,0.3); }
+.ia-status-box.err  { background:rgba(217,95,95,0.07);  border-color:rgba(217,95,95,0.3); }
+.ia-status-header { font-size:12px; font-weight:800; letter-spacing:1px; margin-bottom:6px; }
+.ia-status-body   { font-size:11.5px; line-height:1.7; color:rgba(232,224,208,0.75); }
+.ia-status-tip    { font-size:10.5px; margin-top:8px; color:var(--gold); font-weight:600; }
+.ia-tip-box { background:rgba(185,150,63,0.05); border:1px solid var(--border); border-radius:8px; padding:14px 18px; }
+.ia-tip-title { font-size:11px; font-weight:700; color:var(--gold); margin-bottom:6px; }
+.ia-tip-content { font-size:12px; color:rgba(232,224,208,0.7); line-height:1.7; }
+
+/* ── SCANNER FORENSE ── */
+.scanner-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; margin-bottom:20px; overflow:hidden; }
+.scanner-header { padding:20px 28px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
+.scanner-body { padding:24px 28px; }
+.scanner-idle { text-align:center; padding:30px 0; color:var(--muted); font-size:13px; }
+.scanner-idle-icon { font-size:36px; margin-bottom:10px; }
+.scanner-running { display:none; text-align:center; padding:30px 0; }
+.scanner-spin { font-size:30px; animation:spin 1s linear infinite; display:inline-block; margin-bottom:10px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.scanner-progress-wrap { width:100%; background:rgba(255,255,255,0.05); border-radius:4px; height:4px; overflow:hidden; margin:12px auto 8px; max-width:300px; }
+.scanner-progress-fill { height:100%; background:var(--gold-grad); transition:width 0.3s; }
+.scanner-progress-msg { font-size:10px; color:var(--gold); letter-spacing:2px; font-family:"DM Mono",monospace; }
+.scanner-results { display:none; }
+.scan-section { margin-bottom:20px; }
+.scan-section-title { font-size:9px; font-weight:900; letter-spacing:3px; text-transform:uppercase; color:var(--muted); margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid var(--border); }
+.scan-items { display:flex; flex-direction:column; gap:6px; }
+.scan-item { display:flex; align-items:flex-start; gap:10px; padding:10px 14px; border-radius:6px; border:1px solid; font-size:12px; line-height:1.6; }
+.scan-item.found   { background:rgba(95,175,122,0.07);  border-color:rgba(95,175,122,0.25); }
+.scan-item.warn    { background:rgba(217,162,74,0.07);  border-color:rgba(217,162,74,0.25); }
+.scan-item.danger  { background:rgba(217,95,95,0.08);   border-color:rgba(217,95,95,0.3);  }
+.scan-item.missing { background:rgba(150,150,150,0.05); border-color:rgba(150,150,150,0.2);}
+.scan-icon { flex-shrink:0; font-size:14px; margin-top:1px; }
+.scan-label { font-weight:700; color:var(--text); }
+.scan-val   { color:rgba(232,224,208,0.7); margin-left:4px; }
+.scan-summary { display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+.scan-sum-box { flex:1; min-width:100px; background:var(--surface2); border-radius:8px; padding:12px 16px; text-align:center; border:1px solid var(--border); }
+.scan-sum-num { font-family:"DM Mono",monospace; font-size:24px; font-weight:500; }
+.scan-sum-lbl { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-top:4px; }
+.scan-sum-box.c-ok   .scan-sum-num { color:#5faf7a; }
+.scan-sum-box.c-warn .scan-sum-num { color:var(--warn); }
+.scan-sum-box.c-err  .scan-sum-num { color:var(--danger); }
+.scan-sum-box.c-miss .scan-sum-num { color:var(--muted); }
+.btn-scan { width:100%; background:transparent; color:var(--gold); border:1px solid var(--border-bright); padding:16px; border-radius:6px; font-family:"DM Sans",sans-serif; font-weight:900; font-size:12px; letter-spacing:3px; text-transform:uppercase; cursor:pointer; transition:0.2s; display:flex; align-items:center; justify-content:center; gap:10px; }
+.btn-scan:hover { background:rgba(185,150,63,0.08); border-color:var(--gold); }
+.scanner-alert-top { display:none; background:rgba(217,95,95,0.08); border:1px solid rgba(217,95,95,0.3); border-radius:8px; padding:14px 18px; margin-bottom:16px; font-size:12px; line-height:1.7; color:rgba(232,224,208,0.8); }
+.scanner-alert-top strong { color:#e08080; }
 </style>
 </head>
 <body>
@@ -648,10 +710,101 @@ textarea { resize: vertical; min-height: 140px; line-height: 1.6; }
     </div>
   </div>
 
-  <!-- MÉTRICAS -->
+  <!-- PASSO 4: DESTINO DA IA -->
   <div class="card">
     <div class="card-header">
       <div class="step-num">4</div>
+      <div><div class="card-title">Escolha a IA de Destino</div></div>
+    </div>
+    <div class="card-body">
+      <label>Onde você vai colar este prompt?</label>
+      <div class="ia-grid" id="ia-grid">
+        <div class="ia-card active" data-ia="claude" onclick="selecionarIA(this)">
+          <div class="ia-logo">🟠</div>
+          <div class="ia-nome">Claude</div>
+          <div class="ia-modelo">Sonnet / Opus</div>
+          <div class="ia-limit">~680.000 palavras</div>
+          <div class="ia-badge best">MELHOR PARA LONGOS</div>
+        </div>
+        <div class="ia-card" data-ia="gemini" onclick="selecionarIA(this)">
+          <div class="ia-logo">🔵</div>
+          <div class="ia-nome">Gemini</div>
+          <div class="ia-modelo">1.5 / 2.0 Pro</div>
+          <div class="ia-limit">~750.000 palavras</div>
+          <div class="ia-badge best">MAIOR JANELA</div>
+        </div>
+        <div class="ia-card" data-ia="gpt4o" onclick="selecionarIA(this)">
+          <div class="ia-logo">🟢</div>
+          <div class="ia-nome">ChatGPT</div>
+          <div class="ia-modelo">GPT-4o</div>
+          <div class="ia-limit">~96.000 palavras</div>
+          <div class="ia-badge mid">CONTEXTO MÉDIO</div>
+        </div>
+        <div class="ia-card" data-ia="gpto1" onclick="selecionarIA(this)">
+          <div class="ia-logo">🟢</div>
+          <div class="ia-nome">ChatGPT</div>
+          <div class="ia-modelo">o1 / o3</div>
+          <div class="ia-limit">~96.000 palavras</div>
+          <div class="ia-badge mid">RACIOCÍNIO PROFUNDO</div>
+        </div>
+        <div class="ia-card" data-ia="copilot" onclick="selecionarIA(this)">
+          <div class="ia-logo">🔷</div>
+          <div class="ia-nome">Copilot</div>
+          <div class="ia-modelo">Microsoft 365</div>
+          <div class="ia-limit">~30.000 palavras</div>
+          <div class="ia-badge low">CONTEXTO LIMITADO</div>
+        </div>
+        <div class="ia-card" data-ia="perplexity" onclick="selecionarIA(this)">
+          <div class="ia-logo">🟣</div>
+          <div class="ia-nome">Perplexity</div>
+          <div class="ia-modelo">Pro Search</div>
+          <div class="ia-limit">~12.000 palavras</div>
+          <div class="ia-badge low">CONTEXTO BAIXO</div>
+        </div>
+      </div>
+      <div class="ia-status-box" id="ia-status-box" style="display:none;">
+        <div class="ia-status-header" id="ia-status-header"></div>
+        <div class="ia-status-body" id="ia-status-body"></div>
+        <div class="ia-status-tip" id="ia-status-tip"></div>
+      </div>
+      <div class="ia-tip-box" id="ia-tip-box">
+        <div class="ia-tip-title">💡 Como usar com <span id="ia-tip-nome">Claude</span>:</div>
+        <div class="ia-tip-content" id="ia-tip-content">Acesse claude.ai → Nova conversa → Cole o prompt gerado → Envie. O Claude aceita processos inteiros sem precisar dividir.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCANNER FORENSE -->
+  <div class="scanner-card" id="scanner-card">
+    <div class="card-header scanner-header">
+      <div class="step-num">5</div>
+      <div><div class="card-title">🔬 Scanner Forense do Processo</div></div>
+    </div>
+    <div class="scanner-body">
+      <div class="scanner-alert-top" id="scanner-alert-top"></div>
+      <div class="scanner-idle" id="scanner-idle">
+        <div class="scanner-idle-icon">🔬</div>
+        <div>Importe o PDF ou cole o texto do processo<br>e execute o scanner para detectar dados críticos automaticamente.</div>
+      </div>
+      <div class="scanner-running" id="scanner-running">
+        <div class="scanner-spin">⚙️</div>
+        <div style="font-size:12px;color:var(--gold);letter-spacing:2px;font-family:'DM Mono',monospace;" id="scanner-run-msg">Iniciando análise forense...</div>
+        <div class="scanner-progress-wrap"><div class="scanner-progress-fill" id="scanner-prog-fill" style="width:0%"></div></div>
+      </div>
+      <div class="scanner-results" id="scanner-results">
+        <div class="scan-summary" id="scan-summary"></div>
+        <div id="scan-sections"></div>
+      </div>
+      <button class="btn-scan" id="btn-scan" onclick="executarScanner()">
+        <span>🔬</span><span>EXECUTAR SCANNER FORENSE</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- MÉTRICAS -->
+  <div class="card">
+    <div class="card-header">
+      <div class="step-num">6</div>
       <div><div class="card-title">Diagnóstico do Prompt</div></div>
     </div>
     <div class="card-body">
@@ -1238,9 +1391,10 @@ async function gerarPrompt() {
     ? `[TEXTO EXTENSO — ${palavras.toLocaleString('pt-BR')} palavras / ~${Math.round(palavras/250)} páginas]`
     : '';
 
+  const iaNome = (iaConfigs[iaAtual] || iaConfigs['claude']).nome;
   const prompt = `╔══════════════════════════════════════════════════════════════════════╗
 ║      THEMIS — SISTEMA DE ANÁLISE JURÍDICA ESTRATÉGICA DE PRECISÃO    ║
-║      Protocolo Anti-Alucinação Ativo | Versão Profissional           ║
+║      Protocolo Anti-Alucinação Ativo | Otimizado para: ${iaNome.padEnd(20)}║
 ╚══════════════════════════════════════════════════════════════════════╝
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1400,6 +1554,540 @@ function novaAnalise() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
   toast('PRONTO PARA NOVA ANÁLISE!');
 }
+
+// ── IA SELECTOR ──
+const iaConfigs = {
+  claude:     { nome:'Claude',     limite:680000, link:'https://claude.ai',            instrucao:'Acesse claude.ai → Nova conversa → Cole o prompt gerado. Aceita processos inteiros sem dividir. Ideal para longas análises jurídicas.' },
+  gemini:     { nome:'Gemini',     limite:750000, link:'https://gemini.google.com',    instrucao:'Acesse gemini.google.com → Use Gemini 1.5 Pro ou 2.0 → Cole o prompt. Possui a maior janela de contexto disponível atualmente.' },
+  gpt4o:      { nome:'ChatGPT (GPT-4o)', limite:96000, link:'https://chat.openai.com', instrucao:'Acesse chat.openai.com → Selecione GPT-4o → Cole o prompt. Para processos longos, use o modo "Projects" ou divida em partes conforme orientado.' },
+  gpto1:      { nome:'ChatGPT (o1/o3)', limite:96000, link:'https://chat.openai.com', instrucao:'Acesse chat.openai.com → Selecione o1 ou o3 → Cole o prompt. Melhor para raciocínio jurídico complexo, mas mais lento. Ideal para análise de estratégia.' },
+  copilot:    { nome:'Copilot',    limite:30000,  link:'https://copilot.microsoft.com', instrucao:'Acesse copilot.microsoft.com ou use no Word/Teams → Cole o prompt. Contexto limitado: divida o processo em seções menores conforme orientado.' },
+  perplexity: { nome:'Perplexity', limite:12000,  link:'https://perplexity.ai',         instrucao:'Acesse perplexity.ai → Ative o Pro Search → Cole apenas a parte dos fatos + tese. Contexto muito limitado: use apenas com processos curtos.' }
+};
+
+let iaAtual = 'claude';
+
+function selecionarIA(el) {
+  document.querySelectorAll('.ia-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  iaAtual = el.dataset.ia;
+  const cfg = iaConfigs[iaAtual];
+  document.getElementById('ia-tip-nome').textContent = cfg.nome;
+  document.getElementById('ia-tip-content').textContent = cfg.instrucao;
+  verificarCompatibilidade();
+}
+
+function verificarCompatibilidade() {
+  const fatos = document.getElementById('fatos').value;
+  const palavras = fatos.trim().split(/\s+/).filter(p => p).length;
+  const cfg = iaConfigs[iaAtual];
+  const statusBox = document.getElementById('ia-status-box');
+  const header = document.getElementById('ia-status-header');
+  const body = document.getElementById('ia-status-body');
+  const tip = document.getElementById('ia-status-tip');
+
+  if (palavras < 100) { statusBox.style.display = 'none'; return; }
+
+  statusBox.style.display = 'block';
+  const pct = Math.round((palavras / cfg.limite) * 100);
+
+  if (pct <= 60) {
+    statusBox.className = 'ia-status-box ok';
+    header.style.color = '#5faf7a';
+    header.textContent = `✅ COMPATÍVEL COM ${cfg.nome.toUpperCase()} — ${palavras.toLocaleString('pt-BR')} palavras (${pct}% da capacidade)`;
+    body.textContent = 'O volume do processo está dentro do limite. Você pode enviar tudo de uma vez sem precisar dividir.';
+    tip.textContent = '';
+  } else if (pct <= 90) {
+    statusBox.className = 'ia-status-box warn';
+    header.style.color = '#d9a24a';
+    header.textContent = `⚡ ATENÇÃO — ${palavras.toLocaleString('pt-BR')} palavras (${pct}% da capacidade de ${cfg.nome})`;
+    body.textContent = `O processo está próximo do limite. Pode funcionar, mas há risco de corte. Recomendado: remova páginas de capa, índices, certidões de publicação e demais partes não essenciais para reduzir o volume.`;
+    tip.textContent = `💡 Dica: Para ${cfg.nome}, prefira enviar as partes mais relevantes primeiro (petição inicial, contestação, sentença, documentos principais).`;
+  } else {
+    statusBox.className = 'ia-status-box err';
+    header.style.color = '#d95f5f';
+    header.textContent = `❌ PROCESSO MUITO GRANDE PARA ${cfg.nome.toUpperCase()} — ${palavras.toLocaleString('pt-BR')} palavras (${pct}% da capacidade)`;
+
+    // Calcular quantas partes
+    const partes = Math.ceil(palavras / (cfg.limite * 0.6));
+    body.innerHTML = `Este processo excede a janela de contexto desta IA. Você precisa dividir em <strong>${partes} partes</strong> e enviar separadamente.<br><br>
+<strong>Como dividir corretamente:</strong><br>
+Parte 1: Petição inicial + documentos do autor<br>
+Parte 2: Contestação + documentos do réu<br>
+${partes >= 3 ? 'Parte 3: Decisões, sentença, acórdãos<br>' : ''}
+${partes >= 4 ? 'Parte 4: Demais documentos e anexos<br>' : ''}
+<br>Em cada parte, inclua sempre o contexto: "Este é o caso de [tese]. Esta é a PARTE ${partes > 2 ? 'X de Y' : ''}. Analise apenas os documentos desta seção e aguarde as demais partes antes de concluir."`;
+
+    tip.innerHTML = `💡 Alternativa: Use <strong>Claude</strong> ou <strong>Gemini</strong> que aceitam este processo inteiro de uma vez.`;
+  }
+}
+
+// Verificar ao mudar texto
+document.getElementById('fatos').addEventListener('input', verificarCompatibilidade);
+
+// ── SCANNER FORENSE REAL (por página, via Claude API) ──
+
+// Armazena páginas indexadas durante leitura do PDF
+let paginasIndexadas = []; // [{num, texto}]
+
+// Override do processarPDF para indexar por página
+async function processarPDF(file) {
+  const zone = document.getElementById('pdf-zone');
+  const progWrap = document.getElementById('pdf-prog-wrap');
+  const bar = document.getElementById('pdf-bar');
+  const msg = document.getElementById('pdf-msg');
+  const sub = document.getElementById('pdf-sub');
+
+  zone.classList.remove('loaded');
+  progWrap.style.display = 'block';
+  paginasIndexadas = [];
+  toast('📄 LENDO PDF...');
+
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const typedArray = new Uint8Array(arrayBuffer);
+    const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
+    const totalPages = pdf.numPages;
+    let fullText = '';
+
+    for (let i = 1; i <= totalPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      const pageText = content.items.map(s => s.str).join(' ');
+      fullText += pageText + '\n';
+      paginasIndexadas.push({ num: i, texto: pageText });
+
+      const pct = Math.round((i / totalPages) * 100);
+      bar.style.width = pct + '%';
+      msg.textContent = `Lendo página ${i} de ${totalPages}...`;
+      if (i % 10 === 0) await new Promise(r => setTimeout(r, 0));
+    }
+
+    textoProcesso = fullText;
+    document.getElementById('fatos').value = fullText;
+    zone.classList.add('loaded');
+    sub.textContent = `✅ ${totalPages} páginas importadas • ${(file.size/1024/1024).toFixed(1)} MB`;
+    msg.textContent = `✅ ${totalPages} páginas lidas com sucesso!`;
+    calcMetricas();
+    verificarCompatibilidade();
+    toast('✅ PDF IMPORTADO! Agora execute o Scanner Forense.');
+  } catch(err) {
+    console.error(err);
+    msg.textContent = '❌ Erro ao ler PDF. Verifique se não é escaneado.';
+    toast('❌ ERRO AO LER PDF');
+  }
+}
+
+// Quando texto é colado manualmente, cria páginas simuladas (~400 palavras/página)
+function indexarTextoCola(texto) {
+  paginasIndexadas = [];
+  const palavras = texto.split(/\s+/);
+  const POR_PAG = 400;
+  let pag = 1;
+  for (let i = 0; i < palavras.length; i += POR_PAG) {
+    paginasIndexadas.push({ num: pag++, texto: palavras.slice(i, i + POR_PAG).join(' ') });
+  }
+}
+
+document.getElementById('fatos').addEventListener('input', function() {
+  document.getElementById('fatos').style.borderColor = '';
+  indexarTextoCola(this.value);
+  verificarCompatibilidade();
+});
+
+async function executarScanner() {
+  const texto = document.getElementById('fatos').value.trim();
+  if (texto.length < 200) { toast('⚠ ADICIONE O TEXTO DO PROCESSO PRIMEIRO'); return; }
+
+  // Se texto foi colado (não PDF), indexa agora
+  if (paginasIndexadas.length === 0) indexarTextoCola(texto);
+
+  const area = document.getElementById('area').value || 'civil';
+  const tese = document.getElementById('tese').value.trim();
+  const totalPags = paginasIndexadas.length;
+
+  const idle    = document.getElementById('scanner-idle');
+  const running = document.getElementById('scanner-running');
+  const results = document.getElementById('scanner-results');
+  const msgEl   = document.getElementById('scanner-run-msg');
+  const progFill= document.getElementById('scanner-prog-fill');
+  const btnScan = document.getElementById('btn-scan');
+  const alertTop= document.getElementById('scanner-alert-top');
+
+  idle.style.display    = 'none';
+  running.style.display = 'block';
+  results.style.display = 'none';
+  btnScan.disabled = true;
+  alertTop.style.display = 'none';
+  document.getElementById('scan-summary').innerHTML = '';
+  document.getElementById('scan-sections').innerHTML = '';
+
+  // Constrói mapa página→texto para o prompt
+  // Para processos muito longos, usa amostra estratégica
+  let paginasParaAnalisar = paginasIndexadas;
+  let amostraAviso = '';
+  if (paginasIndexadas.length > 120) {
+    // Pega primeiras 30, últimas 30, e 60 do meio de forma espaçada
+    const primeiro = paginasIndexadas.slice(0, 30);
+    const ultimo   = paginasIndexadas.slice(-30);
+    const meio     = [];
+    const step = Math.floor((paginasIndexadas.length - 60) / 60);
+    for (let i = 30; i < paginasIndexadas.length - 30; i += step) meio.push(paginasIndexadas[i]);
+    paginasParaAnalisar = [...primeiro, ...meio, ...ultimo];
+    amostraAviso = `\n\n⚠ NOTA: Processo com ${paginasIndexadas.length} páginas. Foram analisadas ${paginasParaAnalisar.length} páginas estratégicas (início, meio e fim). Páginas não analisadas foram omitidas por limite de contexto — considere rodar em seções se necessário.`;
+  }
+
+  const mapaTexto = paginasParaAnalisar
+    .map(p => `[PÁGINA ${p.num}]\n${p.texto.substring(0, 1200)}`)
+    .join('\n\n---\n\n');
+
+  const areaLabels = {
+    civil:'Direito Civil', trabalhista:'Direito Trabalhista',
+    consumidor:'Direito do Consumidor', penal:'Direito Penal',
+    previdenciario:'Direito Previdenciário', tributario:'Direito Tributário',
+    empresarial:'Direito Empresarial', administrativo:'Direito Administrativo',
+    familia:'Direito de Família', imobiliario:'Direito Imobiliário'
+  };
+  const prazosArea = {
+    civil:'3 anos (art. 206 §3 CC)', trabalhista:'2 anos pós-rescisão (art. 7 XXIX CF)',
+    consumidor:'5 anos (art. 27 CDC)', previdenciario:'5 anos (Lei 8213/91 art.103)',
+    tributario:'5 anos (CTN art.168)', empresarial:'3 anos (CC)', administrativo:'5 anos (Dec.20910/32)',
+    familia:'não há prazo geral — varia por ação', imobiliario:'10 anos (usucapião)/15 anos (CC)',
+    penal:'varia por pena máxima (CP art.109)'
+  };
+
+  const hoje = new Date().toLocaleDateString('pt-BR');
+
+  const promptScanner = `Você é um perito forense jurídico de elite. Sua função é varrer o processo abaixo página por página e extrair TODAS as informações críticas com indicação EXATA de qual página cada dado foi encontrado.
+
+DADOS DO CASO:
+- Área: ${areaLabels[area] || area}
+- Tese informada pelo advogado: ${tese || 'não informada'}
+- Prazo prescricional desta área: ${prazosArea[area] || 'verificar'}
+- Data de hoje: ${hoje}
+- Total de páginas no processo: ${totalPags}
+${amostraAviso}
+
+INSTRUÇÕES OBRIGATÓRIAS:
+1. Para CADA item encontrado, indique OBRIGATORIAMENTE: "Página X" ou "Páginas X e Y"
+2. Se não encontrar um item, escreva explicitamente que não foi localizado
+3. NUNCA invente, suponha ou complete informações ausentes
+4. Se um dado aparecer em múltiplas páginas, cite todas
+5. Seja cirúrgico: cada achado deve ser específico, não genérico
+
+RETORNE UM JSON VÁLIDO com exatamente esta estrutura (sem texto fora do JSON):
+{
+  "partes": {
+    "autor": {"nome": "...", "cpf_cnpj": "...", "paginas": [1,2]},
+    "reu": {"nome": "...", "cpf_cnpj": "...", "paginas": [1]},
+    "advogado_autor": {"nome": "...", "oab": "...", "paginas": [1]},
+    "advogado_reu": {"nome": "...", "oab": "...", "paginas": [1]},
+    "juiz": {"nome": "...", "vara": "...", "paginas": [3]},
+    "comarca": "...",
+    "numero_processo": "..."
+  },
+  "datas_criticas": [
+    {"tipo": "Admissão/Início do contrato", "data": "dd/mm/aaaa", "paginas": [5], "observacao": "..."},
+    {"tipo": "Rescisão/Término", "data": "dd/mm/aaaa", "paginas": [8], "observacao": "..."},
+    {"tipo": "Citação", "data": "dd/mm/aaaa", "paginas": [12], "observacao": "..."},
+    {"tipo": "Contestação", "data": "dd/mm/aaaa", "paginas": [15], "observacao": "..."},
+    {"tipo": "Sentença", "data": "dd/mm/aaaa", "paginas": [40], "observacao": "..."},
+    {"tipo": "Publicação da sentença", "data": "dd/mm/aaaa", "paginas": [41], "observacao": "..."},
+    {"tipo": "Prazo recursal vence", "data": "dd/mm/aaaa", "paginas": [], "observacao": "Calculado a partir da publicação"}
+  ],
+  "valores": [
+    {"tipo": "Pedido principal", "valor": "R$ ...", "paginas": [3], "observacao": "..."},
+    {"tipo": "Condenação", "valor": "R$ ...", "paginas": [42], "observacao": "..."},
+    {"tipo": "Honorários fixados", "valor": "R$ ... ou X%", "paginas": [43], "observacao": "..."}
+  ],
+  "documentos": [
+    {"nome": "Contrato de Trabalho", "status": "juntado", "paginas": [6,7], "observacao": "..."},
+    {"nome": "CTPS", "status": "mencionado_nao_juntado", "paginas": [4], "observacao": "Mencionado na petição mas não localizado no processo"},
+    {"nome": "Laudo Médico", "status": "ausente", "paginas": [], "observacao": "Citado como prova mas não está nos autos"}
+  ],
+  "atos_processuais": [
+    {"ato": "Petição inicial", "data": "...", "paginas": [1,2,3], "status": "concluido"},
+    {"ato": "Citação", "data": "...", "paginas": [10], "status": "concluido"},
+    {"ato": "Contestação", "data": "...", "paginas": [15], "status": "concluido"},
+    {"ato": "Audiência de instrução", "data": "...", "paginas": [], "status": "pendente", "observacao": "Designada mas sem data confirmada nos autos"}
+  ],
+  "prescricao": {
+    "prazo_legal": "${prazosArea[area] || 'verificar'}",
+    "data_evento_principal": "dd/mm/aaaa",
+    "pagina_evento": 5,
+    "data_ajuizamento": "dd/mm/aaaa",
+    "pagina_ajuizamento": 1,
+    "dias_entre_evento_e_acao": 0,
+    "status": "dentro_prazo",
+    "analise": "Explicação detalhada sobre se houve prescrição, se está próxima ou se há risco.",
+    "observacao": "Se há interrupção/suspensão do prazo, citar a causa e a página."
+  },
+  "nulidades": [
+    {"tipo": "Citação por edital sem esgotamento de meios", "gravidade": "critica", "paginas": [11], "fundamento": "Art. 256 CPC — somente cabível quando frustradas as demais modalidades", "recomendacao": "Arguir nulidade absoluta — pode anular todo o processo a partir deste ato"},
+    {"tipo": "Cerceamento de defesa — prova indeferida", "gravidade": "alta", "paginas": [28], "fundamento": "Art. 5 LV CF — contraditório e ampla defesa", "recomendacao": "Arguir em recurso ou contrarrazões"}
+  ],
+  "contradicoes": [
+    {"descricao": "Data de rescisão na petição (p.3) diverge do TRCT juntado (p.9): diferença de 15 dias", "paginas_conflitantes": [3,9], "gravidade": "alta", "impacto": "Afeta cálculo de verbas rescisórias e prazo prescricional"},
+    {"descricao": "Valor do salário informado na inicial difere do holerite juntado", "paginas_conflitantes": [2,14], "gravidade": "alta", "impacto": "Compromete todos os cálculos trabalhistas"}
+  ],
+  "alertas_urgentes": [
+    {"alerta": "Prazo recursal vence em X dias", "paginas": [41], "urgencia": "maxima"},
+    {"alerta": "Documento essencial não juntado (CTPS)", "paginas": [], "urgencia": "alta"}
+  ],
+  "resumo_executivo": "Texto corrido de 5-8 linhas com o diagnóstico geral do processo: o que foi encontrado, principais riscos, o que está faltando e recomendações imediatas para o advogado.",
+  "qualidade_analise": {
+    "paginas_analisadas": ${paginasParaAnalisar.length},
+    "paginas_total": ${totalPags},
+    "confiabilidade": "alta/media/baixa",
+    "motivo_baixa_confiabilidade": "se aplicável"
+  }
+}
+
+PROCESSO PARA ANÁLISE:
+${mapaTexto}`;
+
+  // Chama Claude API
+  msgEl.textContent = 'Enviando para análise forense pela IA...';
+  progFill.style.width = '30%';
+
+  let dadosScanner = null;
+  let erroAPI = null;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
+        messages: [{ role: 'user', content: promptScanner }]
+      })
+    });
+    progFill.style.width = '75%';
+    msgEl.textContent = 'Processando resultado forense...';
+    const data = await resp.json();
+    const rawText = data.content?.map(b => b.text || '').join('') || '';
+    // Extract JSON
+    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      dadosScanner = JSON.parse(jsonMatch[0]);
+    } else {
+      erroAPI = 'Resposta não contém JSON válido: ' + rawText.substring(0, 200);
+    }
+  } catch(e) {
+    erroAPI = e.message;
+  }
+
+  progFill.style.width = '100%';
+  await new Promise(r => setTimeout(r, 400));
+  running.style.display = 'none';
+  results.style.display = 'block';
+  btnScan.disabled = false;
+  btnScan.innerHTML = '<span>🔄</span><span>RODAR SCANNER NOVAMENTE</span>';
+
+  if (erroAPI || !dadosScanner) {
+    document.getElementById('scan-sections').innerHTML = `
+      <div class="scan-item danger" style="padding:18px;">
+        <span class="scan-icon">❌</span>
+        <div>
+          <span class="scan-label">Erro na análise forense</span><br>
+          <span class="scan-val">${erroAPI || 'Resposta inválida da API'}</span><br><br>
+          <span class="scan-val" style="font-size:11px;">Verifique se o texto do processo foi carregado e tente novamente.</span>
+        </div>
+      </div>`;
+    document.getElementById('scan-summary').innerHTML = `<div class="scan-sum-box c-err"><div class="scan-sum-num">!</div><div class="scan-sum-lbl">Erro</div></div>`;
+    toast('❌ ERRO NO SCANNER');
+    return;
+  }
+
+  const d = dadosScanner;
+  let nOk = 0, nWarn = 0, nCrit = 0, nMiss = 0;
+  let sectionsHTML = '';
+
+  function pagTag(paginas) {
+    if (!paginas || paginas.length === 0) return '<span style="color:var(--muted);font-size:10px;">página não localizada</span>';
+    return paginas.map(p => `<span style="background:rgba(185,150,63,0.15);border:1px solid rgba(185,150,63,0.3);border-radius:3px;padding:1px 6px;font-size:9px;font-family:\'DM Mono\',monospace;color:var(--gold2);">p.${p}</span>`).join(' ');
+  }
+
+  // ─ RESUMO EXECUTIVO ─
+  if (d.resumo_executivo) {
+    sectionsHTML += `<div class="scan-section">
+      <div class="scan-section-title">📋 Resumo Executivo da Análise</div>
+      <div style="background:rgba(185,150,63,0.05);border:1px solid var(--border);border-radius:8px;padding:16px;font-size:13px;line-height:1.8;color:rgba(232,224,208,0.85);">${d.resumo_executivo}</div>
+    </div>`;
+  }
+
+  // ─ PARTES ─
+  if (d.partes) {
+    const p = d.partes;
+    let pHTML = '';
+    const campos = [
+      ['Autor/Reclamante', p.autor], ['Réu/Reclamado', p.reu],
+      ['Adv. do Autor', p.advogado_autor], ['Adv. do Réu', p.advogado_reu],
+      ['Juiz/Relator', p.juiz]
+    ];
+    for (const [label, val] of campos) {
+      if (val && val.nome && val.nome !== '...') {
+        nOk++;
+        const extra = val.oab ? ` | OAB: ${val.oab}` : val.vara ? ` | Vara: ${val.vara}` : val.cpf_cnpj ? ` | ${val.cpf_cnpj}` : '';
+        pHTML += `<div class="scan-item found"><span class="scan-icon">👤</span><div><span class="scan-label">${label}:</span> <span class="scan-val">${val.nome}${extra}</span> ${pagTag(val.paginas)}</div></div>`;
+      } else { nMiss++; pHTML += `<div class="scan-item missing"><span class="scan-icon">❓</span><div><span class="scan-label">${label}:</span> <span class="scan-val">não identificado nos documentos</span></div></div>`; }
+    }
+    if (p.numero_processo && p.numero_processo !== '...') {
+      pHTML += `<div class="scan-item found"><span class="scan-icon">📋</span><div><span class="scan-label">Nº do Processo:</span> <span class="scan-val">${p.numero_processo}</span></div></div>`;
+    }
+    if (p.comarca && p.comarca !== '...') {
+      pHTML += `<div class="scan-item found"><span class="scan-icon">🏛️</span><div><span class="scan-label">Comarca/Vara:</span> <span class="scan-val">${p.comarca}</span></div></div>`;
+    }
+    sectionsHTML += `<div class="scan-section"><div class="scan-section-title">👥 Partes e Juízo</div><div class="scan-items">${pHTML}</div></div>`;
+  }
+
+  // ─ DATAS CRÍTICAS ─
+  if (d.datas_criticas && d.datas_criticas.length > 0) {
+    let dHTML = '';
+    for (const dt of d.datas_criticas) {
+      if (!dt.data || dt.data === '...' || dt.data === 'dd/mm/aaaa') { nMiss++; continue; }
+      nOk++;
+      const obs = dt.observacao && dt.observacao !== '...' ? `<br><span style="font-size:10px;color:var(--muted);">${dt.observacao}</span>` : '';
+      dHTML += `<div class="scan-item found"><span class="scan-icon">📅</span><div><span class="scan-label">${dt.tipo}:</span> <span class="scan-val">${dt.data}</span> ${pagTag(dt.paginas)}${obs}</div></div>`;
+    }
+    if (!dHTML) dHTML = `<div class="scan-item missing"><span class="scan-icon">❓</span><div><span class="scan-label">Datas críticas não localizadas nos documentos</span></div></div>`;
+    sectionsHTML += `<div class="scan-section"><div class="scan-section-title">📅 Datas Críticas do Processo</div><div class="scan-items">${dHTML}</div></div>`;
+  }
+
+  // ─ VALORES ─
+  if (d.valores && d.valores.length > 0) {
+    let vHTML = '';
+    for (const v of d.valores) {
+      if (!v.valor || v.valor === 'R$ ...' || v.valor === '...') { nMiss++; continue; }
+      nOk++;
+      const obs = v.observacao && v.observacao !== '...' ? `<br><span style="font-size:10px;color:var(--muted);">${v.observacao}</span>` : '';
+      vHTML += `<div class="scan-item found"><span class="scan-icon">💰</span><div><span class="scan-label">${v.tipo}:</span> <span class="scan-val" style="color:var(--gold2);font-weight:700;">${v.valor}</span> ${pagTag(v.paginas)}${obs}</div></div>`;
+    }
+    if (!vHTML) vHTML = `<div class="scan-item missing"><span class="scan-icon">❓</span><div><span class="scan-label">Nenhum valor monetário identificado</span></div></div>`;
+    sectionsHTML += `<div class="scan-section"><div class="scan-section-title">💰 Valores Monetários</div><div class="scan-items">${vHTML}</div></div>`;
+  }
+
+  // ─ DOCUMENTOS ─
+  if (d.documentos && d.documentos.length > 0) {
+    let docHTML = '';
+    for (const doc of d.documentos) {
+      const cls = doc.status === 'juntado' ? 'found' : doc.status === 'mencionado_nao_juntado' ? 'warn' : 'danger';
+      const icon = doc.status === 'juntado' ? '✅' : doc.status === 'mencionado_nao_juntado' ? '⚡' : '🚨';
+      const statusLabel = doc.status === 'juntado' ? 'JUNTADO' : doc.status === 'mencionado_nao_juntado' ? 'MENCIONADO — NÃO JUNTADO' : 'AUSENTE';
+      if (cls === 'found') nOk++; else if (cls === 'warn') nWarn++; else nCrit++;
+      const obs = doc.observacao && doc.observacao !== '...' ? `<br><span style="font-size:10px;color:var(--muted);">${doc.observacao}</span>` : '';
+      docHTML += `<div class="scan-item ${cls}"><span class="scan-icon">${icon}</span><div><span class="scan-label">${doc.nome}</span> <span style="font-size:9px;letter-spacing:1px;font-weight:800;margin-left:4px;">[${statusLabel}]</span> ${pagTag(doc.paginas)}${obs}</div></div>`;
+    }
+    sectionsHTML += `<div class="scan-section"><div class="scan-section-title">📄 Documentos — Presentes e Ausentes</div><div class="scan-items">${docHTML}</div></div>`;
+  }
+
+  // ─ ATOS PROCESSUAIS ─
+  if (d.atos_processuais && d.atos_processuais.length > 0) {
+    let aHTML = '';
+    for (const ato of d.atos_processuais) {
+      const pend = ato.status === 'pendente' || ato.status === 'em_aberto';
+      const cls = pend ? 'warn' : 'found';
+      if (pend) nWarn++; else nOk++;
+      const obs = ato.observacao && ato.observacao !== '...' ? `<br><span style="font-size:10px;color:var(--muted);">${ato.observacao}</span>` : '';
+      const dataStr = ato.data && ato.data !== '...' ? ` — ${ato.data}` : '';
+      aHTML += `<div class="scan-item ${cls}"><span class="scan-icon">${pend ? '⏳' : '✅'}</span><div><span class="scan-label">${ato.ato}${dataStr}</span> ${pagTag(ato.paginas)}${obs}</div></div>`;
+    }
+    sectionsHTML += `<div class="scan-section"><div class="scan-section-title">⚖️ Atos Processuais</div><div class="scan-items">${aHTML}</div></div>`;
+  }
+
+  // ─ PRESCRIÇÃO ─
+  if (d.prescricao) {
+    const pr = d.prescricao;
+    const cls = pr.status === 'prescrito' ? 'danger' : pr.status === 'risco' ? 'warn' : 'found';
+    if (cls === 'danger') nCrit++; else if (cls === 'warn') nWarn++; else nOk++;
+    const icon = cls === 'danger' ? '🚨' : cls === 'warn' ? '⚡' : '✅';
+    const statusTexto = pr.status === 'prescrito' ? '🚨 POSSIVELMENTE PRESCRITO' : pr.status === 'risco' ? '⚡ PRÓXIMO DO PRAZO' : '✅ DENTRO DO PRAZO';
+    const pHTML = `<div class="scan-item ${cls}">
+      <span class="scan-icon">${icon}</span>
+      <div>
+        <span class="scan-label">${statusTexto}</span><br>
+        <span class="scan-val">Prazo legal: ${pr.prazo_legal}</span><br>
+        ${pr.data_evento_principal && pr.data_evento_principal !== '...' ? `<span class="scan-val">Evento principal: ${pr.data_evento_principal}</span> ${pagTag([pr.pagina_evento])}<br>` : ''}
+        ${pr.data_ajuizamento && pr.data_ajuizamento !== '...' ? `<span class="scan-val">Ajuizamento: ${pr.data_ajuizamento}</span> ${pagTag([pr.pagina_ajuizamento])}<br>` : ''}
+        <span style="font-size:10px;color:var(--muted);margin-top:4px;display:block;">${pr.analise || ''}</span>
+        ${pr.observacao && pr.observacao !== '...' ? `<span style="font-size:10px;color:var(--gold);margin-top:4px;display:block;">⚠ ${pr.observacao}</span>` : ''}
+      </div>
+    </div>`;
+    sectionsHTML += `<div class="scan-section"><div class="scan-section-title">⏳ Análise Prescricional</div><div class="scan-items">${pHTML}</div></div>`;
+  }
+
+  // ─ NULIDADES ─
+  if (d.nulidades && d.nulidades.length > 0) {
+    let nHTML = '';
+    for (const n of d.nulidades) {
+      const cls = n.gravidade === 'critica' ? 'danger' : n.gravidade === 'alta' ? 'warn' : 'found';
+      if (cls === 'danger') nCrit++; else nWarn++;
+      const icon = cls === 'danger' ? '🚨' : '⚡';
+      nHTML += `<div class="scan-item ${cls}"><span class="scan-icon">${icon}</span><div>
+        <span class="scan-label">${n.tipo}</span> ${pagTag(n.paginas)}<br>
+        <span style="font-size:10px;color:var(--muted);">Fundamento: ${n.fundamento || ''}</span><br>
+        <span style="font-size:10px;color:var(--gold);">→ ${n.recomendacao || ''}</span>
+      </div></div>`;
+    }
+    sectionsHTML += `<div class="scan-section"><div class="scan-section-title">⚠️ Nulidades Processuais Detectadas</div><div class="scan-items">${nHTML}</div></div>`;
+  }
+
+  // ─ CONTRADIÇÕES ─
+  if (d.contradicoes && d.contradicoes.length > 0) {
+    let cHTML = '';
+    for (const c of d.contradicoes) {
+      const cls = c.gravidade === 'critica' || c.gravidade === 'alta' ? 'danger' : 'warn';
+      if (cls === 'danger') nCrit++; else nWarn++;
+      cHTML += `<div class="scan-item ${cls}"><span class="scan-icon">🔍</span><div>
+        <span class="scan-label">${c.descricao}</span> ${pagTag(c.paginas_conflitantes)}<br>
+        <span style="font-size:10px;color:var(--muted);">Impacto: ${c.impacto || ''}</span>
+      </div></div>`;
+    }
+    sectionsHTML += `<div class="scan-section"><div class="scan-section-title">🔍 Contradições Detectadas</div><div class="scan-items">${cHTML}</div></div>`;
+  }
+
+  // ─ ALERTAS URGENTES ─
+  if (d.alertas_urgentes && d.alertas_urgentes.length > 0) {
+    let aHTML = '';
+    for (const al of d.alertas_urgentes) {
+      const cls = al.urgencia === 'maxima' ? 'danger' : 'warn';
+      if (cls === 'danger') nCrit++; else nWarn++;
+      aHTML += `<div class="scan-item ${cls}"><span class="scan-icon">${cls==='danger'?'🚨':'⚡'}</span><div><span class="scan-label">${al.alerta}</span> ${pagTag(al.paginas)}</div></div>`;
+    }
+    sectionsHTML += `<div class="scan-section"><div class="scan-section-title">🚨 Alertas Urgentes</div><div class="scan-items">${aHTML}</div></div>`;
+  }
+
+  // ─ QUALIDADE DA ANÁLISE ─
+  if (d.qualidade_analise) {
+    const q = d.qualidade_analise;
+    const corConf = q.confiabilidade === 'alta' ? 'var(--success)' : q.confiabilidade === 'media' ? 'var(--warn)' : 'var(--danger)';
+    sectionsHTML += `<div class="scan-section"><div class="scan-section-title">📊 Qualidade da Análise</div>
+      <div class="scan-item found"><span class="scan-icon">📊</span><div>
+        <span class="scan-label">Páginas analisadas: ${q.paginas_analisadas} de ${q.paginas_total}</span><br>
+        <span class="scan-val">Confiabilidade: <strong style="color:${corConf}">${(q.confiabilidade||'').toUpperCase()}</strong></span>
+        ${q.motivo_baixa_confiabilidade && q.motivo_baixa_confiabilidade !== 'se aplicável' ? `<br><span style="font-size:10px;color:var(--warn);">⚠ ${q.motivo_baixa_confiabilidade}</span>` : ''}
+      </div></div>
+    </div>`;
+  }
+
+  // ─ SUMMARY ─
+  document.getElementById('scan-summary').innerHTML = `
+    <div class="scan-sum-box c-ok"><div class="scan-sum-num">${nOk}</div><div class="scan-sum-lbl">Encontrados</div></div>
+    <div class="scan-sum-box c-warn"><div class="scan-sum-num">${nWarn}</div><div class="scan-sum-lbl">Alertas</div></div>
+    <div class="scan-sum-box c-err"><div class="scan-sum-num">${nCrit}</div><div class="scan-sum-lbl">Críticos</div></div>
+    <div class="scan-sum-box c-miss"><div class="scan-sum-num">${nMiss}</div><div class="scan-sum-lbl">Ausentes</div></div>`;
+
+  document.getElementById('scan-sections').innerHTML = sectionsHTML;
+
+  if (nCrit > 0) {
+    alertTop.style.display = 'block';
+    alertTop.innerHTML = `<strong>🚨 ${nCrit} PONTO(S) CRÍTICO(S) DETECTADO(S)</strong> — O scanner identificou questões de alto risco. Revise os itens marcados com 🚨 ANTES de prosseguir.`;
+  }
+
+  toast('✅ SCANNER FORENSE CONCLUÍDO!');
+}
+
 
 // ── LIMPAR ERROS ──
 ['area','polo','tese'].forEach(id => {
