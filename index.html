@@ -770,7 +770,7 @@ body { padding-bottom: 42px; }
   </div>
   <div style="display:flex;gap:8px;align-items:center;">
     <button onclick="carregarProcessoTeste()" style="background:rgba(217,162,74,0.1);border:1px solid rgba(217,162,74,0.3);color:var(--warn);padding:7px 14px;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">⚗ MODO TESTE</button>
-    <button onclick="window.abrirCalculadora()" style="background:rgba(95,175,122,0.12);border:1px solid rgba(95,175,122,0.35);color:#5faf7a;padding:7px 16px;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">📅 PRAZOS</button>
+    <button onclick="abrirCalculadora()" style="background:rgba(95,175,122,0.12);border:1px solid rgba(95,175,122,0.35);color:#5faf7a;padding:7px 16px;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">📅 PRAZOS</button>
     <div class="nav-tag">Edição Profissional</div>
   </div>
 </nav>
@@ -1911,7 +1911,7 @@ document.getElementById('fatos').addEventListener('input', function() { this.sty
 </div>
 </div>
 <script>
-(function(){
+
 var TR={TJSP:{n:"TJSP — São Paulo",u:"SP"},TJRJ:{n:"TJRJ — Rio de Janeiro",u:"RJ"},TJMG:{n:"TJMG — Minas Gerais",u:"MG"},TJRS:{n:"TJRS — Rio Grande do Sul",u:"RS"},TJPR:{n:"TJPR — Paraná",u:"PR"},TJSC:{n:"TJSC — Santa Catarina",u:"SC"},TJBA:{n:"TJBA — Bahia",u:"BA"},TJGO:{n:"TJGO — Goiás",u:"GO"},TJPE:{n:"TJPE — Pernambuco",u:"PE"},TJCE:{n:"TJCE — Ceará",u:"CE"},TJAM:{n:"TJAM — Amazonas",u:"AM"},TJPA:{n:"TJPA — Pará",u:"PA"},TJMT:{n:"TJMT — Mato Grosso",u:"MT"},TJMS:{n:"TJMS — Mato Grosso do Sul",u:"MS"},TJMA:{n:"TJMA — Maranhão",u:"MA"},TJES:{n:"TJES — Espírito Santo",u:"ES"},TJRN:{n:"TJRN — Rio Grande do Norte",u:"RN"},TJPB:{n:"TJPB — Paraíba",u:"PB"},TJAL:{n:"TJAL — Alagoas",u:"AL"},TJPI:{n:"TJPI — Piauí",u:"PI"},TJSE:{n:"TJSE — Sergipe",u:"SE"},TJRO:{n:"TJRO — Rondônia",u:"RO"},TJTO:{n:"TJTO — Tocantins",u:"TO"},TJAC:{n:"TJAC — Acre",u:"AC"},TJAP:{n:"TJAP — Amapá",u:"AP"},TJRR:{n:"TJRR — Roraima",u:"RR"},TJDFT:{n:"TJDFT — Distrito Federal",u:"DF"}};
 var CM={TJSP:["São Paulo (Capital)","Campinas","Santos","Ribeirão Preto","Sorocaba","São José dos Campos","Santo André","São Bernardo do Campo","Osasco","Guarulhos","Bauru","Jundiaí","Taubaté","Presidente Prudente","Barueri"],TJRJ:["Rio de Janeiro (Capital)","Niterói","Duque de Caxias","Nova Iguaçu","São Gonçalo","Campos dos Goytacazes","Petrópolis","Volta Redonda"],TJMG:["Belo Horizonte (Capital)","Uberlândia","Contagem","Juiz de Fora","Betim","Montes Claros","Uberaba","Governador Valadares"],TJRS:["Porto Alegre (Capital)","Caxias do Sul","Pelotas","Canoas","Santa Maria","Novo Hamburgo","São Leopoldo"],TJPR:["Curitiba (Capital)","Londrina","Maringá","Ponta Grossa","Cascavel","São José dos Pinhais","Foz do Iguaçu"],TJSC:["Florianópolis (Capital)","Joinville","Blumenau","São José","Chapecó","Criciúma","Itajaí"],TJBA:["Salvador (Capital)","Feira de Santana","Vitória da Conquista","Camaçari","Itabuna","Barreiras"],TJGO:["Goiânia (Capital)","Aparecida de Goiânia","Anápolis","Rio Verde","Jataí"],TJPE:["Recife (Capital)","Caruaru","Olinda","Petrolina","Garanhuns"],TJCE:["Fortaleza (Capital)","Caucaia","Juazeiro do Norte","Maracanaú","Sobral"],TJAM:["Manaus (Capital)","Parintins","Itacoatiara","Manacapuru"],TJPA:["Belém (Capital)","Ananindeua","Santarém","Marabá","Castanhal"],TJMT:["Cuiabá (Capital)","Várzea Grande","Rondonópolis","Sinop"],TJMS:["Campo Grande (Capital)","Dourados","Três Lagoas","Corumbá"],TJMA:["São Luís (Capital)","Imperatriz","Timon","Caxias"],TJES:["Vitória (Capital)","Serra","Vila Velha","Cariacica","Linhares"],TJRN:["Natal (Capital)","Mossoró","Parnamirim","Caicó"],TJPB:["João Pessoa (Capital)","Campina Grande","Patos","Sousa"],TJAL:["Maceió (Capital)","Arapiraca","Rio Largo","Penedo"],TJPI:["Teresina (Capital)","Parnaíba","Picos","Floriano"],TJSE:["Aracaju (Capital)","Lagarto","Itabaiana","Estância"],TJRO:["Porto Velho (Capital)","Ji-Paraná","Ariquemes","Vilhena"],TJTO:["Palmas (Capital)","Araguaína","Gurupi","Porto Nacional"],TJAC:["Rio Branco (Capital)","Cruzeiro do Sul","Sena Madureira"],TJAP:["Macapá (Capital)","Santana","Laranjal do Jari"],TJRR:["Boa Vista (Capital)","Rorainópolis","Caracaraí"],TJDFT:["Brasília (Capital)","Taguatinga","Ceilândia","Samambaia","Planaltina","Gama"]};
 var FN=["01-01","04-21","05-01","09-07","10-12","11-02","11-15","11-20","12-25"];
@@ -1960,7 +1960,7 @@ window.abrirCalculadora=function(){
   document.body.style.overflow='hidden';
 };
 window.fecharCalculadora=function(){document.getElementById('painel-calc').style.display='none';document.body.style.overflow='';};
-})();
+
 </script>
 </body>
 </html>
