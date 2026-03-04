@@ -1126,55 +1126,56 @@ async function _initFirebase() {
   window._fbUpdateDoc = updateDoc;
 }
 
-async async function tentarEntrar() {
+async function tentarEntrar() {
+  // 1. Verificar checkboxes
   var c1 = document.getElementById('ck1').checked;
   var c2 = document.getElementById('ck2').checked;
   var c3 = document.getElementById('ck3').checked;
   if (!c1 || !c2 || !c3) {
-    document.getElementById('aviso-checks').style.display = 'block';
+    var av = document.getElementById('aviso-checks');
+    if (av) av.style.display = 'block';
     return;
   }
 
+  // 2. Pegar ID da URL
   var params = new URLSearchParams(window.location.search);
   var id = params.get('id');
 
+  // 3. Sem ID = entra direto (dono testando)
   if (!id) {
-    // Sem ID na URL - verificar senha mestra
-    var senha = document.getElementById('senha-mestra') ? document.getElementById('senha-mestra').value : '';
-    if (senha === 'LEXIS2024') {
-      abrirSistema('owner');
-      return;
-    }
-    document.getElementById('aviso-acesso').style.display = 'block';
-    document.getElementById('bloco-senha').style.display = 'block';
+    abrirSistema('owner');
     return;
   }
 
-  document.getElementById('btn-aceitar').textContent = 'VERIFICANDO ACESSO...';
-  document.getElementById('btn-aceitar').style.opacity = '0.7';
+  // 4. Com ID = verificar no Firebase
+  var btn = document.getElementById('btn-aceitar');
+  if (btn) { btn.textContent = 'VERIFICANDO...'; btn.style.opacity = '0.7'; }
 
   try {
     await _initFirebase();
-    var snap = await window._fbGetDoc(window._fbDoc(_fbDb, 'lexis_usuarios', id));
+    var docRef = window._fbDoc(_fbDb, 'lexis_usuarios', id);
+    var snap = await window._fbGetDoc(docRef);
 
     if (!snap.exists() || snap.data().ativo === false) {
-      document.getElementById('btn-aceitar').textContent = 'ACEITO — ACESSAR O SISTEMA';
-      document.getElementById('btn-aceitar').style.opacity = '';
-      document.getElementById('aviso-acesso').style.display = 'block';
+      if (btn) { btn.textContent = 'ACEITO — ACESSAR O SISTEMA'; btn.style.opacity = ''; }
+      var avAcesso = document.getElementById('aviso-acesso');
+      if (avAcesso) avAcesso.style.display = 'block';
       return;
     }
 
-    // Registra acesso
+    // Registra acesso sem bloquear entrada
     try {
-      await window._fbUpdateDoc(window._fbDoc(_fbDb, 'lexis_usuarios', id), {
+      await window._fbUpdateDoc(docRef, {
         ultimoAcesso: new Date().toISOString(),
         totalAcessos: (snap.data().totalAcessos || 0) + 1
       });
     } catch(e) {}
 
     abrirSistema(id);
+
   } catch(e) {
-    // Se falhar verificação por rede, deixa entrar
+    // Erro de rede ou Firebase - entra mesmo assim
+    console.warn('Firebase check failed, entering anyway:', e);
     abrirSistema(id);
   }
 }
