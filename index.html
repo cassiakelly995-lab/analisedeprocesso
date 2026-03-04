@@ -1054,6 +1054,18 @@ body { padding-bottom: 42px; }
         </div>
       </div>
       <div class="anon-relatorio" id="anon-relatorio"></div>
+      <div id="api-key-box" style="margin-bottom:14px;">
+        <label style="display:block;font-size:9px;font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">
+          🔑 Chave API Anthropic (para Scanner Forense)
+        </label>
+        <input type="password" id="lexis-api-key"
+          placeholder="sk-ant-..."
+          oninput="window.LEXIS_API_KEY = this.value.trim()"
+          style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(185,150,63,0.3);border-radius:6px;padding:10px 14px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;box-sizing:border-box;">
+        <div style="font-size:10px;color:var(--muted);margin-top:5px;line-height:1.5;">
+          ⚠ A chave é usada apenas localmente, nunca armazenada. Obtenha em <a href="https://console.anthropic.com" target="_blank" style="color:var(--gold);">console.anthropic.com</a>
+        </div>
+      </div>
       <button class="btn-scan" id="btn-scan" onclick="executarScanner()">
         <span>🔬</span><span>EXECUTAR SCANNER FORENSE</span>
       </button>
@@ -1456,6 +1468,11 @@ function mostrarRelatorioAnon(rel) {
 async function executarScanner() {
   var texto = document.getElementById('fatos').value.trim();
   if (texto.length < 200) { toast('⚠ ADICIONE O TEXTO DO PROCESSO PRIMEIRO'); return; }
+  var apiKey = (window.LEXIS_API_KEY || '').trim();
+  if (!apiKey || !apiKey.startsWith('sk-ant-')) {
+    mostrarErro('Chave API necessária', 'Insira sua chave da Anthropic no campo acima do botão Scanner (começa com sk-ant-). Obtenha gratuitamente em console.anthropic.com', '', null);
+    return;
+  }
   if (paginasIndexadas.length === 0) indexarTextoCola(texto);
 
   var area = document.getElementById('area').value || 'civil';
@@ -1511,19 +1528,31 @@ async function executarScanner() {
 
   var dadosScanner = null, erroAPI = null;
   try {
-    // Chama proxy seguro — chave API nunca exposta no frontend
-    var PROXY_URL = window.LEXIS_PROXY_URL || '/api/anthropic';
-    var resp = await fetch(PROXY_URL, {
+    var resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ max_tokens: 4000, messages: [{ role: 'user', content: promptScanner }] })
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': window.LEXIS_API_KEY || '',
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 4000,
+        messages: [{ role: 'user', content: promptScanner }]
+      })
     });
     progFill.style.width = '75%';
     msgEl.textContent = 'Processando resultado...';
-    var data = await resp.json();
-    var rawText = (data.content||[]).map(function(b) { return b.text||''; }).join('');
-    var jsonMatch = rawText.match(/\{[\s\S]*\}/);
-    if (jsonMatch) { dadosScanner = JSON.parse(jsonMatch[0]); } else { erroAPI = 'JSON inválido: ' + rawText.substring(0,200); }
+    if (!resp.ok) {
+      var errBody = await resp.text();
+      erroAPI = 'API erro ' + resp.status + ': ' + errBody.substring(0,200);
+    } else {
+      var data = await resp.json();
+      var rawText = (data.content||[]).map(function(b) { return b.text||''; }).join('');
+      var jsonMatch = rawText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) { dadosScanner = JSON.parse(jsonMatch[0]); } else { erroAPI = 'JSON inválido: ' + rawText.substring(0,200); }
+    }
   } catch(e) { erroAPI = e.message; }
 
   progFill.style.width = '100%';
