@@ -770,7 +770,7 @@ body { padding-bottom: 42px; }
   </div>
   <div style="display:flex;gap:8px;align-items:center;">
     <button onclick="carregarProcessoTeste()" style="background:rgba(217,162,74,0.1);border:1px solid rgba(217,162,74,0.3);color:var(--warn);padding:7px 14px;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">⚗ MODO TESTE</button>
-    <button id="btn-prazos" style="background:rgba(95,175,122,0.12);border:1px solid rgba(95,175,122,0.35);color:#5faf7a;padding:7px 16px;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">📅 PRAZOS</button>
+    <button id="btn-prazos" onclick="window.abrirCalculadora ? window.abrirCalculadora() : (document.getElementById('painel-calc').style.display='block')" style="background:rgba(95,175,122,0.12);border:1px solid rgba(95,175,122,0.35);color:#5faf7a;padding:7px 16px;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">📅 PRAZOS</button>
     <div class="nav-tag">Edição Profissional</div>
   </div>
 </nav>
@@ -1924,8 +1924,8 @@ function util(d,u){return d.getDay()!==0&&d.getDay()!==6&&!fer(d,u);}
 function add(st,n,u){var d=new Date(st),c=0;while(c<n){d.setDate(d.getDate()+1);if(util(d,u))c++;}while(!util(d,u))d.setDate(d.getDate()+1);return d;}
 function fd(d){return(d.getDate()+'').padStart(2,'0')+'/'+(((d.getMonth()+1)+'')).padStart(2,'0')+'/'+d.getFullYear();}
 function wd(d){return["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"][d.getDay()];}
-window.calcComarcas=function(){var t=document.getElementById('calc-trib').value,s=document.getElementById('calc-com');s.innerHTML='';if(!t){s.innerHTML='<option>Selecione o tribunal...</option>';return;}(CM[t]||["Capital"]).forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v;s.appendChild(o);});};
-window.calcularPrazo=function(){
+function calcComarcas(){var t=document.getElementById('calc-trib').value,s=document.getElementById('calc-com');s.innerHTML='';if(!t){s.innerHTML='<option>Selecione o tribunal...</option>';return;}(CM[t]||["Capital"]).forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v;s.appendChild(o);});}
+function calcularPrazo(){
   var t=document.getElementById('calc-trib').value,co=document.getElementById('calc-com').value,tp=document.getElementById('calc-tipo').value,dv=document.getElementById('calc-data').value;
   if(!t||!dv){alert('Selecione o tribunal e a data da publicação.');return;}
   var u=TR[t].u,inf=PZ[tp],pp=dv.split('-'),pub=new Date(+pp[0],+pp[1]-1,+pp[2]);
@@ -1951,26 +1951,15 @@ window.calcularPrazo=function(){
     +'<button onclick="window.cpCalc()" style="width:100%;background:rgba(185,150,63,0.1);border:1px solid rgba(185,150,63,0.3);color:var(--gold);padding:10px;border-radius:5px;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">COPIAR RESULTADO</button>';
   window._cr=inf.nm+' — '+TR[t].n+' / '+co+'\nPublicação: '+fd(pub)+'\nInício: '+fd(ini)+'\nÚltimo dia: '+fd(fim)+' ('+wd(fim)+')\n'+ms+(fs.length?'\nFeriados: '+fs.join(', '):'')+' | '+inf.b;
   var r=document.getElementById('calc-resultado');r.innerHTML=h;r.style.display='block';r.scrollIntoView({behavior:'smooth',block:'nearest'});
-};
-window.cpCalc=function(){navigator.clipboard.writeText(window._cr||'').then(function(){toast('COPIADO!');}).catch(function(){toast('Erro');});};
-window.abrirCalculadora=function(){
+}
+function cpCalc(){navigator.clipboard.writeText(window._cr||'').then(function(){toast('COPIADO!');}).catch(function(){toast('Erro');});}
+function abrirCalculadora(){
   var s=document.getElementById('calc-trib');
   if(s.options.length<2){Object.keys(TR).sort().forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=TR[k].n;s.appendChild(o);});}
   document.getElementById('painel-calc').style.display='block';
   document.body.style.overflow='hidden';
 };
-window.fecharCalculadora=function(){document.getElementById('painel-calc').style.display='none';document.body.style.overflow='';};
-document.addEventListener('DOMContentLoaded', function() {
-  var btn = document.getElementById('btn-prazos');
-  if (btn) { btn.addEventListener('click', function() { window.abrirCalculadora(); }); }
-});
-// Also attach immediately in case DOM is already ready
-(function attachPrazos() {
-  var btn = document.getElementById('btn-prazos');
-  if (btn) { btn.addEventListener('click', function() { window.abrirCalculadora(); }); }
-  else { setTimeout(attachPrazos, 100); }
-})();
-
+function fecharCalculadora(){document.getElementById('painel-calc').style.display='none';document.body.style.overflow='';}
 
 </script>
 </body>
