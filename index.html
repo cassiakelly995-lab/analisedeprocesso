@@ -734,6 +734,12 @@ select#calc-trib, select#calc-com, select#calc-tipo {
       🚫 <strong>Acesso não autorizado.</strong><br>
       <span style="font-size:11px;color:rgba(232,224,208,0.5);">Este link é inválido, expirado ou foi revogado.<br>Entre em contato com o administrador para obter acesso.</span>
     </div>
+      <div id="bloco-senha" style="margin-top:12px;display:none;">
+        <div style="font-size:10px;color:rgba(232,224,208,0.5);margin-bottom:6px;text-align:center;">Acesso direto (proprietário)</div>
+        <input type="password" id="senha-mestra" placeholder="Senha de acesso" 
+          style="width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:6px;padding:10px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;box-sizing:border-box;"
+          onkeydown="if(event.key==='Enter') tentarEntrar()">
+      </div>
 
     <button id="btn-aceitar" onclick="tentarEntrar()" style="width:100%;padding:18px;background:linear-gradient(135deg,#8c6520,#c9973d,#f0c96b,#c9973d,#8c6520);color:#000;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-weight:900;font-size:13px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:filter 0.2s;">
       ACEITO — ACESSAR O SISTEMA
@@ -1133,7 +1139,14 @@ async async function tentarEntrar() {
   var id = params.get('id');
 
   if (!id) {
+    // Sem ID na URL - verificar senha mestra
+    var senha = document.getElementById('senha-mestra') ? document.getElementById('senha-mestra').value : '';
+    if (senha === 'LEXIS2024') {
+      abrirSistema('owner');
+      return;
+    }
     document.getElementById('aviso-acesso').style.display = 'block';
+    document.getElementById('bloco-senha').style.display = 'block';
     return;
   }
 
