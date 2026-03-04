@@ -769,7 +769,6 @@ body { padding-bottom: 42px; }
     </div>
   </div>
   <div style="display:flex;gap:8px;align-items:center;">
-    <button onclick="abrirCalculadora()" id="btn-calc" style="background:rgba(95,175,122,0.1);border:1px solid rgba(95,175,122,0.3);color:#5faf7a;padding:7px 14px;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">📅 PRAZOS</button>
     <button onclick="carregarProcessoTeste()" style="background:rgba(217,162,74,0.1);border:1px solid rgba(217,162,74,0.3);color:var(--warn);padding:7px 14px;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">⚗ MODO TESTE</button>
     <div class="nav-tag">Edição Profissional</div>
   </div>
@@ -1874,116 +1873,93 @@ document.getElementById('fatos').addEventListener('input', function() { this.sty
 
 </script>
 
-<!-- ═══ CALCULADORA DE PRAZOS ═══ -->
+
+<!-- CALCULADORA DE PRAZOS -->
 <div id="painel-calc" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:500;background:var(--bg);overflow-y:auto;">
-  <div style="max-width:800px;margin:0 auto;padding:32px 20px 80px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid var(--border);">
-      <div>
-        <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:900;background:var(--gold-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">📅 Calculadora de Prazos</div>
-        <div style="font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-top:2px;">Todos os TJs do Brasil • Feriados automáticos</div>
-      </div>
-      <button onclick="fecharCalculadora()" style="background:rgba(217,95,95,0.1);border:1px solid rgba(217,95,95,0.25);color:#d95f5f;padding:9px 18px;border-radius:5px;font-family:'DM Sans',sans-serif;font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">✕ FECHAR</button>
-    </div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;margin-bottom:20px;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
-        <div>
-          <label style="display:block;font-size:9px;font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">Tribunal</label>
-          <select id="calc-tribunal" onchange="atualizarComarcas()" style="width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:12px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;">
-            <option value="">Selecione o tribunal...</option>
-          </select>
-        </div>
-        <div>
-          <label style="display:block;font-size:9px;font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">Comarca</label>
-          <select id="calc-comarca" style="width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:12px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;">
-            <option value="">Selecione o tribunal primeiro...</option>
-          </select>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
-        <div>
-          <label style="display:block;font-size:9px;font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">Tipo de Prazo</label>
-          <select id="calc-tipo" style="width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:12px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;">
-            <option value="transito">Trânsito em Julgado (15 dias)</option>
-            <option value="apelacao">Recurso de Apelação (15 dias)</option>
-            <option value="embargos">Embargos de Declaração (5 dias)</option>
-            <option value="contrarrazoes">Contrarrazões (15 dias)</option>
-            <option value="contestacao">Prazo para Contestar (15 dias)</option>
-          </select>
-        </div>
-        <div>
-          <label style="display:block;font-size:9px;font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">Data da Publicação</label>
-          <input type="date" id="calc-data" style="width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:12px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;">
-        </div>
-      </div>
-      <button onclick="calcularPrazo()" style="width:100%;background:var(--gold-grad);color:#000;border:none;padding:15px;border-radius:6px;font-family:'DM Sans',sans-serif;font-weight:900;font-size:12px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;">⚡ CALCULAR PRAZO</button>
-    </div>
-    <div id="calc-resultado" style="display:none;"></div>
-    <div style="background:rgba(185,150,63,0.05);border:1px solid var(--border);border-radius:10px;padding:20px;margin-top:16px;">
-      <div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:10px;">ℹ️ Regras aplicadas</div>
-      <div style="font-size:11px;color:var(--muted);line-height:1.9;">
-        • Prazo começa no <strong style="color:var(--text);">dia seguinte à publicação</strong> (CPC art. 224)<br>
-        • Fins de semana e feriados nacionais são excluídos automaticamente<br>
-        • Feriados estaduais do tribunal selecionado são incluídos<br>
-        • Se o último dia cair em feriado, prorroga para o próximo dia útil<br>
-        • <strong style="color:var(--warn);">⚠ Sempre confirme com o site oficial do tribunal</strong>
-      </div>
-    </div>
-  </div>
+<div style="max-width:780px;margin:0 auto;padding:28px 16px 60px;">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:14px;border-bottom:1px solid var(--border);">
+<div><div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:var(--gold);">📅 Calculadora de Prazos</div><div style="font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-top:2px;">27 TJs • Feriados automáticos</div></div>
+<button onclick="fecharCalculadora()" style="background:rgba(217,95,95,0.1);border:1px solid rgba(217,95,95,0.25);color:#d95f5f;padding:8px 16px;border-radius:5px;font-family:'DM Sans',sans-serif;font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">✕ FECHAR</button>
 </div>
-
+<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:16px;">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+<div><label style="display:block;font-size:9px;font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">Tribunal</label>
+<select id="calc-trib" onchange="calcComarcas()" style="width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:11px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;"><option value="">Selecione...</option></select></div>
+<div><label style="display:block;font-size:9px;font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">Comarca</label>
+<select id="calc-com" style="width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:11px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;"><option value="">Selecione o tribunal...</option></select></div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+<div><label style="display:block;font-size:9px;font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">Tipo de Prazo</label>
+<select id="calc-tipo" style="width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:11px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;">
+<option value="transito">Trânsito em Julgado (15 dias)</option>
+<option value="apelacao">Recurso de Apelação (15 dias)</option>
+<option value="embargos">Embargos de Declaração (5 dias)</option>
+<option value="contrarrazoes">Contrarrazões (15 dias)</option>
+<option value="contestacao">Contestação (15 dias)</option>
+</select></div>
+<div><label style="display:block;font-size:9px;font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">Data da Publicação</label>
+<input type="date" id="calc-data" style="width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:11px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;"></div>
+</div>
+<button onclick="calcularPrazo()" style="width:100%;background:var(--gold-grad);color:#000;border:none;padding:14px;border-radius:6px;font-family:'DM Sans',sans-serif;font-weight:900;font-size:11px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;">⚡ CALCULAR PRAZO</button>
+</div>
+<div id="calc-resultado" style="display:none;"></div>
+<div style="background:rgba(185,150,63,0.05);border:1px solid var(--border);border-radius:8px;padding:16px;">
+<div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--gold);margin-bottom:8px;">REGRAS APLICADAS</div>
+<div style="font-size:11px;color:var(--muted);line-height:1.9;">• Prazo inicia no dia seguinte à publicação (CPC art. 224)<br>• Fins de semana e feriados nacionais são excluídos<br>• Feriados estaduais do tribunal são incluídos<br>• Se cair em dia não útil, prorroga ao próximo útil<br>• <strong style="color:var(--warn);">Confirme sempre no site oficial do tribunal</strong></div>
+</div>
+</div>
+</div>
 <script>
-var TRIB={TJSP:{n:"TJSP — São Paulo",uf:"SP"},TJRJ:{n:"TJRJ — Rio de Janeiro",uf:"RJ"},TJMG:{n:"TJMG — Minas Gerais",uf:"MG"},TJRS:{n:"TJRS — Rio Grande do Sul",uf:"RS"},TJPR:{n:"TJPR — Paraná",uf:"PR"},TJSC:{n:"TJSC — Santa Catarina",uf:"SC"},TJBA:{n:"TJBA — Bahia",uf:"BA"},TJGO:{n:"TJGO — Goiás",uf:"GO"},TJPE:{n:"TJPE — Pernambuco",uf:"PE"},TJCE:{n:"TJCE — Ceará",uf:"CE"},TJAM:{n:"TJAM — Amazonas",uf:"AM"},TJPA:{n:"TJPA — Pará",uf:"PA"},TJMT:{n:"TJMT — Mato Grosso",uf:"MT"},TJMS:{n:"TJMS — Mato Grosso do Sul",uf:"MS"},TJMA:{n:"TJMA — Maranhão",uf:"MA"},TJES:{n:"TJES — Espírito Santo",uf:"ES"},TJRN:{n:"TJRN — Rio Grande do Norte",uf:"RN"},TJPB:{n:"TJPB — Paraíba",uf:"PB"},TJAL:{n:"TJAL — Alagoas",uf:"AL"},TJPI:{n:"TJPI — Piauí",uf:"PI"},TJSE:{n:"TJSE — Sergipe",uf:"SE"},TJRO:{n:"TJRO — Rondônia",uf:"RO"},TJTO:{n:"TJTO — Tocantins",uf:"TO"},TJAC:{n:"TJAC — Acre",uf:"AC"},TJAP:{n:"TJAP — Amapá",uf:"AP"},TJRR:{n:"TJRR — Roraima",uf:"RR"},TJDFT:{n:"TJDFT — Distrito Federal",uf:"DF"}};
-var COM={TJSP:["São Paulo (Capital)","Campinas","Santos","Ribeirão Preto","Sorocaba","São José dos Campos","Santo André","São Bernardo do Campo","Osasco","Guarulhos","Bauru","Jundiaí","Taubaté","Presidente Prudente","Barueri","Mogi das Cruzes","Guarujá","Praia Grande","Indaiatuba","Carapicuíba"],TJRJ:["Rio de Janeiro (Capital)","Niterói","Duque de Caxias","Nova Iguaçu","São Gonçalo","Campos dos Goytacazes","Petrópolis","Volta Redonda","Macaé","Cabo Frio"],TJMG:["Belo Horizonte (Capital)","Uberlândia","Contagem","Juiz de Fora","Betim","Montes Claros","Uberaba","Governador Valadares","Ipatinga","Divinópolis"],TJRS:["Porto Alegre (Capital)","Caxias do Sul","Pelotas","Canoas","Santa Maria","Novo Hamburgo","São Leopoldo","Rio Grande","Passo Fundo"],TJPR:["Curitiba (Capital)","Londrina","Maringá","Ponta Grossa","Cascavel","São José dos Pinhais","Foz do Iguaçu","Colombo","Paranaguá"],TJSC:["Florianópolis (Capital)","Joinville","Blumenau","São José","Chapecó","Criciúma","Itajaí","Lages","Balneário Camboriú"],TJBA:["Salvador (Capital)","Feira de Santana","Vitória da Conquista","Camaçari","Juazeiro","Itabuna","Barreiras","Porto Seguro"],TJGO:["Goiânia (Capital)","Aparecida de Goiânia","Anápolis","Rio Verde","Luziânia","Trindade","Jataí"],TJPE:["Recife (Capital)","Caruaru","Olinda","Petrolina","Garanhuns","Jaboatão dos Guararapes"],TJCE:["Fortaleza (Capital)","Caucaia","Juazeiro do Norte","Maracanaú","Sobral","Crato"],TJAM:["Manaus (Capital)","Parintins","Itacoatiara","Manacapuru","Coari","Tefé"],TJPA:["Belém (Capital)","Ananindeua","Santarém","Marabá","Castanhal","Parauapebas"],TJMT:["Cuiabá (Capital)","Várzea Grande","Rondonópolis","Sinop","Cáceres","Sorriso"],TJMS:["Campo Grande (Capital)","Dourados","Três Lagoas","Corumbá","Ponta Porã"],TJMA:["São Luís (Capital)","Imperatriz","São José de Ribamar","Timon","Caxias"],TJES:["Vitória (Capital)","Serra","Vila Velha","Cariacica","Linhares","Cachoeiro de Itapemirim"],TJRN:["Natal (Capital)","Mossoró","Parnamirim","São Gonçalo do Amarante","Caicó"],TJPB:["João Pessoa (Capital)","Campina Grande","Santa Rita","Patos","Sousa"],TJAL:["Maceió (Capital)","Arapiraca","Rio Largo","Palmeira dos Índios","Penedo"],TJPI:["Teresina (Capital)","Parnaíba","Picos","Floriano","Campo Maior"],TJSE:["Aracaju (Capital)","Lagarto","Itabaiana","São Cristóvão","Estância"],TJRO:["Porto Velho (Capital)","Ji-Paraná","Ariquemes","Vilhena","Cacoal"],TJTO:["Palmas (Capital)","Araguaína","Gurupi","Porto Nacional"],TJAC:["Rio Branco (Capital)","Cruzeiro do Sul","Sena Madureira","Tarauacá"],TJAP:["Macapá (Capital)","Santana","Laranjal do Jari","Oiapoque"],TJRR:["Boa Vista (Capital)","Rorainópolis","Caracaraí","Alto Alegre"],TJDFT:["Brasília (Capital)","Taguatinga","Ceilândia","Samambaia","Planaltina","Gama","Sobradinho"]};
-var FNF=["01-01","04-21","05-01","09-07","10-12","11-02","11-15","11-20","12-25"];
+(function(){
+var TR={TJSP:{n:"TJSP — São Paulo",u:"SP"},TJRJ:{n:"TJRJ — Rio de Janeiro",u:"RJ"},TJMG:{n:"TJMG — Minas Gerais",u:"MG"},TJRS:{n:"TJRS — Rio Grande do Sul",u:"RS"},TJPR:{n:"TJPR — Paraná",u:"PR"},TJSC:{n:"TJSC — Santa Catarina",u:"SC"},TJBA:{n:"TJBA — Bahia",u:"BA"},TJGO:{n:"TJGO — Goiás",u:"GO"},TJPE:{n:"TJPE — Pernambuco",u:"PE"},TJCE:{n:"TJCE — Ceará",u:"CE"},TJAM:{n:"TJAM — Amazonas",u:"AM"},TJPA:{n:"TJPA — Pará",u:"PA"},TJMT:{n:"TJMT — Mato Grosso",u:"MT"},TJMS:{n:"TJMS — Mato Grosso do Sul",u:"MS"},TJMA:{n:"TJMA — Maranhão",u:"MA"},TJES:{n:"TJES — Espírito Santo",u:"ES"},TJRN:{n:"TJRN — Rio Grande do Norte",u:"RN"},TJPB:{n:"TJPB — Paraíba",u:"PB"},TJAL:{n:"TJAL — Alagoas",u:"AL"},TJPI:{n:"TJPI — Piauí",u:"PI"},TJSE:{n:"TJSE — Sergipe",u:"SE"},TJRO:{n:"TJRO — Rondônia",u:"RO"},TJTO:{n:"TJTO — Tocantins",u:"TO"},TJAC:{n:"TJAC — Acre",u:"AC"},TJAP:{n:"TJAP — Amapá",u:"AP"},TJRR:{n:"TJRR — Roraima",u:"RR"},TJDFT:{n:"TJDFT — Distrito Federal",u:"DF"}};
+var CM={TJSP:["São Paulo (Capital)","Campinas","Santos","Ribeirão Preto","Sorocaba","São José dos Campos","Santo André","São Bernardo do Campo","Osasco","Guarulhos","Bauru","Jundiaí","Taubaté","Presidente Prudente","Barueri"],TJRJ:["Rio de Janeiro (Capital)","Niterói","Duque de Caxias","Nova Iguaçu","São Gonçalo","Campos dos Goytacazes","Petrópolis","Volta Redonda"],TJMG:["Belo Horizonte (Capital)","Uberlândia","Contagem","Juiz de Fora","Betim","Montes Claros","Uberaba","Governador Valadares"],TJRS:["Porto Alegre (Capital)","Caxias do Sul","Pelotas","Canoas","Santa Maria","Novo Hamburgo","São Leopoldo"],TJPR:["Curitiba (Capital)","Londrina","Maringá","Ponta Grossa","Cascavel","São José dos Pinhais","Foz do Iguaçu"],TJSC:["Florianópolis (Capital)","Joinville","Blumenau","São José","Chapecó","Criciúma","Itajaí"],TJBA:["Salvador (Capital)","Feira de Santana","Vitória da Conquista","Camaçari","Itabuna","Barreiras"],TJGO:["Goiânia (Capital)","Aparecida de Goiânia","Anápolis","Rio Verde","Jataí"],TJPE:["Recife (Capital)","Caruaru","Olinda","Petrolina","Garanhuns"],TJCE:["Fortaleza (Capital)","Caucaia","Juazeiro do Norte","Maracanaú","Sobral"],TJAM:["Manaus (Capital)","Parintins","Itacoatiara","Manacapuru"],TJPA:["Belém (Capital)","Ananindeua","Santarém","Marabá","Castanhal"],TJMT:["Cuiabá (Capital)","Várzea Grande","Rondonópolis","Sinop"],TJMS:["Campo Grande (Capital)","Dourados","Três Lagoas","Corumbá"],TJMA:["São Luís (Capital)","Imperatriz","Timon","Caxias"],TJES:["Vitória (Capital)","Serra","Vila Velha","Cariacica","Linhares"],TJRN:["Natal (Capital)","Mossoró","Parnamirim","Caicó"],TJPB:["João Pessoa (Capital)","Campina Grande","Patos","Sousa"],TJAL:["Maceió (Capital)","Arapiraca","Rio Largo","Penedo"],TJPI:["Teresina (Capital)","Parnaíba","Picos","Floriano"],TJSE:["Aracaju (Capital)","Lagarto","Itabaiana","Estância"],TJRO:["Porto Velho (Capital)","Ji-Paraná","Ariquemes","Vilhena"],TJTO:["Palmas (Capital)","Araguaína","Gurupi","Porto Nacional"],TJAC:["Rio Branco (Capital)","Cruzeiro do Sul","Sena Madureira"],TJAP:["Macapá (Capital)","Santana","Laranjal do Jari"],TJRR:["Boa Vista (Capital)","Rorainópolis","Caracaraí"],TJDFT:["Brasília (Capital)","Taguatinga","Ceilândia","Samambaia","Planaltina","Gama"]};
+var FN=["01-01","04-21","05-01","09-07","10-12","11-02","11-15","11-20","12-25"];
 var FE={SP:["07-09"],RJ:["01-20","04-23","10-28"],MG:["12-08"],RS:["09-20"],PR:["12-19"],SC:["08-11","11-25"],BA:["07-02"],GO:["10-24"],PE:["03-06"],CE:["03-25"],AM:["09-05"],PA:["08-15"],MT:["11-08"],MS:["10-11"],MA:["07-28"],ES:["10-28"],RN:["10-03"],PB:["08-05"],AL:["09-16"],PI:["10-19"],SE:["07-08"],RO:["01-04"],TO:["03-18"],AC:["01-23","06-15"],AP:["03-19"],RR:["10-05"],DF:["11-30"]};
-function calcPascoa(y){var a=y%19,b=Math.floor(y/100),cc=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(cc/4),k=cc%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mes=Math.floor((h+l-7*m+114)/31),dia=((h+l-7*m+114)%31)+1;return new Date(y,mes-1,dia);}
-function mvs(y){var p=calcPascoa(y),r=[];[-48,-47,-2,0,60].forEach(function(o){var d=new Date(p);d.setDate(d.getDate()+o);r.push(((d.getMonth()+1)+'').padStart(2,'0')+'-'+(d.getDate()+'').padStart(2,'0'));});return r;}
-function ehFer(d,uf){var mm=((d.getMonth()+1)+'').padStart(2,'0')+'-'+(d.getDate()+'').padStart(2,'0');return FNF.includes(mm)||mvs(d.getFullYear()).includes(mm)||(FE[uf]||[]).includes(mm);}
-function ehUtil(d,uf){return d.getDay()!==0&&d.getDay()!==6&&!ehFer(d,uf);}
-function addU(ini,n,uf){var d=new Date(ini),c=0;while(c<n){d.setDate(d.getDate()+1);if(ehUtil(d,uf))c++;}while(!ehUtil(d,uf))d.setDate(d.getDate()+1);return d;}
+var PZ={transito:{nm:"Trânsito em Julgado",d:15,b:"CPC art. 502 e 1.003 par.5"},apelacao:{nm:"Recurso de Apelação",d:15,b:"CPC art. 1.003 par.5"},embargos:{nm:"Embargos de Declaração",d:5,b:"CPC art. 1.023"},contrarrazoes:{nm:"Contrarrazões",d:15,b:"CPC art. 1.010 par.1"},contestacao:{nm:"Contestação",d:15,b:"CPC art. 335"}};
+function pas(y){var a=y%19,b=Math.floor(y/100),cc=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(cc/4),k=cc%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),ms=Math.floor((h+l-7*m+114)/31),di=((h+l-7*m+114)%31)+1;return new Date(y,ms-1,di);}
+function mv(y){var p=pas(y),r=[];[-48,-47,-2,0,60].forEach(function(o){var d=new Date(p);d.setDate(d.getDate()+o);r.push(((d.getMonth()+1)+'').padStart(2,'0')+'-'+(d.getDate()+'').padStart(2,'0'));});return r;}
+function fer(d,u){var s=((d.getMonth()+1)+'').padStart(2,'0')+'-'+(d.getDate()+'').padStart(2,'0');return FN.includes(s)||mv(d.getFullYear()).includes(s)||(FE[u]||[]).includes(s);}
+function util(d,u){return d.getDay()!==0&&d.getDay()!==6&&!fer(d,u);}
+function add(st,n,u){var d=new Date(st),c=0;while(c<n){d.setDate(d.getDate()+1);if(util(d,u))c++;}while(!util(d,u))d.setDate(d.getDate()+1);return d;}
 function fd(d){return(d.getDate()+'').padStart(2,'0')+'/'+(((d.getMonth()+1)+'')).padStart(2,'0')+'/'+d.getFullYear();}
-function ds(d){return["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"][d.getDay()];}
-function iniciarCalculadora(){var s=document.getElementById('calc-tribunal');if(s.options.length>1)return;Object.keys(TRIB).sort().forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=TRIB[k].n;s.appendChild(o);});}
-function atualizarComarcas(){var t=document.getElementById('calc-tribunal').value,s=document.getElementById('calc-comarca');s.innerHTML='';if(!t){s.innerHTML='<option>Selecione primeiro...</option>';return;}(COM[t]||["Capital"]).forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c;s.appendChild(o);});}
-var PZ={transito:{nome:"Trânsito em Julgado",dias:15,base:"CPC art. 502 e 1.003 §5"},apelacao:{nome:"Recurso de Apelação",dias:15,base:"CPC art. 1.003 §5"},embargos:{nome:"Embargos de Declaração",dias:5,base:"CPC art. 1.023"},contrarrazoes:{nome:"Contrarrazões",dias:15,base:"CPC art. 1.010 §1"},contestacao:{nome:"Prazo para Contestar",dias:15,base:"CPC art. 335"}};
-function calcularPrazo(){
-  var trib=document.getElementById('calc-tribunal').value,com=document.getElementById('calc-comarca').value,tipo=document.getElementById('calc-tipo').value,dv=document.getElementById('calc-data').value;
-  if(!trib||!dv){alert('Selecione o tribunal e a data.');return;}
-  var uf=TRIB[trib].uf,info=PZ[tipo],pp=dv.split('-'),pub=new Date(+pp[0],+pp[1]-1,+pp[2]);
-  var ini=new Date(pub);ini.setDate(ini.getDate()+1);while(!ehUtil(ini,uf))ini.setDate(ini.getDate()+1);
-  var fim=addU(pub,info.dias,uf);
-  var fers=[],dd=new Date(pub);dd.setDate(dd.getDate()+1);
-  while(dd<=fim){if(ehFer(dd,uf))fers.push(fd(dd)+' ('+ds(dd)+')');dd.setDate(dd.getDate()+1);}
+function wd(d){return["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"][d.getDay()];}
+window.calcComarcas=function(){var t=document.getElementById('calc-trib').value,s=document.getElementById('calc-com');s.innerHTML='';if(!t){s.innerHTML='<option>Selecione o tribunal...</option>';return;}(CM[t]||["Capital"]).forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v;s.appendChild(o);});};
+window.calcularPrazo=function(){
+  var t=document.getElementById('calc-trib').value,co=document.getElementById('calc-com').value,tp=document.getElementById('calc-tipo').value,dv=document.getElementById('calc-data').value;
+  if(!t||!dv){alert('Selecione o tribunal e a data da publicação.');return;}
+  var u=TR[t].u,inf=PZ[tp],pp=dv.split('-'),pub=new Date(+pp[0],+pp[1]-1,+pp[2]);
+  var ini=new Date(pub);ini.setDate(ini.getDate()+1);while(!util(ini,u))ini.setDate(ini.getDate()+1);
+  var fim=add(pub,inf.d,u);
+  var fs=[],dx=new Date(pub);dx.setDate(dx.getDate()+1);
+  while(dx<=fim){if(fer(dx,u))fs.push(fd(dx)+' ('+wd(dx)+')');dx.setDate(dx.getDate()+1);}
   var hj=new Date();hj.setHours(0,0,0,0);
-  var diff=Math.ceil((fim-hj)/864e5);
-  var cor=diff<=0?'#d95f5f':diff<=3?'#d9a24a':diff<=7?'#f0c96b':'#5faf7a';
-  var msg=diff<=0?'PRAZO VENCIDO':diff===1?'VENCE AMANHA':diff<=3?diff+' DIAS RESTANTES':diff+' DIAS RESTANTES';
-  var h='<div style="background:var(--surface);border:2px solid '+cor+';border-radius:12px;padding:24px;margin-bottom:16px;">'
-    +'<div style="font-size:10px;color:var(--muted);margin-bottom:16px;">'+info.nome+' — '+TRIB[trib].n+' / '+com+'</div>'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">'
-    +'<div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;"><div style="font-size:9px;color:var(--muted);margin-bottom:4px;">PUBLICAÇÃO</div><div style="font-size:16px;font-weight:900;">'+fd(pub)+'</div><div style="font-size:10px;color:var(--muted);">'+ds(pub)+'</div></div>'
-    +'<div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;"><div style="font-size:9px;color:var(--muted);margin-bottom:4px;">INÍCIO DO PRAZO</div><div style="font-size:16px;font-weight:900;">'+fd(ini)+'</div><div style="font-size:10px;color:var(--muted);">'+ds(ini)+'</div></div>'
-    +'<div style="background:rgba(255,255,255,0.03);border:2px solid '+cor+';border-radius:8px;padding:14px;text-align:center;"><div style="font-size:9px;color:var(--muted);margin-bottom:4px;">ULTIMO DIA ('+info.dias+' dias)</div><div style="font-size:20px;font-weight:900;color:'+cor+';">'+fd(fim)+'</div><div style="font-size:10px;font-weight:800;color:'+cor+';">'+ds(fim)+'</div></div>'
+  var df=Math.ceil((fim-hj)/864e5);
+  var cor=df<=0?'#d95f5f':df<=3?'#d9a24a':df<=7?'#f0c96b':'#5faf7a';
+  var ms=df<=0?'PRAZO VENCIDO':df===1?'VENCE AMANHA':df+' DIAS RESTANTES';
+  var h='<div style="background:var(--surface);border:2px solid '+cor+';border-radius:10px;padding:22px;margin-bottom:14px;">'
+    +'<div style="font-size:10px;color:var(--muted);margin-bottom:14px;">'+inf.nm+' — '+TR[t].n+' / '+co+'</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;">'
+    +'<div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:7px;padding:12px;text-align:center;"><div style="font-size:8px;color:var(--muted);margin-bottom:3px;">PUBLICAÇÃO</div><div style="font-size:15px;font-weight:900;">'+fd(pub)+'</div><div style="font-size:9px;color:var(--muted);">'+wd(pub)+'</div></div>'
+    +'<div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:7px;padding:12px;text-align:center;"><div style="font-size:8px;color:var(--muted);margin-bottom:3px;">INÍCIO</div><div style="font-size:15px;font-weight:900;">'+fd(ini)+'</div><div style="font-size:9px;color:var(--muted);">'+wd(ini)+'</div></div>'
+    +'<div style="background:rgba(255,255,255,0.03);border:2px solid '+cor+';border-radius:7px;padding:12px;text-align:center;"><div style="font-size:8px;color:var(--muted);margin-bottom:3px;">ÚLTIMO DIA ('+inf.d+'d)</div><div style="font-size:18px;font-weight:900;color:'+cor+';">'+fd(fim)+'</div><div style="font-size:9px;font-weight:800;color:'+cor+';">'+wd(fim)+'</div></div>'
     +'</div>'
-    +'<div style="background:rgba(0,0,0,0.2);border:1px solid '+cor+';border-radius:8px;padding:12px;text-align:center;margin-bottom:12px;"><span style="font-size:14px;font-weight:900;color:'+cor+';">'+msg+'</span></div>'
-    +(fers.length?'<div style="background:rgba(217,162,74,0.07);border:1px solid rgba(217,162,74,0.25);border-radius:8px;padding:12px;margin-bottom:12px;"><div style="font-size:9px;font-weight:800;color:var(--warn);margin-bottom:6px;">FERIADOS EXCLUÍDOS ('+fers.length+')</div>'+fers.map(function(f){return'<div style="font-size:11px;color:var(--muted);">• '+f+'</div>';}).join('')+'</div>':'')
-    +'<div style="font-size:10px;color:var(--muted);border-top:1px solid var(--border);padding-top:10px;">Base legal: '+info.base+'</div>'
+    +'<div style="background:rgba(0,0,0,0.2);border:1px solid '+cor+';border-radius:7px;padding:11px;text-align:center;margin-bottom:11px;"><span style="font-size:13px;font-weight:900;color:'+cor+';">'+ms+'</span></div>'
+    +(fs.length?'<div style="background:rgba(217,162,74,0.07);border:1px solid rgba(217,162,74,0.25);border-radius:7px;padding:11px;margin-bottom:11px;"><div style="font-size:8px;font-weight:800;color:var(--warn);margin-bottom:5px;">FERIADOS EXCLUÍDOS ('+fs.length+')</div>'+fs.map(function(f){return'<div style="font-size:10px;color:var(--muted);">• '+f+'</div>';}).join('')+'</div>':'')
+    +'<div style="font-size:10px;color:var(--muted);border-top:1px solid var(--border);padding-top:9px;">'+inf.b+'</div>'
     +'</div>'
-    +'<button onclick="copiarCalc()" style="width:100%;background:rgba(185,150,63,0.1);border:1px solid rgba(185,150,63,0.3);color:var(--gold);padding:11px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">COPIAR RESULTADO</button>';
-  window._cr=info.nome+' — '+TRIB[trib].n+' / '+com+'
-Publicação: '+fd(pub)+'
-Início: '+fd(ini)+'
-Último dia: '+fd(fim)+' ('+ds(fim)+')
-'+msg+(fers.length?'
-Feriados: '+fers.join(', '):'')+'
-Base: '+info.base;
+    +'<button onclick="window.cpCalc()" style="width:100%;background:rgba(185,150,63,0.1);border:1px solid rgba(185,150,63,0.3);color:var(--gold);padding:10px;border-radius:5px;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">COPIAR RESULTADO</button>';
+  window._cr=inf.nm+' — '+TR[t].n+' / '+co+'\nPublicação: '+fd(pub)+'\nInício: '+fd(ini)+'\nÚltimo dia: '+fd(fim)+' ('+wd(fim)+')\n'+ms+(fs.length?'\nFeriados: '+fs.join(', '):'')+' | '+inf.b;
   var r=document.getElementById('calc-resultado');r.innerHTML=h;r.style.display='block';r.scrollIntoView({behavior:'smooth',block:'nearest'});
-}
-function copiarCalc(){navigator.clipboard.writeText(window._cr||'').then(function(){toast('COPIADO!');}).catch(function(){toast('Erro');});}
-function abrirCalculadora(){document.getElementById('painel-calc').style.display='block';document.body.style.overflow='hidden';iniciarCalculadora();}
-function fecharCalculadora(){document.getElementById('painel-calc').style.display='none';document.body.style.overflow='';}
+};
+window.cpCalc=function(){navigator.clipboard.writeText(window._cr||'').then(function(){toast('COPIADO!');}).catch(function(){toast('Erro');});};
+window.abrirCalculadora=function(){
+  var s=document.getElementById('calc-trib');
+  if(s.options.length<2){Object.keys(TR).sort().forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=TR[k].n;s.appendChild(o);});}
+  document.getElementById('painel-calc').style.display='block';
+  document.body.style.overflow='hidden';
+};
+window.fecharCalculadora=function(){document.getElementById('painel-calc').style.display='none';document.body.style.overflow='';};
+})();
 </script>
-
-
 </body>
 </html>
