@@ -684,6 +684,26 @@ select#calc-trib, select#calc-com, select#calc-tipo {
   appearance: auto;
 }
 </style>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script>
+    var _fbApp = null;
+    var _fbDb  = null;
+    function _initFirebase() {
+      if (_fbApp) return;
+      _fbApp = firebase.initializeApp({
+        apiKey:            "AIzaSyDnSN2O59WR8utHFiJrhaBJh1ZlHsVFZJc",
+        authDomain:        "cassiapromptv8.firebaseapp.com",
+        projectId:         "cassiapromptv8",
+        storageBucket:     "cassiapromptv8.firebasestorage.app",
+        messagingSenderId: "48347984689",
+        appId:             "1:48347984689:web:62ef4cb1fd7c4093483610"
+      });
+      _fbDb = firebase.firestore();
+    }
+  </script>
 </head>
 <body>
 
@@ -1105,29 +1125,10 @@ select#calc-trib, select#calc-com, select#calc-tipo {
 
 // ── SIGILO ──
 // ── FIREBASE CONFIG (mesmo projeto do painel admin) ──
-var _fbApp = null;
-var _fbDb  = null;
-
-async function _initFirebase() {
-  if (_fbApp) return;
-  var { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
-  var { getFirestore, doc, getDoc, updateDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-  _fbApp = initializeApp({
-    apiKey:            "AIzaSyDnSN2O59WR8utHFiJrhaBJh1ZlHsVFZJc",
-    authDomain:        "cassiapromptv8.firebaseapp.com",
-    projectId:         "cassiapromptv8",
-    storageBucket:     "cassiapromptv8.firebasestorage.app",
-    messagingSenderId: "48347984689",
-    appId:             "1:48347984689:web:62ef4cb1fd7c4093483610"
-  });
-  _fbDb = getFirestore(_fbApp);
-  window._fbGetDoc   = getDoc;
-  window._fbDoc      = doc;
-  window._fbUpdateDoc = updateDoc;
-}
+// Firebase loaded via CDN scripts in <head>
 
 async function tentarEntrar() {
-  // 1. Verificar checkboxes
+  // Verificar checkboxes
   var c1 = document.getElementById('ck1').checked;
   var c2 = document.getElementById('ck2').checked;
   var c3 = document.getElementById('ck3').checked;
@@ -1137,35 +1138,34 @@ async function tentarEntrar() {
     return;
   }
 
-  // 2. Pegar ID da URL
+  // Pegar ID da URL
   var params = new URLSearchParams(window.location.search);
   var id = params.get('id');
 
-  // 3. Sem ID = entra direto (dono testando)
+  // Sem ID = dono testando, entra direto
   if (!id) {
     abrirSistema('owner');
     return;
   }
 
-  // 4. Com ID = verificar no Firebase
+  // Com ID = verificar no Firestore
   var btn = document.getElementById('btn-aceitar');
   if (btn) { btn.textContent = 'VERIFICANDO...'; btn.style.opacity = '0.7'; }
 
   try {
-    await _initFirebase();
-    var docRef = window._fbDoc(_fbDb, 'lexis_usuarios', id);
-    var snap = await window._fbGetDoc(docRef);
+    _initFirebase();
+    var snap = await _fbDb.collection('lexis_usuarios').doc(id).get();
 
-    if (!snap.exists() || snap.data().ativo === false) {
+    if (!snap.exists || snap.data().ativo === false) {
       if (btn) { btn.textContent = 'ACEITO — ACESSAR O SISTEMA'; btn.style.opacity = ''; }
       var avAcesso = document.getElementById('aviso-acesso');
       if (avAcesso) avAcesso.style.display = 'block';
       return;
     }
 
-    // Registra acesso sem bloquear entrada
+    // Registra acesso
     try {
-      await window._fbUpdateDoc(docRef, {
+      await _fbDb.collection('lexis_usuarios').doc(id).update({
         ultimoAcesso: new Date().toISOString(),
         totalAcessos: (snap.data().totalAcessos || 0) + 1
       });
@@ -1174,8 +1174,7 @@ async function tentarEntrar() {
     abrirSistema(id);
 
   } catch(e) {
-    // Erro de rede ou Firebase - entra mesmo assim
-    console.warn('Firebase check failed, entering anyway:', e);
+    console.warn('Firestore error, entering anyway:', e);
     abrirSistema(id);
   }
 }
