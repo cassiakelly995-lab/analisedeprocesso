@@ -1127,7 +1127,7 @@ select#calc-trib, select#calc-com, select#calc-tipo {
 // ── FIREBASE CONFIG (mesmo projeto do painel admin) ──
 // Firebase loaded via CDN scripts in <head>
 
-async async function tentarEntrar() {
+async function tentarEntrar() {
   // Verificar checkboxes
   var c1 = document.getElementById('ck1').checked;
   var c2 = document.getElementById('ck2').checked;
@@ -2230,22 +2230,16 @@ function calcularPrazo() {
     '<div style="font-size:10px;color:var(--muted);border-top:1px solid var(--border);padding-top:10px;line-height:1.8;">' +
     '<strong style="color:var(--text);">Base legal:</strong> '+info.b+'</div>' +
     '</div>' +
-    '<button onclick="copiarResultadoPrazo()" style="width:100%;background:rgba(185,150,63,0.1);border:1px solid rgba(185,150,63,0.3);color:var(--gold);padding:11px;border-radius:5px;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">📋 COPIAR RESULTADO</button>';
+    '<button onclick="copiarResultadoPrazo()" style="width:100%;background:rgba(185,150,63,0.1);border:1px solid rgba(185,150,63,0.3);color:var(--gold);padding:11px;border-radius:5px;font-family:\'DM Sans\',sans-serif;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">📋 COPIAR RESULTADO</button>';
 
   window._calcTexto =
     info.nm + ' — ' + CALC_TR[tribVal].n + ' / ' + comarca +
-    '
-Publicação: ' + formatarData(dataPub) + ' (' + nomeDia(dataPub) + ')' +
-    '
-Início do prazo: ' + formatarData(inicioCount) + ' (' + nomeDia(inicioCount) + ')' +
-    '
-Último dia (' + info.d + ' dias úteis): ' + formatarData(ultimoDia) + ' (' + nomeDia(ultimoDia) + ')' +
-    '
-Status: ' + status.replace(/[🚨🔴🟡🟢]/g,'').trim() +
-    (feriadosNoPeriodo.length ? '
-Feriados excluídos: ' + feriadosNoPeriodo.join(', ') : '') +
-    '
-Base legal: ' + info.b;
+    '\nPublicação: ' + formatarData(dataPub) + ' (' + nomeDia(dataPub) + ')' +
+    '\nInício do prazo: ' + formatarData(inicioCount) + ' (' + nomeDia(inicioCount) + ')' +
+    '\nÚltimo dia (' + info.d + ' dias úteis): ' + formatarData(ultimoDia) + ' (' + nomeDia(ultimoDia) + ')' +
+    '\nStatus: ' + status.replace(/[🚨🔴🟡🟢]/g,'').trim() +
+    (feriadosNoPeriodo.length ? '\nFeriados excluídos: ' + feriadosNoPeriodo.join(', ') : '') +
+    '\nBase legal: ' + info.b;
 
   var res = document.getElementById('calc-resultado');
   res.innerHTML = html;
