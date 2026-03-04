@@ -1120,7 +1120,7 @@ async function _initFirebase() {
   window._fbUpdateDoc = updateDoc;
 }
 
-async function tentarEntrar() {
+async async function tentarEntrar() {
   var c1 = document.getElementById('ck1').checked;
   var c2 = document.getElementById('ck2').checked;
   var c3 = document.getElementById('ck3').checked;
@@ -1272,7 +1272,7 @@ var textoProcesso = '';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-function lerPDF(input) {
+async function lerPDF(input) {
   if (input.files && input.files[0]) processarPDF(input.files[0]);
 }
 
