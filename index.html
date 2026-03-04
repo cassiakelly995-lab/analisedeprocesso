@@ -1127,7 +1127,7 @@ select#calc-trib, select#calc-com, select#calc-tipo {
 // ── FIREBASE CONFIG (mesmo projeto do painel admin) ──
 // Firebase loaded via CDN scripts in <head>
 
-async function tentarEntrar() {
+async async function tentarEntrar() {
   // Verificar checkboxes
   var c1 = document.getElementById('ck1').checked;
   var c2 = document.getElementById('ck2').checked;
@@ -1142,7 +1142,7 @@ async function tentarEntrar() {
   var params = new URLSearchParams(window.location.search);
   var id = params.get('id');
 
-  // Sem ID = dono testando, entra direto
+  // Sem ID = entra direto (dono testando sem link)
   if (!id) {
     abrirSistema('owner');
     return;
@@ -1174,7 +1174,8 @@ async function tentarEntrar() {
     abrirSistema(id);
 
   } catch(e) {
-    console.warn('Firestore error, entering anyway:', e);
+    // Se Firebase falhar, entra mesmo assim
+    console.warn('Firebase error:', e);
     abrirSistema(id);
   }
 }
