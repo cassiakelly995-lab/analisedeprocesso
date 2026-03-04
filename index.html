@@ -672,6 +672,18 @@ body { padding-bottom: 42px; }
 .scanner-alert-top { display:none; background:rgba(217,95,95,0.08); border:1px solid rgba(217,95,95,0.3); border-radius:8px; padding:14px 18px; margin-bottom:16px; font-size:12px; line-height:1.7; color:rgba(232,224,208,0.8); }
 .scanner-alert-top strong { color:#e08080; }
 </style>
+
+<style>
+#calc-trib option, #calc-com option, #calc-tipo option {
+  background-color: #1a1f24 !important;
+  color: #e8e0d0 !important;
+}
+select#calc-trib, select#calc-com, select#calc-tipo {
+  color: #e8e0d0 !important;
+  -webkit-appearance: auto;
+  appearance: auto;
+}
+</style>
 </head>
 <body>
 
@@ -1800,7 +1812,19 @@ function copiarPrompt() {
 function exportarWord() {
   var txt = document.getElementById('prompt-final').value;
   if (!txt) { toast('⚠ GERE O PROMPT PRIMEIRO'); return; }
-  var html = '<html><head><meta charset="UTF-8"><style>body{font-family:Arial,sans-serif;font-size:12pt;line-height:1.6;margin:2cm;}pre{white-space:pre-wrap;font-family:Arial,sans-serif;}</style></head><body><pre>' + txt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</pre><\/body><\/html>';
+  var html = '<html><head><meta charset="UTF-8"><style>body{font-family:Arial,sans-serif;font-size:12pt;line-height:1.6;margin:2cm;}pre{white-space:pre-wrap;font-family:Arial,sans-serif;}</style>
+<style>
+#calc-trib option, #calc-com option, #calc-tipo option {
+  background-color: #1a1f24 !important;
+  color: #e8e0d0 !important;
+}
+select#calc-trib, select#calc-com, select#calc-tipo {
+  color: #e8e0d0 !important;
+  -webkit-appearance: auto;
+  appearance: auto;
+}
+</style>
+</head><body><pre>' + txt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</pre><\/body><\/html>';
   var blob = new Blob(['\ufeff' + html], { type: 'application/msword;charset=utf-8' });
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
@@ -1885,7 +1909,36 @@ document.getElementById('fatos').addEventListener('input', function() { this.sty
 <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:16px;">
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
 <div><label style="display:block;font-size:9px;font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">Tribunal</label>
-<select id="calc-trib" onchange="calcComarcas()" style="width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:11px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;"><option value="">Selecione...</option></select></div>
+<select id="calc-trib" onchange="calcComarcas()" style="width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:11px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;">
+<option value="">Selecione o tribunal...</option>
+<option value="TJAC">TJAC — Acre</option>
+<option value="TJAL">TJAL — Alagoas</option>
+<option value="TJAM">TJAM — Amazonas</option>
+<option value="TJAP">TJAP — Amapá</option>
+<option value="TJBA">TJBA — Bahia</option>
+<option value="TJCE">TJCE — Ceará</option>
+<option value="TJDFT">TJDFT — Distrito Federal</option>
+<option value="TJES">TJES — Espírito Santo</option>
+<option value="TJGO">TJGO — Goiás</option>
+<option value="TJMA">TJMA — Maranhão</option>
+<option value="TJMG">TJMG — Minas Gerais</option>
+<option value="TJMS">TJMS — Mato Grosso do Sul</option>
+<option value="TJMT">TJMT — Mato Grosso</option>
+<option value="TJPA">TJPA — Pará</option>
+<option value="TJPB">TJPB — Paraíba</option>
+<option value="TJPE">TJPE — Pernambuco</option>
+<option value="TJPI">TJPI — Piauí</option>
+<option value="TJPR">TJPR — Paraná</option>
+<option value="TJRJ">TJRJ — Rio de Janeiro</option>
+<option value="TJRN">TJRN — Rio Grande do Norte</option>
+<option value="TJRO">TJRO — Rondônia</option>
+<option value="TJRR">TJRR — Roraima</option>
+<option value="TJRS">TJRS — Rio Grande do Sul</option>
+<option value="TJSC">TJSC — Santa Catarina</option>
+<option value="TJSE">TJSE — Sergipe</option>
+<option value="TJSP">TJSP — São Paulo</option>
+<option value="TJTO">TJTO — Tocantins</option>
+</select></div>
 <div><label style="display:block;font-size:9px;font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">Comarca</label>
 <select id="calc-com" style="width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:11px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;"><option value="">Selecione o tribunal...</option></select></div>
 </div>
@@ -2205,18 +2258,6 @@ function copiarResultadoPrazo() {
 }
 
 function abrirCalculadora() {
-  // Popula tribunais no select se ainda vazio
-  var sel = document.getElementById('calc-trib');
-  // Remove tudo exceto a primeira opção (placeholder)
-  while (sel.options.length > 1) sel.remove(1);
-  // Adiciona todos os tribunais ordenados
-  Object.keys(CALC_TR).sort().forEach(function(k) {
-    var opt = document.createElement('option');
-    opt.value = k;
-    opt.textContent = CALC_TR[k].n;
-    sel.appendChild(opt);
-  });
-  // Mostra o painel
   document.getElementById('painel-calc').style.display = 'block';
   document.body.style.overflow = 'hidden';
 }
