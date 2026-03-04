@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LEXIS — Painel Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060809;--sur:#0c1014;--sur2:#111820;--bdr:rgba(185,150,80,.15);--bdrh:rgba(185,150,80,.4);--gold:#c9973d;--gold2:#f0c96b;--gg:linear-gradient(135deg,#8c6520,#c9973d,#f0c96b,#c9973d,#8c6520);--tx:#e8e0d0;--mu:rgba(232,224,208,.38);--ok:#5faf7a;--ng:#d95f5f;--wn:#d9a24a;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;min-height:100vh;}
+#pg-login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 38%,rgba(185,150,63,.07),transparent 62%);}
+.lbox{background:var(--sur);border:1px solid var(--bdr);border-radius:16px;padding:56px 44px;max-width:400px;width:100%;box-shadow:0 0 80px rgba(0,0,0,.85);text-align:center;}
+.ll{font-family:'Playfair Display',serif;font-size:11px;letter-spacing:8px;color:var(--gold);text-transform:uppercase;margin-bottom:6px;}
+.lt{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;background:var(--gg);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;}
+.ls{font-size:9px;letter-spacing:4px;color:var(--mu);text-transform:uppercase;margin-bottom:32px;}
+.li{width:100%;background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:6px;padding:15px 18px;color:var(--tx);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:4px;text-align:center;outline:none;transition:.2s;margin-bottom:12px;}
+.li:focus{border-color:var(--gold);}
+.li::placeholder{color:var(--mu);letter-spacing:2px;}
+.btn-l{width:100%;background:var(--gg);color:#000;border:none;padding:16px;border-radius:6px;font-weight:900;font-size:12px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:filter .2s;font-family:'DM Sans',sans-serif;}
+.btn-l:hover{filter:brightness(1.12);}
+.lerr{display:none;color:var(--ng);font-size:11px;margin-top:10px;letter-spacing:1px;}
+#cfg-banner{background:rgba(217,162,74,.08);border:1px solid rgba(217,162,74,.3);border-left:3px solid var(--wn);border-radius:8px;padding:14px 18px;margin-bottom:18px;font-size:11px;line-height:1.9;color:rgba(232,224,208,.72);}
+#cfg-banner strong{color:var(--wn);}
+#cfg-banner code{background:rgba(255,255,255,.06);padding:1px 6px;border-radius:3px;font-family:'DM Mono',monospace;font-size:10px;color:var(--gold2);}
+#pg-painel{display:none;}
+.topbar{background:var(--sur);border-bottom:1px solid var(--bdr);padding:13px 26px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.tb-brand{display:flex;align-items:center;gap:12px;}
+.tb-logo{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;background:var(--gg);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.tb-tag{font-size:8px;letter-spacing:3px;color:var(--mu);text-transform:uppercase;border:1px solid var(--bdr);padding:4px 10px;border-radius:3px;}
+.tb-right{display:flex;align-items:center;gap:14px;}
+.tb-st{font-family:'DM Mono',monospace;font-size:10px;color:var(--mu);}
+.tb-st strong{color:var(--gold2);}
+.btn-sair{background:transparent;border:1px solid var(--bdr);color:var(--mu);padding:7px 14px;border-radius:4px;font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:.2s;font-family:'DM Sans',sans-serif;}
+.btn-sair:hover{border-color:var(--ng);color:var(--ng);}
+.content{max-width:1060px;margin:0 auto;padding:28px 18px 60px;}
+.sc{background:var(--sur);border:1px solid var(--bdr);border-radius:10px;padding:22px 24px;margin-bottom:18px;}
+.stit{font-size:9px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:16px;}
+.grow{display:flex;gap:10px;align-items:stretch;}
+.ginp{flex:1;background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:6px;padding:13px 15px;color:var(--tx);font-size:13px;outline:none;transition:.2s;font-family:'DM Sans',sans-serif;}
+.ginp:focus{border-color:var(--gold);}
+.ginp::placeholder{color:var(--mu);}
+.btn-g{background:var(--gg);color:#000;border:none;padding:13px 26px;border-radius:6px;font-weight:900;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;}
+.btn-g:hover{filter:brightness(1.1);}
+.lbox2{display:none;background:rgba(95,175,122,.07);border:1px solid rgba(95,175,122,.3);border-radius:8px;padding:14px 18px;margin-top:12px;}
+.lb-lbl{font-size:9px;font-weight:800;letter-spacing:2px;color:var(--ok);text-transform:uppercase;margin-bottom:7px;}
+.lb-url{font-family:'DM Mono',monospace;font-size:11px;color:rgba(232,224,208,.7);word-break:break-all;line-height:1.6;margin-bottom:10px;}
+.btn-cl{background:rgba(95,175,122,.15);border:1px solid rgba(95,175,122,.4);color:var(--ok);padding:7px 16px;border-radius:4px;font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.lhdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+.ltit{font-size:9px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--gold);}
+.srch{background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:5px;padding:8px 13px;color:var(--tx);font-size:12px;outline:none;width:200px;transition:.2s;font-family:'DM Sans',sans-serif;}
+.srch:focus{border-color:var(--gold);}
+.srch::placeholder{color:var(--mu);}
+.lcnt{font-family:'DM Mono',monospace;font-size:10px;color:var(--mu);}
+.uc{background:var(--sur);border:1px solid var(--bdr);border-radius:10px;padding:17px 20px;margin-bottom:8px;display:flex;align-items:center;gap:12px;transition:border-color .2s;}
+.uc:hover{border-color:rgba(185,150,63,.28);}
+.uc.rev{opacity:.4;border-color:rgba(217,95,95,.18);}
+.ui{flex:1;min-width:0;}
+.un{font-size:15px;font-weight:800;letter-spacing:.3px;margin-bottom:3px;}
+.um{font-size:10px;color:var(--mu);font-family:'DM Mono',monospace;line-height:1.85;}
+.um b{color:rgba(232,224,208,.6);}
+.ul2{font-size:9.5px;color:rgba(185,150,63,.45);font-family:'DM Mono',monospace;word-break:break-all;margin-top:3px;}
+.ul2::before{content:'🔗 ';}
+.ua{display:flex;gap:7px;flex-shrink:0;flex-wrap:wrap;align-items:center;}
+.bdg{padding:5px 11px;border-radius:3px;font-size:8px;font-weight:900;letter-spacing:2px;}
+.bdg.ok{background:rgba(95,175,122,.15);color:var(--ok);border:1px solid rgba(95,175,122,.3);}
+.bdg.rv{background:rgba(217,95,95,.1);color:var(--ng);border:1px solid rgba(217,95,95,.25);}
+.ab{padding:7px 12px;border-radius:4px;font-size:8.5px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:5px;border:1px solid;font-family:'DM Sans',sans-serif;}
+.ab.cp{background:rgba(185,150,63,.1);border-color:rgba(185,150,63,.3);color:var(--gold);}
+.ab.cp:hover{background:rgba(185,150,63,.2);}
+.ab.rv2{background:rgba(217,95,95,.08);border-color:rgba(217,95,95,.25);color:var(--ng);}
+.ab.rv2:hover{background:rgba(217,95,95,.18);}
+.ab.re{background:rgba(95,175,122,.08);border-color:rgba(95,175,122,.25);color:var(--ok);}
+.ab.re:hover{background:rgba(95,175,122,.18);}
+.empty{text-align:center;padding:50px 20px;color:var(--mu);font-size:13px;}
+.loading{text-align:center;padding:36px;color:var(--mu);font-size:11px;letter-spacing:2px;animation:pulse 1.3s infinite;}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+#toast{position:fixed;bottom:20px;right:20px;background:var(--sur2);border:1px solid var(--bdrh);border-radius:8px;padding:12px 20px;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--gold2);transform:translateY(70px);opacity:0;transition:.3s cubic-bezier(.17,.67,.38,1.2);z-index:9999;pointer-events:none;max-width:300px;}
+#toast.show{transform:translateY(0);opacity:1;}
+@media(max-width:640px){.uc{flex-direction:column;align-items:flex-start;}.ua{width:100%;}.grow{flex-direction:column;}.topbar{padding:11px 14px;}.content{padding:18px 12px 50px;}}
+</style>
+</head>
+<body>
+
+<div id="pg-login">
+  <div class="lbox">
+    <div class="ll">LEXIS</div>
+    <div class="lt">Painel Admin</div>
+    <div class="ls">Acesso restrito</div>
+    <input class="li" type="password" id="inp-senha" placeholder="SENHA DE ACESSO">
+    <button class="btn-l" onclick="window._login()">ENTRAR NO PAINEL</button>
+    <div class="lerr" id="l-err">⚠ Senha incorreta</div>
+  </div>
+</div>
+
+<div id="pg-painel">
+  <div class="topbar">
+    <div class="tb-brand">
+      <div class="tb-logo">LEXIS</div>
+      <div class="tb-tag">Painel Admin</div>
+    </div>
+    <div class="tb-right">
+      <div class="tb-st">Ativos: <strong id="st-ativos">—</strong></div>
+      <div class="tb-st">Total acessos: <strong id="st-total">—</strong></div>
+      <button class="btn-sair" onclick="window._sair()">SAIR</button>
+    </div>
+  </div>
+  <div class="content">
+    <div id="cfg-banner">
+      <strong>⚙ PASSO OBRIGATÓRIO — Antes de usar, abra este arquivo no Bloco de Notas e substitua:</strong><br>
+      • <code>AIzaSyCpitlvdEs9Ck2CBcmnfWytg-wL8FJvYK8</code> → sua API Key do Firebase<br>
+      • <code>cassiapromptv8</code> → ID do seu projeto Firebase<br>
+      • e os outros campos <code>COLE_AQUI_...</code><br>
+      • <code>https://cassiakelly995-lab.github.io/analisedeprocesso</code> → URL do seu LEXIS no GitHub Pages<br>
+      Veja o Guia Passo a Passo para saber onde encontrar esses valores.
+    </div>
+    <div class="sc">
+      <div class="stit">➕ Gerar Novo Acesso</div>
+      <div class="grow">
+        <input class="ginp" type="text" id="inp-nome" placeholder="Nome do advogado — ex: Dra. Ana Paula Rodrigues">
+        <button class="btn-g" onclick="window._gerar()">⚡ GERAR LINK</button>
+      </div>
+      <div class="lbox2" id="link-box">
+        <div class="lb-lbl">✅ Link gerado com sucesso</div>
+        <div class="lb-url" id="link-url"></div>
+        <button class="btn-cl" onclick="window._copiarUltimo()">📋 COPIAR LINK</button>
+      </div>
+    </div>
+    <div>
+      <div class="lhdr">
+        <div class="ltit">👥 Acessos Gerados</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <input class="srch" type="text" placeholder="Buscar nome..." oninput="window._filtrar(this.value)">
+          <div class="lcnt" id="lcnt"></div>
+        </div>
+      </div>
+      <div id="lista"><div class="loading">⏳ CARREGANDO...</div></div>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, query, orderBy }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ══════════════════════════════════════════════════
+// ⚠ SUBSTITUA TUDO QUE ESTÁ ESCRITO COLE_AQUI_...
+// Encontre esses valores em:
+// console.firebase.google.com → seu projeto →
+// Configurações (⚙ engrenagem) → Seus aplicativos → Config
+// ══════════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey:            "AIzaSyCpitlvdEs9Ck2CBcmnfWytg-wL8FJvYK8",
+  authDomain:        "cassiapromptv8.firebaseapp.com",
+  projectId:         "cassiapromptv8",
+  storageBucket:     "cassiapromptv8.firebasestorage.app",
+  messagingSenderId: "48347984689",
+  appId:             "1:48347984689:web:62ef4cb1fd7c4093483610"
+};
+const URL_LEXIS = "https://cassiakelly995-lab.github.io/analisedeprocesso";
+// Exemplo: "https://cassiakelly995-lab.github.io/analisedeprocesso"
+
+const SENHA = "LEXIS2024"; // ← troque pela senha que quiser
+// ══════════════════════════════════════════════════
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+const COL = "lexis_usuarios";
+
+let usuarios = [], filtroAtual = "", ultimoLink = "";
+
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(window._tt);
+  window._tt = setTimeout(() => t.classList.remove("show"), 2800);
+}
+
+function gerarId() {
+  const c = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
+  let id = "";
+  for (let i=0; i<12; i++) id += c[Math.floor(Math.random()*c.length)];
+  return id;
+}
+
+function copiar(txt) {
+  navigator.clipboard.writeText(txt).then(() => toast("✅ LINK COPIADO!")).catch(() => {
+    const el = document.createElement("textarea");
+    el.value = txt; document.body.appendChild(el); el.select();
+    document.execCommand("copy"); document.body.removeChild(el);
+    toast("✅ LINK COPIADO!");
+  });
+}
+
+function renderizar() {
+  const filtrados = filtroAtual ? usuarios.filter(u => u.nome.toLowerCase().includes(filtroAtual)) : usuarios;
+  document.getElementById("lcnt").textContent = filtrados.length + " de " + usuarios.length;
+  const lista = document.getElementById("lista");
+  if (!filtrados.length) { lista.innerHTML = '<div class="empty">🔍 Nenhum encontrado</div>'; return; }
+  lista.innerHTML = filtrados.map(u => {
+    const link = URL_LEXIS ? URL_LEXIS + "/index.html?id=" + u.id : "—";
+    const ua = u.ultimoAcesso
+      ? "Último acesso: " + new Date(u.ultimoAcesso).toLocaleDateString("pt-BR") + ", " + new Date(u.ultimoAcesso).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})
+      : "Último acesso: Nunca acessou";
+    const btns = u.ativo
+      ? `<button class="ab cp" onclick="window._copiarLink('${u.id}')">📋 COPIAR LINK</button><button class="ab rv2" onclick="window._revogar('${u.id}')">🚫 REVOGAR</button>`
+      : `<button class="ab re" onclick="window._reativar('${u.id}')">✅ REATIVAR</button>`;
+    return `<div class="uc${u.ativo?"":" rev"}"><div class="ui"><div class="un">${u.nome}</div><div class="um">Criado em: <b>${u.criadoFmt||u.criadoEm}</b> &nbsp;|&nbsp; ID: <b>${u.id}</b><br>${ua} &nbsp;·&nbsp; Total de acessos: <b>${u.totalAcessos||0}</b></div><div class="ul2">${link}</div></div><div class="ua"><div class="bdg ${u.ativo?"ok":"rv"}">${u.ativo?"ATIVO":"REVOGADO"}</div>${btns}</div></div>`;
+  }).join("");
+}
+
+function atualizarStats() {
+  document.getElementById("st-ativos").textContent = usuarios.filter(u=>u.ativo).length;
+  document.getElementById("st-total").textContent = usuarios.reduce((s,u)=>s+(u.totalAcessos||0),0);
+}
+
+async function carregar() {
+  document.getElementById("lista").innerHTML = '<div class="loading">⏳ CARREGANDO...</div>';
+  try {
+    const snap = await getDocs(query(collection(db,COL), orderBy("criadoEm","desc")));
+    usuarios = snap.docs.map(d => ({id:d.id,...d.data()}));
+    renderizar(); atualizarStats();
+  } catch(e) {
+    document.getElementById("lista").innerHTML = '<div class="empty">❌ Erro ao carregar.<br><small>Verifique se substituiu todos os COLE_AQUI_ e se o Firestore está ativo.</small></div>';
+  }
+}
+
+window._login = function() {
+  if (document.getElementById("inp-senha").value === SENHA) {
+    document.getElementById("pg-login").style.display = "none";
+    document.getElementById("pg-painel").style.display = "block";
+    carregar();
+  } else {
+    document.getElementById("l-err").style.display = "block";
+    document.getElementById("inp-senha").style.borderColor = "#d95f5f";
+    setTimeout(() => { document.getElementById("l-err").style.display="none"; document.getElementById("inp-senha").style.borderColor=""; }, 2200);
+  }
+};
+
+window._sair = function() {
+  document.getElementById("pg-painel").style.display = "none";
+  document.getElementById("pg-login").style.display = "flex";
+  document.getElementById("inp-senha").value = "";
+};
+
+window._gerar = async function() {
+  const nome = document.getElementById("inp-nome").value.trim();
+  if (!nome) { toast("⚠ INFORME O NOME"); return; }
+  if (!URL_LEXIS || URL_LEXIS.includes("COLE_AQUI")) { toast("⚠ CONFIGURE A URL DO LEXIS NO ARQUIVO"); return; }
+  const id = gerarId();
+  const agora = new Date();
+  const u = { nome:nome.toUpperCase(), criadoEm:agora.toISOString(), criadoFmt:agora.toLocaleDateString("pt-BR")+", "+agora.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}), ultimoAcesso:null, totalAcessos:0, ativo:true };
+  toast("⏳ GERANDO...");
+  try {
+    await setDoc(doc(db,COL,id), u);
+    usuarios.unshift({id,...u});
+    ultimoLink = URL_LEXIS + "/index.html?id=" + id;
+    document.getElementById("link-url").textContent = ultimoLink;
+    document.getElementById("link-box").style.display = "block";
+    document.getElementById("inp-nome").value = "";
+    renderizar(); atualizarStats();
+    toast("✅ ACESSO GERADO!");
+  } catch(e) { toast("❌ " + e.message); }
+};
+
+window._copiarUltimo = () => copiar(ultimoLink);
+window._copiarLink = (id) => copiar(URL_LEXIS + "/index.html?id=" + id);
+window._filtrar = (t) => { filtroAtual = t.toLowerCase(); renderizar(); };
+
+window._revogar = async function(id) {
+  const u = usuarios.find(x=>x.id===id);
+  if (!u || !confirm("Revogar acesso de " + u.nome + "?\n\nO link para de funcionar imediatamente.")) return;
+  toast("⏳ REVOGANDO...");
+  try {
+    await updateDoc(doc(db,COL,id), {ativo:false});
+    usuarios = usuarios.map(u => u.id===id ? {...u,ativo:false} : u);
+    renderizar(); atualizarStats(); toast("✅ ACESSO REVOGADO");
+  } catch(e) { toast("❌ " + e.message); }
+};
+
+window._reativar = async function(id) {
+  toast("⏳ REATIVANDO...");
+  try {
+    await updateDoc(doc(db,COL,id), {ativo:true});
+    usuarios = usuarios.map(u => u.id===id ? {...u,ativo:true} : u);
+    renderizar(); atualizarStats(); toast("✅ ACESSO REATIVADO");
+  } catch(e) { toast("❌ " + e.message); }
+};
+
+document.getElementById("inp-senha").addEventListener("keydown", e => { if(e.key==="Enter") window._login(); });
+document.getElementById("inp-senha").focus();
+</script>
+</body>
+</html>
