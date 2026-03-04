@@ -920,11 +920,13 @@ body { padding-bottom: 42px; }
       <select id="instancia" onchange="calcMetricas()">
         <option value="" disabled selected>Selecione...</option>
         <option value="1grau">1ª Grau (Inicial / Contestação)</option>
+        <option value="juri">Tribunal do Júri (Crimes Dolosos contra a Vida)</option>
         <option value="2grau">2ª Grau (Apelação / Agravo)</option>
         <option value="stj">STJ (Recurso Especial)</option>
         <option value="stf">STF (Recurso Extraordinário)</option>
         <option value="tst">TST (Recurso de Revista)</option>
         <option value="execucao">Fase de Execução</option>
+        <option value="execucao_penal">Execução Penal (LEP)</option>
       </select>
     </div>
   </div>
@@ -1768,7 +1770,7 @@ function gerarPrompt() {
 
   var areaLabels = { civil:'Direito Civil', trabalhista:'Direito Trabalhista', consumidor:'Direito do Consumidor', penal:'Direito Penal', previdenciario:'Direito Previdenciário', tributario:'Direito Tributário', empresarial:'Direito Empresarial', administrativo:'Direito Administrativo', familia:'Direito de Família', imobiliario:'Direito Imobiliário' };
   var poloLabels = { autor:'Autor / Requerente', reu:'Réu / Requerido', reclamante:'Reclamante', reclamado:'Reclamado', apelante:'Apelante / Recorrente', apelado:'Apelado / Recorrido' };
-  var instanciaLabels = { '1grau':'1ª Grau', '2grau':'2ª Grau', stj:'STJ', stf:'STF', tst:'TST', execucao:'Execução' };
+  var instanciaLabels = { '1grau':'1ª Grau', 'juri':'Tribunal do Júri', '2grau':'2ª Grau', stj:'STJ', stf:'STF', tst:'TST', execucao:'Execução', execucao_penal:'Execução Penal (LEP)' };
 
   var iaNome = (iaConfigs[iaAtual]||iaConfigs['claude']).nome;
 
@@ -1801,7 +1803,32 @@ function gerarPrompt() {
     imobiliario: 'advogado imobiliário especialista em contratos, registros, usucapião e jurisprudência STJ'
   };
 
-  var prompt = '╔══════════════════════════════════════════════════════════════════════╗\n║      LEXIS — INTELIGÊNCIA JURÍDICA DE PRECISÃO                        ║\n║      Protocolo Anti-Alucinação Ativo | Para: ' + iaNome.padEnd(25) + '║\n╚══════════════════════════════════════════════════════════════════════╝\n\nSEÇÃO 1 — PERFIL PROFISSIONAL\nVocê é um ' + (personas[area]||'advogado especialista') + '. Você nunca inventa jurisprudência, nunca infla probabilidades e nunca omite riscos. Sua análise é cirúrgica, honesta e baseada exclusivamente nos documentos fornecidos.\n\nSEÇÃO 2 — DADOS DO CASO\n• Área: ' + (areaLabels[area]||area) + '\n• Polo do Cliente: ' + (poloLabels[polo]||polo) + '\n• Instância: ' + (instanciaLabels[instancia]||'Não informada') + '\n• Tese Principal: ' + tese + (pedido ? '\n• Pedido Principal: ' + pedido : '') + '\n• Volume: ' + palavras.toLocaleString('pt-BR') + ' palavras / ' + Math.ceil(chars/2000) + ' páginas estimadas\n\nSEÇÃO 3 — PROTOCOLO OBRIGATÓRIO\n1. JURISPRUDÊNCIA REAL: Nunca invente número de processo, relator ou ementa. Se não tiver certeza: descreva a tendência sem fabricar referência.\n2. PROBABILIDADE HONESTA: Se dados insuficientes, liste o que falta. Nunca dê percentual sem justificativa.\n3. CLASSIFICAÇÃO DE CERTEZA: Marque cada argumento com ✅ SÓLIDO / ⚡ DEBATIDO / ⚠ ARROJADO / ❌ VULNERÁVEL.\n4. LACUNAS: Sinalize ⚠ DADO AUSENTE: [o que] — [por que importa] — [onde obter].\n5. SOMENTE OS FATOS DO DOCUMENTO: Não suponha, não complete a narrativa.\n\nSEÇÃO 4 — TAREFAS' + estrategiasTexto + (instrExtra ? '\n\nINSTRUÇÃO ADICIONAL: ' + instrExtra : '') + '\n\nSEÇÃO 5 — DOCUMENTOS E DADOS DO PROCESSO\n' + (resumoTexto || '[Nenhum texto de processo fornecido — analise com base nos dados acima]') + '\n\nSEÇÃO 6 — FORMATO DA RESPOSTA\nUse títulos claros para cada seção solicitada. Ao final, inclua:\n\n► RESUMO EXECUTIVO:\n• Diagnóstico em 2 linhas\n• Principal risco\n• Principal oportunidade\n• Recomendação imediata';
+  // Instrução específica para Tribunal do Júri
+  var instrJuri = '';
+  if (instancia === 'juri') {
+    instrJuri = '\n\nINSTRUÇÕES ESPECÍFICAS — TRIBUNAL DO JÚRI:\n' +
+      '• Competência: crimes dolosos contra a vida (art. 5º, XXXVIII, CF + arts. 74-497 CPP)\n' +
+      '• Analise: (1) pronúncia/impronúncia/absolvição sumária (2) quesitação (3) teses defensivas ao Júri (4) teses acusatórias (5) nulidades específicas do procedimento bifásico\n' +
+      '• Aponte: materialidade + autoria + dolo específico (elemento subjetivo central)\n' +
+      '• Identifique: qualificadoras + causas de aumento + atenuantes + agravantes\n' +
+      '• Soberania do Júri: arts. 5º XXXVIII e 593 CPP — apelação cabível em quais hipóteses\n' +
+      '• NUNCA invente votos ou placar de julgamento\n' +
+      '• Indique onde nos autos verificar cada elemento do tipo penal';
+  }
+
+  // Instrução específica para Execução Penal
+  var instrExecPenal = '';
+  if (instancia === 'execucao_penal') {
+    instrExecPenal = '\n\nINSTRUÇÕES ESPECÍFICAS — EXECUÇÃO PENAL (LEP — Lei 7.210/84):\n' +
+      '• Analise: regime inicial + progressão + detração + remição + livramento condicional\n' +
+      '• Verifique: art. 112 LEP (requisito objetivo e subjetivo de progressão)\n' +
+      '• Aponte prazo para cada benefício com base na pena total aplicada\n' +
+      '• Identifique: crimes hediondos (Lei 8.072/90) — regras diferenciadas\n' +
+      '• NUNCA calcule data de fim de pena sem os dados completos (pena, detração, remição)\n' +
+      '• Onde calcular: guia de recolhimento + certidão de pena';
+  }
+
+  var prompt = '╔══════════════════════════════════════════════════════════════════════╗\n║      LEXIS — INTELIGÊNCIA JURÍDICA DE PRECISÃO                        ║\n║      Protocolo Anti-Alucinação Ativo | Para: ' + iaNome.padEnd(25) + '║\n╚══════════════════════════════════════════════════════════════════════╝\n\nSEÇÃO 1 — PERFIL PROFISSIONAL\nVocê é um ' + (personas[area]||'advogado especialista') + '. Você nunca inventa jurisprudência, nunca infla probabilidades e nunca omite riscos. Sua análise é cirúrgica, honesta e baseada exclusivamente nos documentos fornecidos.\n\nSEÇÃO 2 — DADOS DO CASO\n• Área: ' + (areaLabels[area]||area) + '\n• Polo do Cliente: ' + (poloLabels[polo]||polo) + '\n• Instância: ' + (instanciaLabels[instancia]||'Não informada') + '\n• Tese Principal: ' + tese + (pedido ? '\n• Pedido Principal: ' + pedido : '') + '\n• Volume: ' + palavras.toLocaleString('pt-BR') + ' palavras / ' + Math.ceil(chars/2000) + ' páginas estimadas' + instrJuri + instrExecPenal + '\n\nSEÇÃO 3 — PROTOCOLO ANTI-ALUCINAÇÃO (OBRIGATÓRIO)\n1. JURISPRUDÊNCIA REAL: Nunca invente número de processo, relator ou ementa. Se não tiver certeza exata: descreva APENAS a tendência jurisprudencial sem fabricar referência. Prefira citar Súmulas numeradas (STF, STJ, TST) pois são verificáveis.\n2. PROBABILIDADE HONESTA: Se dados insuficientes, liste o que falta. Nunca dê percentual sem justificativa objetiva.\n3. CLASSIFICAÇÃO DE CERTEZA: Marque cada argumento com ✅ SÓLIDO / ⚡ DEBATIDO / ⚠ ARROJADO / ❌ VULNERÁVEL.\n4. LACUNAS: Sinalize ⚠ DADO AUSENTE: [o que] — [por que importa] — [onde obter].\n5. SOMENTE OS FATOS DO DOCUMENTO: Não suponha, não complete a narrativa.\n6. ONDE LER: Para cada fundamento legal citado, indique: [dispositivo legal exato] → [onde encontrar nos autos/documento] → [página/parágrafo estimado se possível]. Exemplo: Art. 186 CC → verificar na petição inicial, 3º parágrafo dos fatos.\n\nSEÇÃO 4 — TAREFAS' + estrategiasTexto + (instrExtra ? '\n\nINSTRUÇÃO ADICIONAL: ' + instrExtra : '') + '\n\nSEÇÃO 5 — DOCUMENTOS E DADOS DO PROCESSO\n' + (resumoTexto || '[Nenhum texto de processo fornecido — analise com base nos dados acima]') + '\n\nSEÇÃO 6 — FORMATO DA RESPOSTA\nUse títulos claros para cada seção solicitada. Ao final, inclua:\n\n► RESUMO EXECUTIVO:\n• Diagnóstico em 2 linhas\n• Principal risco\n• Principal oportunidade\n• Recomendação imediata\n\n► MAPA DE LEITURA PRIORITÁRIA (obrigatório):\nListe em ordem de prioridade os trechos que o advogado DEVE LER nos autos/documentos:\n1. [Documento/Peça] → [O que verificar] → [Por que é crítico]\n2. [Documento/Peça] → [O que verificar] → [Por que é crítico]\n(continue conforme necessário)\n\n► ALERTAS DE VERIFICAÇÃO:\n⚠ Antes de usar esta análise, confirme diretamente nas fontes:\n• Súmulas: site do STF (stf.jus.br) ou STJ (stj.jus.br) → menu Jurisprudência → Súmulas\n• Legislação: site do Planalto (planalto.gov.br) ou LexML\n• Jurisprudência recente: Jusbrasil, site do tribunal competente';
 
   document.getElementById('prompt-final').value = prompt;
   var outputCard = document.getElementById('output-card');
