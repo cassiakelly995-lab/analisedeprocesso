@@ -556,6 +556,10 @@ textarea { resize: vertical; min-height: 140px; line-height: 1.6; }
   cursor: pointer; transition: 0.2s;
 }
 .sigilo-check:hover { border-color: var(--gold); }
+.sigilo-check:has(input:checked) {
+  border-color: rgba(95,175,122,0.5);
+  background: rgba(95,175,122,0.05);
+}
 .sigilo-check input[type=checkbox] {
   width: 17px; height: 17px; flex-shrink: 0; margin-top: 2px;
   accent-color: var(--gold); cursor: pointer;
@@ -769,17 +773,17 @@ body { padding-bottom: 42px; }
     </div>
 
     <div class="sigilo-checks" id="sigilo-checks">
-      <div class="sigilo-check" onclick="toggleCheck('c1')">
-        <input type="checkbox" id="c1" onchange="verificarChecks()">
-        <label for="c1">Declaro que sou advogado(a) regularmente inscrito na OAB ou estagiário supervisionado, e que tenho autorização do cliente para processar estes dados.</label>
+      <div class="sigilo-check" onclick="document.getElementById('c1').click()">
+        <input type="checkbox" id="c1" onclick="event.stopPropagation()" onchange="verificarChecks()">
+        <label for="c1" onclick="event.stopPropagation()">Declaro que sou advogado(a) regularmente inscrito na OAB ou estagiário supervisionado, e que tenho autorização do cliente para processar estes dados.</label>
       </div>
-      <div class="sigilo-check" onclick="toggleCheck('c2')">
-        <input type="checkbox" id="c2" onchange="verificarChecks()">
-        <label for="c2">Compreendo que o processo enviado ao Scanner Forense trafega pela API do Claude (Anthropic). Confirmo que o processo NÃO está sob segredo de justiça absoluto e que não contém dados de menores vítimas de crimes.</label>
+      <div class="sigilo-check" onclick="document.getElementById('c2').click()">
+        <input type="checkbox" id="c2" onclick="event.stopPropagation()" onchange="verificarChecks()">
+        <label for="c2" onclick="event.stopPropagation()">Compreendo que o processo enviado ao Scanner Forense trafega pela API do Claude (Anthropic). Confirmo que o processo NÃO está sob segredo de justiça absoluto e que não contém dados de menores vítimas de crimes.</label>
       </div>
-      <div class="sigilo-check" onclick="toggleCheck('c3')">
-        <input type="checkbox" id="c3" onchange="verificarChecks()">
-        <label for="c3">Estou ciente que o sistema aplica anonimização automática de dados pessoais (nomes, CPF, endereços) antes do envio para análise, e assumo total responsabilidade pelo uso desta ferramenta e pelo conteúdo inserido, isentando os desenvolvedores de qualquer responsabilidade por decisões jurídicas tomadas com base nos prompts gerados.</label>
+      <div class="sigilo-check" onclick="document.getElementById('c3').click()">
+        <input type="checkbox" id="c3" onclick="event.stopPropagation()" onchange="verificarChecks()">
+        <label for="c3" onclick="event.stopPropagation()">Estou ciente que o sistema aplica anonimização automática de dados pessoais (nomes, CPF, endereços) antes do envio para análise, e assumo total responsabilidade pelo uso desta ferramenta e pelo conteúdo inserido, isentando os desenvolvedores de qualquer responsabilidade por decisões jurídicas tomadas com base nos prompts gerados.</label>
       </div>
     </div>
 
@@ -1145,16 +1149,17 @@ body { padding-bottom: 42px; }
 <script>
 // ── SIGILO E SEGURANÇA ──
 
-function toggleCheck(id) {
-  const cb = document.getElementById(id);
-  cb.checked = !cb.checked;
-  verificarChecks();
-}
-
 function verificarChecks() {
-  const todos = ['c1','c2','c3'].every(id => document.getElementById(id).checked);
+  const todos = ['c1','c2','c3'].every(id => {
+    const el = document.getElementById(id);
+    return el && el.checked;
+  });
   const btn = document.getElementById('btn-entrar');
-  btn.classList.toggle('ok', todos);
+  if (todos) {
+    btn.classList.add('ok');
+  } else {
+    btn.classList.remove('ok');
+  }
 }
 
 function entrarSistema() {
