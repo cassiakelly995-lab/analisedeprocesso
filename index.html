@@ -1914,7 +1914,7 @@ document.getElementById('fatos').addEventListener('input', function() { this.sty
 <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:16px;">
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
 <div><label style="display:block;font-size:9px;font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">Tribunal</label>
-<select id="calc-trib" onchange="calcComarcas()" style="width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:11px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;">
+<select id="calc-trib" style="width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:11px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;">
 <option value="">Selecione o tribunal...</option>
 <option value="TJAC">TJAC — Acre</option>
 <option value="TJAL">TJAL — Alagoas</option>
@@ -2265,6 +2265,35 @@ function fecharCalculadora() {
   document.getElementById('painel-calc').style.display = 'none';
   document.body.style.overflow = '';
 }
+// Attach comarca listener after DOM ready
+(function() {
+  function attachListeners() {
+    var tribSel = document.getElementById('calc-trib');
+    if (tribSel) {
+      tribSel.addEventListener('change', function() {
+        var tribVal = this.value;
+        var selCom = document.getElementById('calc-com');
+        selCom.innerHTML = '';
+        if (!tribVal) {
+          var opt = document.createElement('option');
+          opt.value = ''; opt.textContent = 'Selecione o tribunal primeiro...';
+          selCom.appendChild(opt);
+          return;
+        }
+        var lista = CALC_CM[tribVal] || ['Capital'];
+        lista.forEach(function(nome) {
+          var opt = document.createElement('option');
+          opt.value = nome; opt.textContent = nome;
+          selCom.appendChild(opt);
+        });
+      });
+      console.log('✅ Comarca listener attached');
+    } else {
+      setTimeout(attachListeners, 200);
+    }
+  }
+  attachListeners();
+})();
 </script>
 </body>
 </html>
