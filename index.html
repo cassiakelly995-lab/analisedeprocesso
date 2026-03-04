@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>THEMIS JURIDICO | ENGENHARIA DE PROMPT</title>
+<title>LEXIS — Inteligência Jurídica de Precisão</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -498,6 +499,195 @@ textarea { resize: vertical; min-height: 140px; line-height: 1.6; }
 .blink { animation: blink 1.2s step-end infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
+/* ── SIGILO OVERLAY ── */
+#sigilo-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #040709;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  transition: opacity 0.5s;
+}
+#sigilo-overlay.saindo { opacity: 0; pointer-events: none; }
+.sigilo-box {
+  background: #0d1218;
+  border: 1px solid rgba(185,150,63,0.3);
+  border-radius: 14px;
+  max-width: 600px; width: 100%;
+  padding: clamp(28px,5vw,50px);
+  box-shadow: 0 0 100px rgba(0,0,0,0.95);
+}
+.sigilo-icon {
+  width: 64px; height: 64px; border-radius: 50%;
+  border: 2px solid rgba(200,64,64,0.5);
+  background: rgba(200,64,64,0.07);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; margin: 0 auto 22px;
+}
+.sigilo-titulo {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(20px,3vw,28px); font-weight: 900;
+  text-align: center; margin-bottom: 8px;
+  background: var(--gold-grad);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.sigilo-sub {
+  text-align: center; font-size: 10px; letter-spacing: 3px;
+  color: var(--muted); text-transform: uppercase; margin-bottom: 28px;
+}
+.sigilo-aviso {
+  background: rgba(200,64,64,0.06);
+  border: 1px solid rgba(200,64,64,0.25);
+  border-left: 3px solid #c84040;
+  border-radius: 8px; padding: 16px 18px; margin-bottom: 22px;
+  font-size: 12px; line-height: 1.85; color: rgba(232,224,208,0.72);
+}
+.sigilo-aviso strong { color: rgba(255,170,170,0.9); }
+.sigilo-aviso .destaque {
+  display: block; margin-top: 10px; padding: 10px 14px;
+  background: rgba(200,64,64,0.08); border-radius: 6px;
+  font-size: 11px; color: rgba(255,200,200,0.75); line-height: 1.7;
+}
+.sigilo-checks { margin-bottom: 22px; display: flex; flex-direction: column; gap: 12px; }
+.sigilo-check {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border); border-radius: 6px;
+  cursor: pointer; transition: 0.2s;
+}
+.sigilo-check:hover { border-color: var(--gold); }
+.sigilo-check input[type=checkbox] {
+  width: 17px; height: 17px; flex-shrink: 0; margin-top: 2px;
+  accent-color: var(--gold); cursor: pointer;
+  margin-bottom: 0;
+}
+.sigilo-check label {
+  font-size: 12px; line-height: 1.6; color: rgba(232,224,208,0.78);
+  cursor: pointer; text-transform: none; letter-spacing: 0;
+  font-weight: 400; margin-bottom: 0;
+}
+.btn-entrar {
+  width: 100%; background: var(--gold-grad); color: #000;
+  border: none; padding: 18px; border-radius: 6px;
+  font-family: 'DM Sans', sans-serif; font-weight: 900;
+  font-size: 13px; letter-spacing: 3px; text-transform: uppercase;
+  cursor: pointer; transition: 0.3s;
+  opacity: 0.35; pointer-events: none;
+}
+.btn-entrar.ok { opacity: 1; pointer-events: all; }
+.btn-entrar.ok:hover { filter: brightness(1.15); }
+
+/* ── BARRA DE SEGURANÇA ── */
+.security-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 800;
+  background: rgba(5,8,12,0.97);
+  border-top: 1px solid rgba(185,150,63,0.12);
+  padding: 8px 30px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
+}
+.sec-esq { display: flex; align-items: center; gap: 10px; }
+.sec-dot { width: 7px; height: 7px; border-radius: 50%; background: #5faf7a; animation: pdot 2s infinite; flex-shrink:0; }
+@keyframes pdot { 0%,100%{opacity:1}50%{opacity:0.3} }
+.sec-txt { font-size: 9px; color: rgba(232,224,208,0.3); letter-spacing: 1.5px; text-transform: uppercase; }
+.sec-txt strong { color: rgba(185,150,63,0.55); }
+
+/* ── ANONIMIZAÇÃO ── */
+.anon-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(95,175,122,0.1); border: 1px solid rgba(95,175,122,0.3);
+  border-radius: 4px; padding: 4px 10px;
+  font-size: 9px; font-weight: 800; letter-spacing: 1.5px;
+  color: #5faf7a; text-transform: uppercase;
+}
+.anon-relatorio {
+  background: rgba(95,175,122,0.06);
+  border: 1px solid rgba(95,175,122,0.25);
+  border-left: 3px solid #5faf7a;
+  border-radius: 8px; padding: 14px 18px;
+  margin-bottom: 16px; font-size: 11.5px; line-height: 1.8;
+  color: rgba(232,224,208,0.75); display: none;
+}
+.anon-relatorio strong { color: #5faf7a; }
+.anon-relatorio .anon-item {
+  font-family: 'DM Mono', monospace; font-size: 10px;
+  color: rgba(232,224,208,0.5); display: block; margin-top: 4px;
+}
+.anon-toggle {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px;
+}
+.switch { position: relative; display: inline-block; width: 42px; height: 22px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute; inset: 0; cursor: pointer;
+  background: rgba(255,255,255,0.1); border-radius: 22px;
+  transition: 0.3s; border: 1px solid var(--border);
+}
+.slider:before {
+  content: ''; position: absolute;
+  width: 16px; height: 16px; left: 3px; top: 2px;
+  background: var(--muted); border-radius: 50%; transition: 0.3s;
+}
+input:checked + .slider { background: rgba(95,175,122,0.3); border-color: #5faf7a; }
+input:checked + .slider:before { transform: translateX(19px); background: #5faf7a; }
+.switch-label { font-size: 11px; color: var(--text); line-height: 1.5; }
+.switch-label span { display: block; font-size: 9px; color: var(--muted); letter-spacing: 1px; margin-top: 1px; }
+.btn-destruir {
+  background: rgba(217,95,95,0.08);
+  border: 1px solid rgba(217,95,95,0.3);
+  color: #d95f5f; padding: 7px 18px; border-radius: 4px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px; font-weight: 900; letter-spacing: 2px;
+  text-transform: uppercase; cursor: pointer; transition: 0.2s;
+}
+.btn-destruir:hover { background: rgba(217,95,95,0.18); border-color: #d95f5f; }
+
+/* padding para não sobrepor barra */
+body { padding-bottom: 42px; }
+
+/* ── ERRO TOASTS AVANÇADOS ── */
+.erro-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 8000;
+  background: rgba(5,8,12,0.88);
+  align-items: center; justify-content: center;
+  padding: 20px;
+}
+.erro-overlay.show { display: flex; }
+.erro-box {
+  background: #0d1218;
+  border: 1px solid rgba(217,95,95,0.4);
+  border-top: 3px solid #d95f5f;
+  border-radius: 12px;
+  max-width: 520px; width: 100%;
+  padding: 36px;
+  box-shadow: 0 0 60px rgba(0,0,0,0.9);
+  text-align: center;
+}
+.erro-icon { font-size: 36px; margin-bottom: 16px; }
+.erro-titulo { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: #e08080; margin-bottom: 10px; }
+.erro-msg { font-size: 13px; line-height: 1.7; color: rgba(232,224,208,0.7); margin-bottom: 20px; }
+.erro-detalhe { font-family: 'DM Mono', monospace; font-size: 10px; color: rgba(232,224,208,0.35); background: rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; margin-bottom: 20px; text-align: left; word-break: break-all; }
+.erro-btns { display: flex; gap: 10px; }
+.btn-erro-ok { flex:1; background: rgba(217,95,95,0.15); border: 1px solid rgba(217,95,95,0.4); color: #e08080; padding: 12px; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
+.btn-erro-ok:hover { background: rgba(217,95,95,0.25); }
+.btn-erro-retry { flex:1; background: var(--gold-grad); border: none; color: #000; padding: 12px; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-weight: 900; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; }
+
+/* ── MODO TESTE ── */
+.teste-banner {
+  background: rgba(217,162,74,0.08);
+  border: 1px solid rgba(217,162,74,0.3);
+  border-radius: 8px; padding: 12px 18px;
+  margin-bottom: 20px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  display: none;
+}
+.teste-banner.show { display: flex; }
+.teste-txt { font-size: 11px; color: var(--warn); font-weight: 700; letter-spacing: 1px; }
+.teste-sub { font-size: 10px; color: var(--muted); font-weight: 400; margin-top: 2px; }
+.btn-limpar-teste { background: transparent; border: 1px solid rgba(217,162,74,0.4); color: var(--warn); padding: 6px 14px; border-radius: 4px; font-size: 9px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; white-space: nowrap; font-family: 'DM Sans', sans-serif; }
+
 /* IA SELECTOR */
 .ia-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:18px; }
 @media(max-width:600px){.ia-grid{grid-template-columns:repeat(2,1fr);}}
@@ -563,10 +753,69 @@ textarea { resize: vertical; min-height: 140px; line-height: 1.6; }
 </head>
 <body>
 
+<!-- SIGILO OBRIGATÓRIO -->
+<div id="sigilo-overlay">
+  <div class="sigilo-box">
+    <div class="sigilo-icon">🔒</div>
+    <div class="sigilo-titulo">LEXIS — TERMO DE SIGILO PROFISSIONAL</div>
+    <div class="sigilo-sub">Leia integralmente antes de prosseguir</div>
+
+    <div class="sigilo-aviso">
+      <strong>⚠ DADOS SENSÍVEIS E SIGILO PROCESSUAL</strong><br>
+      Esta ferramenta processa textos de processos judiciais que podem conter dados pessoais sensíveis, segredo de justiça, informações de menores, dados médicos e financeiros protegidos pela <strong>LGPD (Lei 13.709/2018)</strong> e pelo <strong>Código de Ética da OAB</strong>.
+      <span class="destaque">
+        🔴 <strong>ATENÇÃO CRÍTICA:</strong> Ao usar o Scanner Forense, o texto do processo é enviado para a API do Claude (Anthropic) para análise. Isso significa que o conteúdo trafega pela infraestrutura de uma empresa americana. <strong>NÃO use esta ferramenta com processos sob segredo de justiça absoluto ou que contenham dados de vítimas de crimes sexuais, menores de idade ou informações sigilosas de Estado.</strong> Para esses casos, use apenas a geração de prompt (que não envia dados para API externa).
+      </span>
+    </div>
+
+    <div class="sigilo-checks" id="sigilo-checks">
+      <div class="sigilo-check" onclick="toggleCheck('c1')">
+        <input type="checkbox" id="c1" onchange="verificarChecks()">
+        <label for="c1">Declaro que sou advogado(a) regularmente inscrito na OAB ou estagiário supervisionado, e que tenho autorização do cliente para processar estes dados.</label>
+      </div>
+      <div class="sigilo-check" onclick="toggleCheck('c2')">
+        <input type="checkbox" id="c2" onchange="verificarChecks()">
+        <label for="c2">Compreendo que o processo enviado ao Scanner Forense trafega pela API do Claude (Anthropic). Confirmo que o processo NÃO está sob segredo de justiça absoluto e que não contém dados de menores vítimas de crimes.</label>
+      </div>
+      <div class="sigilo-check" onclick="toggleCheck('c3')">
+        <input type="checkbox" id="c3" onchange="verificarChecks()">
+        <label for="c3">Estou ciente que o sistema aplica anonimização automática de dados pessoais (nomes, CPF, endereços) antes do envio para análise, e assumo total responsabilidade pelo uso desta ferramenta e pelo conteúdo inserido, isentando os desenvolvedores de qualquer responsabilidade por decisões jurídicas tomadas com base nos prompts gerados.</label>
+      </div>
+    </div>
+
+    <button class="btn-entrar" id="btn-entrar" onclick="entrarSistema()">
+      ACEITO — ACESSAR O SISTEMA
+    </button>
+  </div>
+</div>
+
+<!-- BARRA DE SEGURANÇA INFERIOR -->
+<div class="security-bar" id="security-bar" style="display:none;">
+  <div class="sec-esq">
+    <div class="sec-dot"></div>
+    <div class="sec-txt">Sessão local ativa • Dados <strong>não armazenados em servidor</strong> • Criptografia em memória</div>
+  </div>
+  <button class="btn-destruir" onclick="destruirSessao()">🗑 DESTRUIR SESSÃO</button>
+</div>
+
 <div id="toast"></div>
 
+<!-- OVERLAY DE ERRO -->
+<div class="erro-overlay" id="erro-overlay">
+  <div class="erro-box">
+    <div class="erro-icon" id="erro-icon">⚠️</div>
+    <div class="erro-titulo" id="erro-titulo">Ocorreu um erro</div>
+    <div class="erro-msg" id="erro-msg"></div>
+    <div class="erro-detalhe" id="erro-detalhe" style="display:none;"></div>
+    <div class="erro-btns">
+      <button class="btn-erro-ok" onclick="fecharErro()">FECHAR</button>
+      <button class="btn-erro-retry" id="btn-retry" onclick="fecharErro()" style="display:none;">TENTAR NOVAMENTE</button>
+    </div>
+  </div>
+</div>
+
 <div class="loading-overlay" id="loading">
-  <div class="loading-logo">THEMIS</div>
+  <div class="loading-logo">LEXIS</div>
   <div class="loading-bar-wrap"><div class="loading-bar"></div></div>
   <div class="loading-msg" id="loading-msg">Gerando engenharia de prompt...</div>
 </div>
@@ -575,18 +824,29 @@ textarea { resize: vertical; min-height: 140px; line-height: 1.6; }
   <div class="brand">
     <div class="brand-icon">⚖️</div>
     <div>
-      <div class="brand-text">THEMIS</div>
-      <div class="brand-sub">Engenharia Jurídica de Prompt</div>
+      <div class="brand-text">LEXIS</div>
+      <div class="brand-sub">Inteligência Jurídica de Precisão</div>
     </div>
   </div>
-  <div class="nav-tag">Versão Profissional</div>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <button onclick="carregarProcessoTeste()" style="background:rgba(217,162,74,0.1);border:1px solid rgba(217,162,74,0.3);color:var(--warn);padding:7px 14px;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">⚗ MODO TESTE</button>
+    <div class="nav-tag">Edição Profissional</div>
+  </div>
 </nav>
 
 <div class="wrapper">
 
+  <div class="teste-banner" id="teste-banner">
+    <div>
+      <div class="teste-txt">⚗ MODO TESTE ATIVO</div>
+      <div class="teste-sub">Processo fictício carregado — dados não reais. Ideal para aprender o sistema antes de usar com processos reais.</div>
+    </div>
+    <button class="btn-limpar-teste" onclick="limparTeste()">✕ LIMPAR TESTE</button>
+  </div>
+
   <div class="hero">
-    <div class="hero-eyebrow">Sistema Jurídico de Alta Precisão</div>
-    <h1>Análise Estratégica<br>& Gerador de Prompt</h1>
+    <div class="hero-eyebrow">Inteligência Jurídica de Precisão</div>
+    <h1>Análise Forense<br>& Estratégia Jurídica</h1>
     <p>Extraia dados do processo, avalie probabilidade de êxito e gere prompts estruturados com bases jurídicas reais para usar em qualquer IA.</p>
   </div>
 
@@ -617,6 +877,9 @@ textarea { resize: vertical; min-height: 140px; line-height: 1.6; }
         </div>
       </div>
       <input type="file" id="pdf-input" accept="application/pdf" style="display:none" onchange="lerPDF(this)">
+      <div id="ocr-aviso" style="display:none;background:rgba(95,175,122,0.07);border:1px solid rgba(95,175,122,0.3);border-left:3px solid var(--success);border-radius:6px;padding:12px 16px;margin-bottom:14px;font-size:11.5px;line-height:1.7;color:rgba(232,224,208,0.75);">
+        <strong style="color:#5faf7a;">✅ OCR Aplicado com Sucesso</strong> — Este PDF era escaneado (imagem). O sistema aplicou reconhecimento óptico de caracteres (OCR) em português para extrair o texto. A precisão depende da qualidade da digitalização original. Revise o texto extraído abaixo se necessário.
+      </div>
 
       <label>Ou cole o texto/fatos diretamente:</label>
       <textarea id="fatos" placeholder="Cole aqui: petição inicial, sentença, decisões, laudos, contratos, notificações — tudo que for relevante para o caso..." oninput="calcMetricas()"></textarea>
@@ -795,6 +1058,18 @@ textarea { resize: vertical; min-height: 140px; line-height: 1.6; }
         <div class="scan-summary" id="scan-summary"></div>
         <div id="scan-sections"></div>
       </div>
+      <!-- ANONIMIZAÇÃO TOGGLE -->
+      <div class="anon-toggle">
+        <label class="switch">
+          <input type="checkbox" id="anon-toggle" checked onchange="atualizarAnonLabel()">
+          <span class="slider"></span>
+        </label>
+        <div class="switch-label">
+          Anonimizar dados pessoais antes de enviar para a IA
+          <span id="anon-label-sub">✅ ATIVO — Nomes, CPF, CNPJ, endereços e documentos serão substituídos por códigos antes do envio</span>
+        </div>
+      </div>
+      <div class="anon-relatorio" id="anon-relatorio"></div>
       <button class="btn-scan" id="btn-scan" onclick="executarScanner()">
         <span>🔬</span><span>EXECUTAR SCANNER FORENSE</span>
       </button>
@@ -868,6 +1143,101 @@ textarea { resize: vertical; min-height: 140px; line-height: 1.6; }
 </div>
 
 <script>
+// ── SIGILO E SEGURANÇA ──
+
+function toggleCheck(id) {
+  const cb = document.getElementById(id);
+  cb.checked = !cb.checked;
+  verificarChecks();
+}
+
+function verificarChecks() {
+  const todos = ['c1','c2','c3'].every(id => document.getElementById(id).checked);
+  const btn = document.getElementById('btn-entrar');
+  btn.classList.toggle('ok', todos);
+}
+
+function entrarSistema() {
+  const overlay = document.getElementById('sigilo-overlay');
+  const bar = document.getElementById('security-bar');
+  overlay.classList.add('saindo');
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    bar.style.display = 'flex';
+  }, 500);
+  // Registra hora de início da sessão (só em memória)
+  window._sessaoInicio = new Date().toLocaleTimeString('pt-BR');
+}
+
+function destruirSessao() {
+  const conf = confirm('⚠ DESTRUIR SESSÃO\n\nEsta ação irá:\n• Apagar todo o texto do processo da memória\n• Limpar todos os campos\n• Limpar o resultado do scanner\n• Limpar o prompt gerado\n\nConfirma?');
+  if (!conf) return;
+
+  // Limpa todos os campos de texto
+  ['fatos','tese','pedido','destino','instrucao_extra','prompt-final'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+
+  // Limpa variáveis em memória
+  if (typeof paginasIndexadas !== 'undefined') paginasIndexadas = [];
+  if (typeof textoProcesso !== 'undefined') textoProcesso = '';
+  if (typeof estrategiasSel !== 'undefined') estrategiasSel = [];
+
+  // Limpa UI
+  const outputCard = document.getElementById('output-card');
+  if (outputCard) outputCard.style.display = 'none';
+
+  const scanResults = document.getElementById('scanner-results');
+  if (scanResults) scanResults.style.display = 'none';
+  const scanIdle = document.getElementById('scanner-idle');
+  if (scanIdle) scanIdle.style.display = 'block';
+  const scanSections = document.getElementById('scan-sections');
+  if (scanSections) scanSections.innerHTML = '';
+  const scanSummary = document.getElementById('scan-summary');
+  if (scanSummary) scanSummary.innerHTML = '';
+  const alertTop = document.getElementById('scanner-alert-top');
+  if (alertTop) { alertTop.style.display = 'none'; alertTop.innerHTML = ''; }
+
+  // Limpa PDF zone
+  const pdfZone = document.getElementById('pdf-zone');
+  if (pdfZone) pdfZone.classList.remove('loaded');
+  const pdfSub = document.getElementById('pdf-sub');
+  if (pdfSub) pdfSub.textContent = 'Suporta processos judiciais com até 1.500 páginas • PDF nativo + OCR';
+  const pdfProg = document.getElementById('pdf-prog-wrap');
+  if (pdfProg) pdfProg.style.display = 'none';
+  const pdfInput = document.getElementById('pdf-input');
+  if (pdfInput) pdfInput.value = '';
+  const ocrAviso = document.getElementById('ocr-aviso');
+  if (ocrAviso) ocrAviso.style.display = 'none';
+
+  // Limpa seletores
+  ['area','polo','instancia'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.querySelectorAll('.etag').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.ia-card').forEach((c,i) => c.classList.toggle('active', i===0));
+
+  // Limpa métricas
+  ['g1','g2','g3','g4'].forEach(id => {
+    const bar = document.getElementById(id+'-bar');
+    const val = document.getElementById(id+'-val');
+    if (bar) bar.style.width = '0%';
+    if (val) val.textContent = id === 'g1' || id === 'g4' ? '0%' : '—';
+  });
+  const countEl = document.getElementById('char-count');
+  if (countEl) countEl.textContent = '0 caracteres • 0 palavras';
+  const pgEl = document.getElementById('pg-est');
+  if (pgEl) pgEl.textContent = '';
+
+  // Força garbage collection hint
+  if (window.gc) window.gc();
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  toast('🗑 SESSÃO DESTRUÍDA — MEMÓRIA LIMPA');
+}
+
 // PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
@@ -907,6 +1277,7 @@ async function processarPDF(file) {
 
   zone.classList.remove('loaded');
   progWrap.style.display = 'block';
+  paginasIndexadas = [];
   toast('📄 LENDO PDF...');
 
   try {
@@ -914,36 +1285,109 @@ async function processarPDF(file) {
     const typedArray = new Uint8Array(arrayBuffer);
     const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
     const totalPages = pdf.numPages;
-
     let fullText = '';
-    const CHUNK = 50; // processa 50 páginas por vez para não travar
+    let paginasComTexto = 0;
 
+    // Primeira passagem: tenta extração nativa de texto
+    const textosNativos = [];
     for (let i = 1; i <= totalPages; i++) {
       const page = await pdf.getPage(i);
       const content = await page.getTextContent();
-      const pageText = content.items.map(s => s.str).join(' ');
-      fullText += pageText + '\n';
-
-      const pct = Math.round((i / totalPages) * 100);
+      const pageText = content.items.map(s => s.str).join(' ').trim();
+      textosNativos.push(pageText);
+      if (pageText.length > 30) paginasComTexto++;
+      const pct = Math.round((i / totalPages) * 30); // 0-30%
       bar.style.width = pct + '%';
-      msg.textContent = `Lendo página ${i} de ${totalPages}...`;
-
-      // yield para não travar UI a cada 10 páginas
+      msg.textContent = `Lendo texto nativo — página ${i} de ${totalPages}...`;
       if (i % 10 === 0) await new Promise(r => setTimeout(r, 0));
     }
 
+    const taxaTexto = paginasComTexto / totalPages;
+    const precisaOCR = taxaTexto < 0.4; // menos de 40% das páginas têm texto = PDF escaneado
+
+    if (precisaOCR) {
+      // PDF escaneado — usar OCR com Tesseract
+      msg.textContent = '🔍 PDF escaneado detectado — iniciando OCR (pode demorar)...';
+      bar.style.width = '32%';
+      toast('🔍 PDF ESCANEADO — INICIANDO OCR...');
+
+      // Inicializa Tesseract worker
+      const worker = await Tesseract.createWorker('por', 1, {
+        logger: m => {
+          if (m.status === 'recognizing text') {
+            const pctOCR = Math.round(30 + (m.progress * 65));
+            bar.style.width = Math.min(pctOCR, 95) + '%';
+          }
+        }
+      });
+
+      for (let i = 1; i <= totalPages; i++) {
+        msg.textContent = `🔍 OCR — processando página ${i} de ${totalPages}...`;
+
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 2.0 }); // scale 2x para melhor OCR
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        await page.render({ canvasContext: ctx, viewport }).promise;
+
+        const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+        const { data: { text } } = await worker.recognize(blob);
+        const pageText = text.trim();
+
+        fullText += pageText + '\n';
+        paginasIndexadas.push({ num: i, texto: pageText, via: 'ocr' });
+
+        const pct = Math.round(30 + (i / totalPages) * 65);
+        bar.style.width = pct + '%';
+        if (i % 5 === 0) await new Promise(r => setTimeout(r, 0));
+      }
+
+      await worker.terminate();
+      msg.textContent = `✅ OCR concluído — ${totalPages} páginas processadas`;
+
+    } else {
+      // PDF nativo — usa textos já extraídos
+      for (let i = 0; i < totalPages; i++) {
+        fullText += textosNativos[i] + '\n';
+        paginasIndexadas.push({ num: i + 1, texto: textosNativos[i], via: 'nativo' });
+        const pct = Math.round(30 + ((i + 1) / totalPages) * 65);
+        bar.style.width = pct + '%';
+        msg.textContent = `Indexando página ${i + 1} de ${totalPages}...`;
+        if (i % 20 === 0) await new Promise(r => setTimeout(r, 0));
+      }
+    }
+
+    bar.style.width = '100%';
     textoProcesso = fullText;
     document.getElementById('fatos').value = fullText;
 
     zone.classList.add('loaded');
-    sub.textContent = `✅ ${totalPages} páginas importadas • ${(file.size/1024/1024).toFixed(1)} MB`;
-    msg.textContent = `✅ ${totalPages} páginas lidas com sucesso!`;
+    const via = precisaOCR ? ' via OCR' : ' (texto nativo)';
+    sub.textContent = `✅ ${totalPages} páginas importadas${via} • ${(file.size/1024/1024).toFixed(1)} MB`;
+    msg.textContent = `✅ ${totalPages} páginas lidas com sucesso${via}!`;
+
+    // Mostra aviso de OCR se foi necessário
+    if (precisaOCR) {
+      const avisoOCR = document.getElementById('ocr-aviso');
+      if (avisoOCR) avisoOCR.style.display = 'block';
+    }
 
     calcMetricas();
-    toast('✅ PDF IMPORTADO!');
+    verificarCompatibilidade();
+    toast(precisaOCR ? '✅ OCR CONCLUÍDO!' : '✅ PDF IMPORTADO!');
+
   } catch(err) {
     console.error(err);
-    msg.textContent = '❌ Erro ao ler PDF. Verifique se não é escaneado.';
+    msg.textContent = '❌ Erro ao processar PDF';
+    const pdfErrMsg = err.message || 'Erro desconhecido';
+    const pdfDica = pdfErrMsg.includes('Invalid') || pdfErrMsg.includes('corrupt')
+      ? 'O arquivo PDF pode estar corrompido ou protegido por senha.'
+      : pdfErrMsg.includes('password')
+      ? 'O PDF está protegido por senha. Remova a senha antes de importar.'
+      : 'Verifique se o arquivo é um PDF válido e tente novamente.';
+    mostrarErro('Erro ao Importar PDF', pdfDica, pdfErrMsg, null);
     toast('❌ ERRO AO LER PDF');
   }
 }
@@ -1385,6 +1829,14 @@ async function gerarPrompt() {
     '1grau':'1ª Grau', '2grau':'2ª Grau', 'stj':'STJ', 'stf':'STF', 'tst':'TST', 'execucao':'Execução'
   };
 
+  // Anonimiza fatos antes de incluir no prompt
+  const anonAtivoPrompt = document.getElementById('anon-toggle') && document.getElementById('anon-toggle').checked;
+  let fatosParaPrompt = fatos;
+  if (anonAtivoPrompt && typeof anonimizarTexto === 'function') {
+    const { textoAnon: fatosAnon } = anonimizarTexto(fatos);
+    fatosParaPrompt = fatosAnon;
+  }
+
   const chars = fatos.length;
   const palavras = fatos.split(/\s+/).filter(p => p).length;
   const resumoTexto = chars > 8000
@@ -1393,7 +1845,7 @@ async function gerarPrompt() {
 
   const iaNome = (iaConfigs[iaAtual] || iaConfigs['claude']).nome;
   const prompt = `╔══════════════════════════════════════════════════════════════════════╗
-║      THEMIS — SISTEMA DE ANÁLISE JURÍDICA ESTRATÉGICA DE PRECISÃO    ║
+║         LEXIS — INTELIGÊNCIA JURÍDICA DE PRECISÃO                     ║
 ║      Protocolo Anti-Alucinação Ativo | Otimizado para: ${iaNome.padEnd(20)}║
 ╚══════════════════════════════════════════════════════════════════════╝
 
@@ -1487,7 +1939,7 @@ SEÇÃO 5 — DOCUMENTOS E DADOS DO PROCESSO
 Leia todos os documentos abaixo com atenção máxima antes de iniciar qualquer análise.
 Extraia: datas, partes, valores, fatos relevantes, documentos mencionados, decisões anteriores, prazos, acordos, notificações.
 
-${fatos}
+${fatosParaPrompt}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 SEÇÃO 6 — FORMATO DA RESPOSTA
@@ -1534,7 +1986,7 @@ function baixarDoc() {
   const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'THEMIS_Prompt_Juridico.doc';
+  a.download = 'LEXIS_Analise_Juridica.doc';
   a.click();
   toast('⬇ ARQUIVO EXPORTADO!');
 }
@@ -1695,6 +2147,172 @@ document.getElementById('fatos').addEventListener('input', function() {
   verificarCompatibilidade();
 });
 
+// ── ANONIMIZAÇÃO AUTOMÁTICA ──
+
+function atualizarAnonLabel() {
+  const ativo = document.getElementById('anon-toggle').checked;
+  document.getElementById('anon-label-sub').textContent = ativo
+    ? '✅ ATIVO — Nomes, CPF, CNPJ, endereços e documentos serão substituídos por códigos antes do envio'
+    : '⚠ DESATIVADO — O texto será enviado sem modificação (use apenas se o processo for público)';
+}
+
+function anonimizarTexto(texto) {
+  const mapa = {};
+  let contadores = { PESSOA: 0, DOC: 0, END: 0, TEL: 0, EMAIL: 0, OAB: 0 };
+  let resultado = texto;
+
+  // ── CPF: 000.000.000-00 ou 00000000000 (11 dígitos)
+  resultado = resultado.replace(/\b\d{3}[.\s]?\d{3}[.\s]?\d{3}[-.\s]?\d{2}\b/g, m => {
+    if (m.replace(/\D/g,'').length !== 11) return m;
+    const tok = '[DOC-' + (++contadores.DOC) + ']';
+    mapa[tok] = m.trim(); return tok;
+  });
+
+  // ── CNPJ: 00.000.000/0000-00 (14 dígitos)
+  resultado = resultado.replace(/\b\d{2}[.\s]?\d{3}[.\s]?\d{3}[/\s]?\d{4}[-.\s]?\d{2}\b/g, m => {
+    if (m.replace(/\D/g,'').length !== 14) return m;
+    const tok = '[DOC-' + (++contadores.DOC) + ']';
+    mapa[tok] = m.trim(); return tok;
+  });
+
+  // ── RG
+  resultado = resultado.replace(/\b(?:RG|R\.G\.)\s*[nºn°:.]?\s*\d[\d.\-\/X]{5,14}/gi, m => {
+    const tok = '[DOC-' + (++contadores.DOC) + ']';
+    mapa[tok] = m.trim(); return tok;
+  });
+
+  // ── OAB: OAB/SP 123456 ou OAB nº 123456/SP
+  resultado = resultado.replace(/\bOAB\s*[/\-]?\s*[A-Z]{2}\s*[nºn°:]?\s*\d{3,6}\b|\bOAB\s*[nºn°:]?\s*\d{3,6}\s*[/\-]?\s*[A-Z]{2}\b/gi, m => {
+    const tok = '[OAB-' + (++contadores.OAB) + ']';
+    mapa[tok] = m.trim(); return tok;
+  });
+
+  // ── Email
+  resultado = resultado.replace(/\b[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}\b/g, m => {
+    const tok = '[EMAIL-' + (++contadores.EMAIL) + ']';
+    mapa[tok] = m.trim(); return tok;
+  });
+
+  // ── Telefone
+  resultado = resultado.replace(/(?:\(?\d{2}\)?\s?)(?:9\s?)?\d{4}[-\s]?\d{4}/g, m => {
+    const digits = m.replace(/\D/g,'');
+    if (digits.length < 8 || digits.length > 11) return m;
+    const tok = '[TEL-' + (++contadores.TEL) + ']';
+    mapa[tok] = m.trim(); return tok;
+  });
+
+  // ── CEP
+  resultado = resultado.replace(/\b\d{5}[-.]?\d{3}\b/g, m => {
+    const tok = '[END-' + (++contadores.END) + ']';
+    mapa[tok] = m; return tok;
+  });
+
+  // ── Endereços
+  resultado = resultado.replace(
+    /\b(?:Rua|Av\.|Avenida|Alameda|Travessa|Estrada|Rodovia|R\.|Al\.|Trav\.|Praça|Pça\.|Largo|Lgo\.)\s+[A-ZÀ-Ü][^\n,]{3,60}(?:,\s*(?:n[°º.]?\s*)?\d+[A-Za-z]?)?(?:[,\s]+(?:apto?|ap\.|sala|sl\.|andar|bloco|bl\.)[^\n,]{0,30})?/gi,
+    m => {
+      const tok = '[END-' + (++contadores.END) + ']';
+      mapa[tok] = m.trim(); return tok;
+    }
+  );
+
+  // ── NOMES PRÓPRIOS — estratégia robusta por contexto
+  // Palavras que NUNCA são nomes (jurídicas, comuns, conectivos)
+  const STOP_WORDS = new Set([
+    'Código','Lei','Artigo','Art','Decreto','Resolução','Súmula','Superior','Supremo',
+    'Tribunal','Federal','Estadual','Municipal','Comarca','Vara','Câmara','Turma',
+    'Seção','Ministério','Estado','Município','Prefeitura','República','União',
+    'Brasil','São','Santa','Santo','Nova','Porto','Belo','Rio','Campo','Grande',
+    'Justiça','Processo','Recurso','Ação','Petição','Contestação','Sentença',
+    'Acórdão','Despacho','Decisão','Portaria','Instrução','Normativa','Agravo',
+    'Apelação','Embargos','Mandado','Habeas','Corpus','Certidão','Registro',
+    'Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto',
+    'Setembro','Outubro','Novembro','Dezembro','Dias','Meses','Anos',
+    'Direito','Civil','Penal','Trabalhista','Previdenciário','Tributário',
+    'Empresarial','Administrativo','Constitucional','Processual',
+    'Excelentíssimo','Meritíssimo','Doutor','Doutora','Senhor','Senhora',
+    'Ilustríssimo','Vossa','Excelência','Meritíssima',
+    'Artigos','Parágrafo','Inciso','Alínea','Item',
+    'Requerente','Requerido','Autor','Autora','Réu','Ré','Reclamante',
+    'Reclamado','Apelante','Apelado','Impetrante','Impetrado',
+    'Primeiro','Segunda','Terceiro','Quarta','Único','Única',
+    'Superior','Inferior','Federal','Estadual','Municipal',
+    'Câmara','Conselho','Ordem','Advogados','Instituto','Fundação',
+  ]);
+
+  // Prefixos que indicam que o próximo token É um nome
+  const PREFIXOS_NOME = /\b(?:Sr\.?|Sra\.?|Dr\.?|Dra\.?|Adv\.?|Exmo\.?|Exma\.?|Ilmo\.?|Ilma\.?|MM\.?|Rel\.?|Des\.?)\s+/gi;
+
+  // Substitui prefixo + nome
+  resultado = resultado.replace(
+    /\b(Sr\.?|Sra\.?|Dr\.?|Dra\.?|Adv\.?|Exmo\.?|Exma\.?|Ilmo\.?|Ilma\.?|MM\.?|Rel\.?|Des\.?)\s+([A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ][a-záéíóúâêîôûãõç]+(?:\s+(?:de|da|do|dos|das|e|van|von)\s+)?(?:\s+[A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ][a-záéíóúâêîôûãõç]+){0,4})/g,
+    (full, prefix, nome) => {
+      if (STOP_WORDS.has(nome.split(' ')[0])) return full;
+      const tok = '[PESSOA-' + (++contadores.PESSOA) + ']';
+      mapa[tok] = nome.trim();
+      return prefix + ' ' + tok;
+    }
+  );
+
+  // Contextos jurídicos que introduzem nomes: "autor NOME", "réu NOME", "requerente NOME"
+  resultado = resultado.replace(
+    /\b(autor[ao]?|réu|ré|requerente|requerido[a]?|reclamante|reclamado[a]?|apelante|apelado[a]?|impetrante|impetrado[a]?|advogado[a]?|relator[a]?|desembargador[a]?|juiz|juíza|ministro[a]?)[,:\s]+([A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ][a-záéíóúâêîôûãõç]+(?:\s+(?:de|da|do|dos|das|e)\s+)?(?:\s+[A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ][a-záéíóúâêîôûãõç]+){1,4})/gi,
+    (full, role, nome) => {
+      if (STOP_WORDS.has(nome.split(' ')[0])) return full;
+      const tok = '[PESSOA-' + (++contadores.PESSOA) + ']';
+      mapa[tok] = nome.trim();
+      return role + ' ' + tok;
+    }
+  );
+
+  // Nomes em maiúsculas (SOBRENOME, Nome — padrão de qualificação processual)
+  resultado = resultado.replace(
+    /\b([A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ]{2,}(?:\s+[A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ]{2,}){1,4})\b/g,
+    (m) => {
+      // Ignora se é sigla conhecida
+      if (['STF','STJ','TST','TRT','TRF','TCU','TCE','CNJ','OAB','CPF','CNPJ',
+           'CLT','CPC','CDC','CF','CC','CP','CPP','CRFB','LGPD','INSS','FGTS',
+           'CTPS','TRCT','RAIS','PIS','COFINS','ICMS','ISS','IPI','IR','IRPJ',
+           'RE','REsp','AgInt','AREsp','HC','RHC','MS','MI','ADI','ADPF','ADC',
+           'ECA','EJE','NCPC','CBA','CBF','FIFA'].includes(m.trim())) return m;
+      if (STOP_WORDS.has(m.split(' ')[0])) return m;
+      const words = m.split(/\s+/);
+      if (words.length < 2) return m; // palavra única maiúscula — pode ser sigla
+      const tok = '[PESSOA-' + (++contadores.PESSOA) + ']';
+      mapa[tok] = m.trim();
+      return tok;
+    }
+  );
+
+  const relatorio = {
+    pessoas: contadores.PESSOA,
+    documentos: contadores.DOC,
+    enderecos: contadores.END,
+    telefones: contadores.TEL,
+    emails: contadores.EMAIL,
+    oabs: contadores.OAB,
+    total: Object.keys(mapa).length,
+    mapa
+  };
+
+  return { textoAnon: resultado, relatorio };
+}
+
+function mostrarRelatorioAnon(rel) {
+  const div = document.getElementById('anon-relatorio');
+  if (rel.total === 0) { div.style.display = 'none'; return; }
+  div.style.display = 'block';
+  div.innerHTML = `
+    <strong>✅ Anonimização Aplicada — ${rel.total} substituições</strong>
+    <span class="anon-item">👤 Nomes de pessoas: ${rel.pessoas} substituídos por [PESSOA-N]</span>
+    <span class="anon-item">📄 Documentos (CPF/CNPJ/RG): ${rel.documentos} substituídos por [DOC-N]</span>
+    <span class="anon-item">🏠 Endereços/CEPs: ${rel.enderecos} substituídos por [END-N]</span>
+    <span class="anon-item">📞 Telefones: ${rel.telefones} substituídos por [TEL-N]</span>
+    ${rel.emails > 0 ? \`<span class="anon-item">📧 Emails: \${rel.emails} substituídos por [EMAIL-N]</span>\` : ''}
+    ${rel.oabs > 0 ? \`<span class="anon-item">⚖️ OABs: \${rel.oabs} substituídos por [OAB-N]</span>\` : ''}
+    <span class="anon-item" style="margin-top:8px;color:rgba(95,175,122,0.6);">🔒 O mapa de substituição existe apenas nesta aba do navegador e é destruído com a sessão.</span>`;
+}
+
 async function executarScanner() {
   const texto = document.getElementById('fatos').value.trim();
   if (texto.length < 200) { toast('⚠ ADICIONE O TEXTO DO PROCESSO PRIMEIRO'); return; }
@@ -1737,7 +2355,26 @@ async function executarScanner() {
     amostraAviso = `\n\n⚠ NOTA: Processo com ${paginasIndexadas.length} páginas. Foram analisadas ${paginasParaAnalisar.length} páginas estratégicas (início, meio e fim). Páginas não analisadas foram omitidas por limite de contexto — considere rodar em seções se necessário.`;
   }
 
-  const mapaTexto = paginasParaAnalisar
+  // Aplica anonimização se ativo
+  const anonAtivo = document.getElementById('anon-toggle').checked;
+  let paginasParaEnviar = paginasParaAnalisar;
+  if (anonAtivo) {
+    msgEl.textContent = 'Anonimizando dados pessoais...';
+    progFill.style.width = '15%';
+    await new Promise(r => setTimeout(r, 100));
+    // Anonimiza cada página individualmente (mantém índice de página)
+    const textoCompletoPaginas = paginasParaAnalisar.map(p => p.texto).join('\n[---PÁGINA_SEP---]\n');
+    const { textoAnon, relatorio } = anonimizarTexto(textoCompletoPaginas);
+    const partesPorPagina = textoAnon.split('\n[---PÁGINA_SEP---]\n');
+    paginasParaEnviar = paginasParaAnalisar.map((p, i) => ({
+      ...p,
+      texto: partesPorPagina[i] || p.texto
+    }));
+    mostrarRelatorioAnon(relatorio);
+    progFill.style.width = '25%';
+  }
+
+  const mapaTexto = paginasParaEnviar
     .map(p => `[PÁGINA ${p.num}]\n${p.texto.substring(0, 1200)}`)
     .join('\n\n---\n\n');
 
@@ -1886,17 +2523,27 @@ ${mapaTexto}`;
   btnScan.innerHTML = '<span>🔄</span><span>RODAR SCANNER NOVAMENTE</span>';
 
   if (erroAPI || !dadosScanner) {
-    document.getElementById('scan-sections').innerHTML = `
-      <div class="scan-item danger" style="padding:18px;">
-        <span class="scan-icon">❌</span>
-        <div>
-          <span class="scan-label">Erro na análise forense</span><br>
-          <span class="scan-val">${erroAPI || 'Resposta inválida da API'}</span><br><br>
-          <span class="scan-val" style="font-size:11px;">Verifique se o texto do processo foi carregado e tente novamente.</span>
-        </div>
-      </div>`;
-    document.getElementById('scan-summary').innerHTML = `<div class="scan-sum-box c-err"><div class="scan-sum-num">!</div><div class="scan-sum-lbl">Erro</div></div>`;
-    toast('❌ ERRO NO SCANNER');
+    // Erro tratado com overlay
+    running.style.display = 'none';
+    btnScan.disabled = false;
+    btnScan.innerHTML = '<span>🔄</span><span>TENTAR NOVAMENTE</span>';
+    const msgErro = erroAPI || 'Resposta inválida da API';
+    const dica = msgErro.includes('fetch') || msgErro.includes('network') || msgErro.includes('Failed')
+      ? 'Verifique sua conexão com a internet e tente novamente.'
+      : msgErro.includes('401') || msgErro.includes('403')
+      ? 'Erro de autenticação na API. Recarregue a página e tente novamente.'
+      : msgErro.includes('429')
+      ? 'Muitas requisições. Aguarde 1 minuto e tente novamente.'
+      : msgErro.includes('500') || msgErro.includes('503')
+      ? 'Servidor da API temporariamente indisponível. Tente em alguns minutos.'
+      : 'Verifique se o texto do processo foi carregado corretamente.';
+    mostrarErro(
+      'Erro na Análise Forense',
+      dica,
+      msgErro,
+      () => executarScanner()
+    );
+    toast('❌ ERRO — Veja detalhes na tela');
     return;
   }
 
@@ -2088,6 +2735,119 @@ ${mapaTexto}`;
   toast('✅ SCANNER FORENSE CONCLUÍDO!');
 }
 
+
+// ── SISTEMA DE ERROS ──
+let erroRetryFn = null;
+
+function mostrarErro(titulo, msg, detalhe, retryFn) {
+  document.getElementById('erro-titulo').textContent = titulo;
+  document.getElementById('erro-msg').textContent = msg;
+  const detEl = document.getElementById('erro-detalhe');
+  if (detalhe) { detEl.style.display = 'block'; detEl.textContent = detalhe; }
+  else { detEl.style.display = 'none'; }
+  const retryBtn = document.getElementById('btn-retry');
+  if (retryFn) {
+    retryBtn.style.display = 'block';
+    erroRetryFn = retryFn;
+    retryBtn.onclick = () => { fecharErro(); setTimeout(retryFn, 300); };
+  } else {
+    retryBtn.style.display = 'none';
+  }
+  document.getElementById('erro-overlay').classList.add('show');
+}
+
+function fecharErro() {
+  document.getElementById('erro-overlay').classList.remove('show');
+}
+
+// ── MODO TESTE ──
+const PROCESSO_TESTE = `PROCESSO Nº 0012345-67.2023.5.02.0432
+VARA DO TRABALHO DE SÃO PAULO — 4ª VARA
+RECLAMAÇÃO TRABALHISTA
+
+RECLAMANTE: João da Silva Santos
+CPF: 123.456.789-00
+Endereço: Rua das Flores, 123, Apto 45, São Paulo/SP, CEP 01310-100
+Advogado: Dr. Carlos Alberto Pereira — OAB/SP 123456
+Tel: (11) 98765-4321
+
+RECLAMADA: Empresa XYZ Comércio e Serviços Ltda
+CNPJ: 12.345.678/0001-90
+Advogada: Dra. Maria Fernanda Costa — OAB/SP 234567
+
+DATA DE ADMISSÃO: 15/03/2018
+DATA DE RESCISÃO: 30/11/2022
+MOTIVO DA RESCISÃO: Dispensa sem justa causa
+
+PETIÇÃO INICIAL — protocolada em 28/02/2023
+
+DOS FATOS:
+O reclamante foi admitido em 15/03/2018 para exercer a função de Técnico de Suporte, com salário mensal de R$ 4.500,00. Durante todo o contrato, a reclamada não anotou a CTPS do trabalhador, conforme exigido pelo art. 29 da CLT.
+
+O reclamante trabalhava de segunda a sábado, das 08h às 19h, com apenas 30 minutos de intervalo, totalizando 10,5 horas diárias, sem o pagamento das horas extras correspondentes, em violação ao art. 59 da CLT e à Súmula 423 do TST.
+
+Em 30/11/2022, o reclamante foi dispensado sem justa causa, sem o pagamento das verbas rescisórias legais: saldo de salário, aviso prévio indenizado (art. 487 CLT), 13º salário proporcional, férias proporcionais + 1/3, e multa de 40% do FGTS.
+
+DOS PEDIDOS:
+1. Anotação da CTPS ou equivalente — R$ 2.000,00
+2. Horas extras (4 anos × 12 meses × 26 dias × 2,5h × R$28,12) — R$ 87.734,40
+3. Reflexos das horas extras em DSR, férias, 13º, FGTS — R$ 22.000,00
+4. Saldo de salário (10 dias) — R$ 1.500,00
+5. Aviso prévio indenizado (30 dias) — R$ 4.500,00
+6. 13º salário proporcional (10/12) — R$ 3.750,00
+7. Férias proporcionais + 1/3 (10/12) — R$ 5.000,00
+8. Multa FGTS 40% — R$ 12.600,00
+9. Danos morais por assédio moral do supervisor — R$ 15.000,00
+TOTAL: R$ 154.084,40
+
+CITAÇÃO: realizada em 15/03/2023 — AR recebido pelo sócio administrador
+
+CONTESTAÇÃO: apresentada em 15/04/2023 — prazo de 20 dias corridos a partir da citação
+A reclamada alega: (1) que o reclamante era empregado externo, sujeito ao art. 62 II da CLT, não fazendo jus às horas extras; (2) que a CTPS foi sim anotada; (3) que houve justa causa não formalizada por mero ato de liberalidade.
+
+AUDIÊNCIA DE INSTRUÇÃO: designada para 20/09/2023
+STATUS: realizada — oitiva de 3 testemunhas do reclamante e 2 da reclamada
+
+SENTENÇA: proferida em 15/01/2024 (Juíza: Dra. Ana Paula Rodrigues)
+RESULTADO: Procedência parcial
+CONDENAÇÃO: R$ 89.500,00 — horas extras + reflexos + FGTS
+INDEFERIDO: danos morais por insuficiência de provas; CTPS — já juntada pela reclamada
+
+PUBLICAÇÃO DA SENTENÇA: 22/01/2024
+PRAZO RECURSAL: 8 dias úteis — vence em 01/02/2024
+
+RECURSO ORDINÁRIO: interposto pelo reclamante em 30/01/2024
+OBJETO: reforma da sentença para incluir danos morais e majorar horas extras
+
+STATUS ATUAL: aguardando julgamento no TRT-2 — São Paulo`;
+
+function carregarProcessoTeste() {
+  document.getElementById('fatos').value = PROCESSO_TESTE;
+  document.getElementById('area').value = 'trabalhista';
+  document.getElementById('polo').value = 'reclamante';
+  document.getElementById('instancia').value = '2grau';
+  document.getElementById('tese').value = 'Horas extras não pagas + danos morais por assédio + verbas rescisórias';
+  document.getElementById('pedido').value = 'Reforma da sentença — incluir danos morais R$ 15.000 + majorar horas extras';
+  indexarTextoCola(PROCESSO_TESTE);
+  calcMetricas();
+  verificarCompatibilidade();
+  document.getElementById('teste-banner').classList.add('show');
+  // Seleciona estratégias mais relevantes
+  document.querySelectorAll('.etag').forEach(t => {
+    const v = t.dataset.v;
+    if (['probabilidade','pontos_fracos','argumentos','recurso'].includes(v)) {
+      t.classList.add('active');
+      if (!estrategiasSel.includes(v)) estrategiasSel.push(v);
+    }
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  toast('⚗ PROCESSO TESTE CARREGADO!');
+}
+
+function limparTeste() {
+  novaAnalise();
+  document.getElementById('teste-banner').classList.remove('show');
+}
 
 // ── LIMPAR ERROS ──
 ['area','polo','tese'].forEach(id => {
