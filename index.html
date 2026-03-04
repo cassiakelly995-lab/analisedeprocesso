@@ -1515,231 +1515,295 @@ function executarScanner() {
 
 function scannerLocal(texto, paginas) {
   var d = {};
+  var area = (document.getElementById('area') && document.getElementById('area').value) || 'civil';
 
-  // ════════════════════════════════════════════════════
-  // UTILITÁRIOS INTERNOS
-  // ════════════════════════════════════════════════════
-  function buscar(re) {
-    re.lastIndex = 0;
-    return re.exec(texto);
-  }
+  // ══════════════════════════════════════════════════════════════
+  // NÚCLEO — utilitários internos
+  // ══════════════════════════════════════════════════════════════
   function buscarTodos(re) {
-    re.lastIndex = 0;
+    var clone = new RegExp(re.source, re.flags);
+    clone.lastIndex = 0;
     var r = [], m;
-    while ((m = re.exec(texto)) !== null) { r.push(m); if (r.length > 50) break; }
+    while ((m = clone.exec(texto)) !== null) { r.push(m); if (r.length > 200) break; }
     return r;
   }
+  function buscar(re) {
+    var clone = new RegExp(re.source, re.flags);
+    clone.lastIndex = 0;
+    return clone.exec(texto);
+  }
   function ctx(index, antes, depois) {
-    return texto.substring(Math.max(0, index - (antes||80)), index + (depois||120)).toLowerCase();
+    return texto.substring(Math.max(0, index-(antes||100)), index+(depois||150));
   }
   function pagDe(index) { return acharPaginasOffset(index, paginas); }
   function pagDeTexto(termo) { return acharPaginas(termo, paginas); }
   function limpar(s) { return (s||'').replace(/\s+/g,' ').trim(); }
 
-  // ════════════════════════════════════════════════════
-  // 1. NÚMERO DO PROCESSO (CNJ padrão + antigo)
-  // ════════════════════════════════════════════════════
-  var reNumProc = /\b(\d{7}-\d{2}\.\d{4}\.[0-9]\.\d{2}\.\d{4}|\d{7}-\d{2}\.\d{4}\.[0-9]\.\d{3}\.\d{4})\b/g;
-  var todosNums = buscarTodos(reNumProc).map(function(m){ return m[1]; });
-  var numProc = todosNums.length ? todosNums[0] : '';
-  // Detecta se há múltiplos números (possível conexão/continência)
-  var multiProcesso = todosNums.length > 1 ? todosNums : [];
+  // Parser de data → objeto Date
+  function parseData(str) {
+    if (!str) return null;
+    str = str.trim();
+    // dd/mm/aaaa ou dd-mm-aaaa
+    var m = str.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})$/);
+    if (m) return new Date(+m[3], +m[2]-1, +m[1]);
+    // dd de mês de aaaa
+    var meses = {janeiro:0,fevereiro:1,março:2,abril:3,maio:4,junho:5,julho:6,agosto:7,setembro:8,outubro:9,novembro:10,dezembro:11,
+                 marco:2,mar:2,jan:0,fev:1,abr:3,jun:5,jul:6,ago:7,set:8,out:9,nov:10,dez:11};
+    var m2 = str.match(/^(\d{1,2})\s+de\s+([a-záéíóú]+)\s+de\s+(\d{4})$/i);
+    if (m2) {
+      var mes = meses[m2[2].toLowerCase()];
+      if (mes !== undefined) return new Date(+m3, mes, +m2[1]);
+    }
+    return null;
+  }
 
-  // ════════════════════════════════════════════════════
-  // 2. PARTES — extração avançada com múltiplos padrões
-  // ════════════════════════════════════════════════════
+  // Extrai TODAS as datas do texto com posição
+  function extrairTodasDatas() {
+    var re = /\b(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4}|\d{1,2}\s+de\s+[a-záéíóú]+\s+de\s+\d{4})\b/gi;
+    return buscarTodos(re).map(function(m) {
+      return { str: m[1], date: parseData(m[1]), index: m.index, paginas: pagDe(m.index), contexto: ctx(m.index,60,60) };
+    }).filter(function(d) { return d.date !== null; });
+  }
+
+  // Extrai todos os valores monetários com posição
+  function extrairTodosValores() {
+    var re = /R\$\s*([\d.,]+(?:\s*(?:mil|milh[õo]es))?)/gi;
+    return buscarTodos(re).map(function(m) {
+      var numStr = m[1].replace(/\./g,'').replace(',','.').replace(/\s*mil/i,'000');
+      return { str: m[0].trim(), num: parseFloat(numStr)||0, index: m.index, paginas: pagDe(m.index), contexto: ctx(m.index,80,80) };
+    });
+  }
+
+  var todasDatas   = extrairTodasDatas();
+  var todosValores = extrairTodosValores();
+
+  // ══════════════════════════════════════════════════════════════
+  // 1. IDENTIFICAÇÃO — partes, processo, tribunal
+  // ══════════════════════════════════════════════════════════════
   var NOME = '[A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇÀÜ][A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇÀÜa-záéíóúâêîôûãõçàü\\s\\.]{2,70}?';
 
-  function extrairNome(patterns) {
-    for (var i = 0; i < patterns.length; i++) {
-      var m = buscar(patterns[i]);
+  function extrairNome(pats) {
+    for (var i=0; i<pats.length; i++) {
+      var m = buscar(pats[i]);
       if (m && m[1] && m[1].trim().length > 2) return limpar(m[1]);
     }
     return '';
   }
 
   var autor = extrairNome([
-    /(?:AUTOR[A]?|REQUERENTE|RECLAMANTE|EXEQUENTE|IMPUGNANTE|EMBARGANTE|AGRAVANTE)\s*[:\-–—]\s*(NOME_RE)(?=\s*[\n,.]|\s*(?:CPF|CNPJ|RG|brasileiro|portador|inscrit))/i,
-    /(?:AUTOR[A]?|REQUERENTE|RECLAMANTE)\s*[:\-–—]\s*(NOME_RE)/i,
-    /^(NOME_RE)\s*[\n,]\s*(?:CPF|CNPJ)[:\s]\s*[\d\.\-\/]+\s*[\n,]\s*(?:AUTOR|REQUERENTE|RECLAMANTE)/im,
-  ].map(function(r){ return new RegExp(r.source.replace('NOME_RE', NOME), r.flags); }));
-
+    /(?:AUTOR[A]?|REQUERENTE|RECLAMANTE|EXEQUENTE|EMBARGANTE|AGRAVANTE|IMPETRANTE)\s*[:\-–—]\s*([A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇÀÜ][^\n,]{2,70}?)(?=\n|,|CPF|CNPJ|RG|portador|brasileiro|inscrit)/i,
+    /^([A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇÀÜ][^\n]{2,50}?)\s*[\n,]\s*(?:AUTOR|REQUERENTE|RECLAMANTE)/im
+  ]);
   var reu = extrairNome([
-    /(?:RÉU[A]?|REQUERIDO[A]?|RECLAMADO[A]?|EXECUTADO[A]?|APELADO[A]?|IMPUGNAD[OA]|EMBARGAD[OA])\s*[:\-–—]\s*(NOME_RE)(?=\s*[\n,.]|\s*(?:CPF|CNPJ|pessoa|empresa|inscrit))/i,
-    /(?:RÉU[A]?|REQUERIDO[A]?|RECLAMADO[A]?)\s*[:\-–—]\s*(NOME_RE)/i,
-  ].map(function(r){ return new RegExp(r.source.replace('NOME_RE', NOME), r.flags); }));
+    /(?:RÉU[A]?|REQUERIDO[A]?|RECLAMADO[A]?|EXECUTADO[A]?|APELADO[A]?|EMBARGADO[A]?|IMPETRADO[A]?)\s*[:\-–—]\s*([A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇÀÜ][^\n,]{2,70}?)(?=\n|,|CPF|CNPJ|pessoa|empresa)/i,
+    /^([A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇÀÜ][^\n]{2,50}?)\s*[\n,]\s*(?:RÉU|REQUERIDO|RECLAMADO)/im
+  ]);
 
-  // OAB — extrai número e estado
   var reOAB = /OAB\s*[\/\-]?\s*([A-Z]{2})\s*[nº°.]?\s*(\d{3,7})/gi;
-  var oabs = buscarTodos(reOAB).map(function(m){ return 'OAB/' + m[1] + ' ' + m[2]; });
+  var oabs  = buscarTodos(reOAB).map(function(m){ return 'OAB/'+m[1]+' '+m[2]; });
 
-  // Advogados pelo padrão Dr./Dra. + nome + OAB
-  var reAdv = /(?:Dr\.|Dra\.|advogad[oa])\s+(NOME_RE)\s*[,\n]?\s*(?:OAB|inscrit)/gi;
-  reAdv = new RegExp(reAdv.source.replace('NOME_RE', NOME), reAdv.flags);
-  var advs = buscarTodos(reAdv).map(function(m){ return limpar(m[1]); });
+  var reAdv = /(?:Dr\.|Dra\.)\s+([A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇÀÜ][a-záéíóúâêîôûãõçàü\s\.]{3,60}?)(?=\s*[,\n]|\s*OAB|\s*inscrit)/gi;
+  var advs  = buscarTodos(reAdv).map(function(m){ return limpar(m[1]); });
 
-  // Juiz/Relator
   var juiz = extrairNome([
-    /(?:Juiz[a]?\s+(?:de\s+Direito|Federal|Titular|Substitut[oa])|MM\.?\s*Juiz[a]?|Magistrad[oa]|Relator[a]?)\s*[:\-–,]?\s*(?:Dr\.|Dra\.)?\s*(NOME_RE)/i,
-    /(?:Juiz[a]?|Magistrad[oa])\s+(NOME_RE)/i,
-  ].map(function(r){ return new RegExp(r.source.replace('NOME_RE', NOME), r.flags); }));
+    /(?:Juiz[a]?\s+(?:de\s+Direito|Federal|Titular|Substitut\w+)|MM\.?\s*Juiz[a]?|Magistrad[oa]|Relator[a]?|Desembargador[a]?)\s*[,:\-]?\s*(?:Dr\.|Dra\.)?\s*([A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇÀÜ][a-záéíóúâêîôûãõçàü\s\.]{3,60}?)(?=\n|,|\.)/i
+  ]);
 
-  // Vara, comarca, seção
-  var mVara = buscar(/(\d+[ªº°]?\s*(?:Vara|VARA)\s*(?:C[íi]vel|Criminal|Federal|do\s+Trabalho|de\s+Fam[íi]lia|da\s+Faz[êe]nda|Empresarial)?[^\n,]{0,50})/i);
-  var vara = mVara ? limpar(mVara[1]) : '';
-  var mComarca = buscar(/Comarca\s+(?:de\s+|da\s+|do\s+)?([A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇÀÜ][a-záéíóúâêîôûãõçàü\s]{2,40}?)(?:\n|,|\.|\s–)/i);
-  var comarca = mComarca ? limpar(mComarca[1]) : '';
-  var mSecao = buscar(/Se[çc][ãa]o\s+Judici[áa]ria\s+(?:de\s+|da\s+|do\s+)?([A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇÀÜ][a-záéíóúâêîôûãõçàü\s]{2,40}?)(?:\n|,|\.)/i);
-  var secao = mSecao ? limpar(mSecao[1]) : '';
+  var mVara     = buscar(/([\dªº°]+\s*(?:Vara|VARA)[^\n,]{0,60})/i);
+  var mComarca  = buscar(/Comarca\s+(?:de\s+|da\s+|do\s+)?([A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇÀÜ][a-záéíóúâêîôûãõçàü\s]{2,40}?)(?=\n|,|\.|\s–)/i);
+  var mSecao    = buscar(/Se[çc][ãa]o\s+Judici[áa]ria\s+(?:de\s+|da\s+|do\s+)?([A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇÀÜ][a-záéíóúâêîôûãõçàü\s]{2,40}?)(?=\n|,|\.)/i);
 
-  // CPF/CNPJ das partes
-  var reCPF = /\b(\d{3}[\.\s]?\d{3}[\.\s]?\d{3}[\-\.\s]?\d{2})\b/g;
-  var reCNPJ = /\b(\d{2}[\.\s]?\d{3}[\.\s]?\d{3}[\/\.\s]?\d{4}[\-\.\s]?\d{2})\b/g;
-  var cpfs = buscarTodos(reCPF).map(function(m){ return m[1]; }).filter(function(v,i,a){ return a.indexOf(v)===i; });
-  var cnpjs = buscarTodos(reCNPJ).map(function(m){ return m[1]; }).filter(function(v,i,a){ return a.indexOf(v)===i; });
+  var reNumProc = /\b(\d{7}-\d{2}\.\d{4}\.[0-9]\.\d{2}\.\d{4})\b/g;
+  var numProcs  = buscarTodos(reNumProc).map(function(m){ return m[1]; }).filter(function(v,i,a){ return a.indexOf(v)===i; });
+
+  var reCPF  = /\b(\d{3}\.?\d{3}\.?\d{3}-?\d{2})\b/g;
+  var reCNPJ = /\b(\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2})\b/g;
+  var cpfs   = buscarTodos(reCPF).map(function(m){ return m[1]; }).filter(function(v,i,a){ return a.indexOf(v)===i; }).slice(0,6);
+  var cnpjs  = buscarTodos(reCNPJ).map(function(m){ return m[1]; }).filter(function(v,i,a){ return a.indexOf(v)===i; }).slice(0,4);
 
   d.partes = {
-    autor: autor ? { nome: autor, paginas: pagDeTexto(autor) } : null,
-    reu: reu ? { nome: reu, paginas: pagDeTexto(reu) } : null,
-    advogado_autor: advs[0] ? { nome: advs[0], oab: oabs[0]||'', paginas: pagDeTexto(advs[0]) } : null,
-    advogado_reu: advs[1] ? { nome: advs[1], oab: oabs[1]||'', paginas: pagDeTexto(advs[1]) } : null,
-    juiz: juiz ? { nome: juiz, vara: vara, paginas: pagDeTexto(juiz) } : null,
-    comarca: comarca || secao || vara,
-    numero_processo: numProc,
-    cpfs_identificados: cpfs.slice(0,4),
-    cnpjs_identificados: cnpjs.slice(0,4),
-    multiplos_processos: multiProcesso
+    autor:          autor ? { nome:autor, paginas:pagDeTexto(autor) } : null,
+    reu:            reu   ? { nome:reu,   paginas:pagDeTexto(reu)   } : null,
+    advogado_autor: advs[0] ? { nome:advs[0], oab:oabs[0]||'', paginas:pagDeTexto(advs[0]) } : null,
+    advogado_reu:   advs[1] ? { nome:advs[1], oab:oabs[1]||'', paginas:pagDeTexto(advs[1]) } : null,
+    juiz:           juiz  ? { nome:juiz, vara:mVara?limpar(mVara[1]):'', paginas:pagDeTexto(juiz) } : null,
+    comarca:        mComarca ? limpar(mComarca[1]) : (mSecao ? limpar(mSecao[1]) : ''),
+    numero_processo: numProcs[0] || '',
+    multiplos_processos: numProcs.length > 1 ? numProcs : [],
+    cpfs_identificados:  cpfs,
+    cnpjs_identificados: cnpjs
   };
 
-  // ════════════════════════════════════════════════════
-  // 3. DATAS — extração exaustiva com classificação
-  // ════════════════════════════════════════════════════
-  var DATA_RE = '(\\d{1,2}[\\/-]\\d{1,2}[\\/-]\\d{2,4}|\\d{1,2}\\s+de\\s+[a-záéíóú]+\\s+de\\s+\\d{4})';
+  // ══════════════════════════════════════════════════════════════
+  // 2. RADAR DE DATAS — classificação + cruzamento temporal
+  // ══════════════════════════════════════════════════════════════
+  var DATA_STR = '(\\d{1,2}[\\/-]\\d{1,2}[\\/-]\\d{4}|\\d{1,2}\\s+de\\s+[a-záéíóú]+\\s+de\\s+\\d{4})';
   var padroesDatas = [
-    { re: new RegExp('(?:data\\s+de\\s+admiss[ãa]o|admitid[oa]|contratad[oa]|ingresso)[^\\n]{0,40}?' + DATA_RE, 'gi'), tipo: 'Admissão/Contratação', icone: '📋' },
-    { re: new RegExp('(?:demissão|rescisão|desligamento|dispensa)[^\\n]{0,40}?' + DATA_RE, 'gi'), tipo: 'Rescisão/Demissão', icone: '🔴' },
-    { re: new RegExp('(?:distribu[ií]d[ao]|ajuizamento|protocolo\\s+em)[^\\n]{0,40}?' + DATA_RE, 'gi'), tipo: 'Distribuição/Ajuizamento', icone: '⚖️' },
-    { re: new RegExp('(?:publicad[ao]\\s+em|publicação|intima[çc][ãa]o)[^\\n]{0,40}?' + DATA_RE, 'gi'), tipo: 'Publicação/Intimação', icone: '📣' },
-    { re: new RegExp('(?:senten[çc]a|decisão|acórdão)[^\\n]{0,40}?' + DATA_RE, 'gi'), tipo: 'Sentença/Decisão', icone: '⚖️' },
-    { re: new RegExp('(?:audiência|sessão de julgamento)[^\\n]{0,40}?' + DATA_RE, 'gi'), tipo: 'Audiência/Sessão', icone: '🏛️' },
-    { re: new RegExp('(?:vencimento|venceu|venci[ao])[^\\n]{0,40}?' + DATA_RE, 'gi'), tipo: 'Vencimento', icone: '📅' },
-    { re: new RegExp('(?:acidente|fato|ocorrência|evento)[^\\n]{0,40}?' + DATA_RE, 'gi'), tipo: 'Evento/Fato Principal', icone: '⚡' },
-    { re: new RegExp('(?:notificad[ao]|notificação)[^\\n]{0,40}?' + DATA_RE, 'gi'), tipo: 'Notificação', icone: '📨' },
-    { re: new RegExp('(?:perícia|laudo)[^\\n]{0,40}?' + DATA_RE, 'gi'), tipo: 'Perícia/Laudo', icone: '🔬' },
-    { re: new RegExp('(?:recurso\\s+interposto|apelação\\s+em)[^\\n]{0,40}?' + DATA_RE, 'gi'), tipo: 'Interposição de Recurso', icone: '📤' },
-    { re: new RegExp('(?:prazo\\s+(?:para|de|até))[^\\n]{0,40}?' + DATA_RE, 'gi'), tipo: 'Prazo Mencionado', icone: '⏰' },
+    { re:new RegExp('(?:admitid[oa]|contratad[oa]|data\\s+de\\s+admiss[ãa]o|ingress[oa])[^\\n]{0,40}?'+DATA_STR,'gi'), tipo:'Admissão/Contratação',icone:'📋',chave:'admissao' },
+    { re:new RegExp('(?:demitid[oa]|rescis[ãa]o|desligamento|dispensa)[^\\n]{0,40}?'+DATA_STR,'gi'), tipo:'Rescisão/Demissão',icone:'🔴',chave:'rescisao' },
+    { re:new RegExp('(?:distribu[ií]d[ao]|ajuizamento|protocolo\\s+em)[^\\n]{0,40}?'+DATA_STR,'gi'), tipo:'Distribuição/Ajuizamento',icone:'⚖️',chave:'ajuizamento' },
+    { re:new RegExp('(?:publicad[oa]|publicação|intimação|intimad[oa])[^\\n]{0,40}?'+DATA_STR,'gi'), tipo:'Publicação/Intimação',icone:'📣',chave:'publicacao' },
+    { re:new RegExp('(?:senten[çc]a|acórdão|decisão)[^\\n]{0,40}?'+DATA_STR,'gi'), tipo:'Sentença/Decisão',icone:'⚖️',chave:'sentenca' },
+    { re:new RegExp('(?:audiência|sessão)[^\\n]{0,40}?'+DATA_STR,'gi'), tipo:'Audiência/Sessão',icone:'🏛️',chave:'audiencia' },
+    { re:new RegExp('(?:vencimento|venceu|venci[ao])[^\\n]{0,40}?'+DATA_STR,'gi'), tipo:'Vencimento',icone:'📅',chave:'vencimento' },
+    { re:new RegExp('(?:acidente|fato|ocorrência|lesão|evento)[^\\n]{0,40}?'+DATA_STR,'gi'), tipo:'Evento/Fato Principal',icone:'⚡',chave:'evento' },
+    { re:new RegExp('(?:notificad[oa]|notificação)[^\\n]{0,40}?'+DATA_STR,'gi'), tipo:'Notificação',icone:'📨',chave:'notificacao' },
+    { re:new RegExp('(?:laudo|perícia)[^\\n]{0,40}?'+DATA_STR,'gi'), tipo:'Perícia/Laudo',icone:'🔬',chave:'pericia' },
+    { re:new RegExp('(?:recurso\\s+interposto|apelação)[^\\n]{0,40}?'+DATA_STR,'gi'), tipo:'Recurso Interposto',icone:'📤',chave:'recurso' },
+    { re:new RegExp('(?:transit(?:ou|ado)\\s+em\\s+julgado)[^\\n]{0,40}?'+DATA_STR,'gi'), tipo:'Trânsito em Julgado',icone:'🔒',chave:'transito' },
+    { re:new RegExp('(?:preso|flagrante|prisão)[^\\n]{0,40}?'+DATA_STR,'gi'), tipo:'Prisão/Flagrante',icone:'🚨',chave:'prisao' },
+    { re:new RegExp('(?:nascimento|nascid[oa])[^\\n]{0,40}?'+DATA_STR,'gi'), tipo:'Nascimento',icone:'👶',chave:'nascimento' },
+    { re:new RegExp('(?:casamento|matrimônio|união)[^\\n]{0,40}?'+DATA_STR,'gi'), tipo:'Casamento/União',icone:'💍',chave:'casamento' },
+    { re:new RegExp('(?:separação|divórcio)[^\\n]{0,40}?'+DATA_STR,'gi'), tipo:'Separação/Divórcio',icone:'⚡',chave:'divorcio' },
+    { re:new RegExp('(?:óbito|falecimento|morte)[^\\n]{0,40}?'+DATA_STR,'gi'), tipo:'Óbito',icone:'🕯️',chave:'obito' },
+    { re:new RegExp('(?:assinatura|firmado|celebrado)[^\\n]{0,40}?'+DATA_STR,'gi'), tipo:'Assinatura/Celebração',icone:'✍️',chave:'assinatura' },
   ];
 
-  var datas = [], datasVistas = {};
-  padroesDatas.forEach(function(p) {
-    var ms = buscarTodos(p.re);
-    ms.forEach(function(m) {
-      var dataStr = m[1];
-      var key = p.tipo + '|' + dataStr;
-      if (!datasVistas[key] && dataStr) {
-        datasVistas[key] = true;
-        datas.push({ tipo: p.tipo, icone: p.icone||'📅', data: dataStr, paginas: pagDe(m.index), observacao: '' });
+  var datas=[], datasVistas={}, datasMap={};
+  padroesDatas.forEach(function(p){
+    buscarTodos(p.re).forEach(function(m){
+      var key = p.tipo+'|'+m[1];
+      if(!datasVistas[key]){
+        datasVistas[key]=true;
+        var obj={ tipo:p.tipo, icone:p.icone, data:m[1], chave:p.chave, date:parseData(m[1]), paginas:pagDe(m.index), observacao:'' };
+        datas.push(obj);
+        if(!datasMap[p.chave]) datasMap[p.chave]=obj;
       }
     });
   });
-  d.datas_criticas = datas.slice(0, 20);
+  d.datas_criticas = datas.slice(0,25);
 
-  // ════════════════════════════════════════════════════
-  // 4. VALORES MONETÁRIOS — contexto rico
-  // ════════════════════════════════════════════════════
-  var reValor = /R\$\s*[\d.,]+(?:\s*(?:mil|milh[õo]es|bilh[õo]es))?/gi;
-  var valores = [], valoresVistos = {};
-  buscarTodos(reValor).forEach(function(m) {
-    var val = m[0].trim();
-    if (valoresVistos[val]) return;
-    valoresVistos[val] = true;
-    var c2 = ctx(m.index, 100, 0);
-    var tipo = c2.includes('honor') ? 'Honorários Advocatícios'
-      : c2.includes('causa') ? 'Valor da Causa'
-      : c2.includes('conden') ? 'Valor da Condenação'
-      : c2.includes('dano moral') ? 'Danos Morais'
-      : c2.includes('dano mater') ? 'Danos Materiais'
-      : c2.includes('multa') ? 'Multa'
-      : c2.includes('indeniz') ? 'Indenização'
-      : c2.includes('deposit') ? 'Depósito Judicial'
-      : c2.includes('pedi') || c2.includes('requer') ? 'Valor Pedido'
-      : c2.includes('salário') || c2.includes('salario') ? 'Salário Mencionado'
-      : c2.includes('pension') || c2.includes('aliment') ? 'Alimentos/Pensão'
-      : 'Valor Identificado';
-    valores.push({ tipo: tipo, valor: val, paginas: pagDe(m.index), observacao: '' });
-  });
-  d.valores = valores.slice(0, 15);
-
-  // ════════════════════════════════════════════════════
-  // 5. DOCUMENTOS — status avançado
-  // ════════════════════════════════════════════════════
-  var listaDocs = [
-    { nome: 'CTPS / Carteira de Trabalho', re: /\bCTPS\b|carteira\s+de\s+trabalho/gi },
-    { nome: 'Contrato de Trabalho', re: /contrato\s+de\s+trabalho/gi },
-    { nome: 'Holerite / Contracheque', re: /\bholerite\b|\bcontracheque\b|\brecibo\s+de\s+pagamento\b/gi },
-    { nome: 'Laudo Pericial', re: /\blaudo\s*pericial\b|\blaudo\s+m[ée]dico\b/gi },
-    { nome: 'Boletim de Ocorrência', re: /\bboletim\s+de\s+ocorr[êe]ncia\b|\b\bBO\b/gi },
-    { nome: 'Nota Fiscal', re: /\bnota\s+fiscal\b|\bNF-?e?\b/gi },
-    { nome: 'Procuração', re: /\bprocura[çc][ãa]o\b/gi },
-    { nome: 'Escritura / Matrícula', re: /\beschritura\b|\bmatr[íi]cula\s+(?:do\s+im[óo]vel|n[°º.])/gi },
-    { nome: 'Contrato Social', re: /\bcontrato\s+social\b|\batos?\s+constitutivos?\b/gi },
-    { nome: 'Extrato Bancário', re: /\bextrato\s+banc[áa]rio\b|\bextrato\s+de\s+conta\b/gi },
-    { nome: 'Guia FGTS', re: /\bFGTS\b|\bguia\s+de\s+recolhimento\b/gi },
-    { nome: 'Prontuário Médico', re: /\bprontu[áa]rio\b|\bprontu[áa]rio\s+m[ée]dico\b/gi },
-    { nome: 'Declaração de IR', re: /\bimposto\s+de\s+renda\b|\bdeclara[çc][ãa]o\s+de\s+IR\b|\bDIRPF\b/gi },
-    { nome: 'E-mail / Mensagem', re: /\be-?mail\b|\bwhatsapp\b|\bmensagem\s+(?:eletr[ôo]nica|digital)\b/gi },
-    { nome: 'Foto / Vídeo', re: /\bfotografia\b|\bfoto(?:grafia)?\b|\bv[íi]deo\b|\bimagem\b/gi },
-    { nome: 'Atestado Médico', re: /\batestado\s+m[ée]dico\b|\batestado\s+de\s+sa[úu]de\b/gi },
-    { nome: 'Certidão Negativa', re: /\bcertid[ãa]o\s+negativa\b|\bCND\b|\bCNDT\b/gi },
-    { nome: 'Testemunho / Depoimento', re: /\bdepoimento\b|\btest[ae]munho\b|\boitiva\b/gi },
-    { nome: 'Perícia Contábil', re: /\bper[íi]cia\s+cont[áa]bil\b|\bperito\s+cont[áa]dor\b/gi },
-    { nome: 'Alvará / Autorização', re: /\balvar[áa]\b|\bautoriza[çc][ãa]o\s+judicial\b/gi },
+  // ══════════════════════════════════════════════════════════════
+  // 3. RADAR DE VALORES — extração + matemática
+  // ══════════════════════════════════════════════════════════════
+  var categoriasValor = [
+    { tipo:'Danos Morais',         re:/dano[s]?\s+moral/i },
+    { tipo:'Danos Materiais',      re:/dano[s]?\s+mater/i },
+    { tipo:'Danos Estéticos',      re:/dano[s]?\s+est[ée]t/i },
+    { tipo:'Honorários',           re:/honor[áa]rio/i },
+    { tipo:'Valor da Causa',       re:/valor\s+da\s+causa/i },
+    { tipo:'Condenação',           re:/conden[aç]/i },
+    { tipo:'Multa',                re:/multa/i },
+    { tipo:'Indenização',          re:/indeniz/i },
+    { tipo:'Depósito Judicial',    re:/dep[óo]sit/i },
+    { tipo:'Valor Pedido',         re:/pedi[od]|requer/i },
+    { tipo:'Salário',              re:/sal[áa]rio/i },
+    { tipo:'Alimentos/Pensão',     re:/aliment|pension/i },
+    { tipo:'FGTS',                 re:/FGTS/i },
+    { tipo:'Correção Monetária',   re:/corre[çc][ãa]o\s+monet/i },
+    { tipo:'Juros',                re:/juros/i },
   ];
 
-  var docs = [];
-  listaDocs.forEach(function(docDef) {
-    docDef.re.lastIndex = 0;
-    var m = docDef.re.exec(texto);
-    if (!m) return;
-    var c2 = ctx(m.index, 0, 150);
-    var status = (c2.includes('junt') || c2.includes('anexo') || c2.includes('fl.') || c2.includes('fls.') || c2.includes('id.') || c2.includes('evento'))
+  var valores=[], valoresVistos={};
+  todosValores.forEach(function(v){
+    if(valoresVistos[v.str]) return;
+    valoresVistos[v.str]=true;
+    var c2=v.contexto.toLowerCase();
+    var tipo='Valor Identificado';
+    for(var i=0;i<categoriasValor.length;i++){
+      if(categoriasValor[i].re.test(c2)){ tipo=categoriasValor[i].tipo; break; }
+    }
+    valores.push({ tipo:tipo, valor:v.str, num:v.num, paginas:v.paginas, observacao:'' });
+  });
+  d.valores = valores.slice(0,20);
+
+  // ══════════════════════════════════════════════════════════════
+  // 4. DOCUMENTOS — status avançado (20+ tipos)
+  // ══════════════════════════════════════════════════════════════
+  var listaDocs=[
+    { nome:'CTPS / Carteira de Trabalho',   re:/\bCTPS\b|carteira\s+de\s+trabalho/gi },
+    { nome:'Contrato de Trabalho',           re:/contrato\s+de\s+trabalho/gi },
+    { nome:'Holerite / Contracheque',        re:/\bholerite\b|\bcontracheque\b|\brecibo\s+de\s+pagamento\b/gi },
+    { nome:'Laudo Pericial',                 re:/laudo\s*pericial|laudo\s+m[ée]dico/gi },
+    { nome:'Boletim de Ocorrência',          re:/boletim\s+de\s+ocorr[êe]ncia|\bBO\b/gi },
+    { nome:'Nota Fiscal / NF-e',             re:/nota\s+fiscal|\bNF-?e?\b/gi },
+    { nome:'Procuração',                     re:/procura[çc][ãa]o/gi },
+    { nome:'Escritura / Matrícula',          re:/\beschritura\b|matr[íi]cula\s+(?:do\s+im[óo]vel|n[°º\.])/gi },
+    { nome:'Contrato Social',                re:/contrato\s+social|atos?\s+constitutivo/gi },
+    { nome:'Extrato Bancário',               re:/extrato\s+banc[áa]rio|extrato\s+de\s+conta/gi },
+    { nome:'Guia FGTS / GFIP',              re:/\bFGTS\b|\bGFIP\b|guia\s+de\s+recolhimento/gi },
+    { nome:'Prontuário Médico',              re:/prontu[áa]rio\s+m[ée]dico|\bprontu[áa]rio\b/gi },
+    { nome:'Declaração IR / DIRPF',          re:/imposto\s+de\s+renda|\bDIRPF\b|declara[çc][ãa]o\s+de\s+IR/gi },
+    { nome:'E-mail / WhatsApp',              re:/\be-?mail\b|\bwhatsapp\b|mensagem\s+(?:eletr[ôo]nica|instant)/gi },
+    { nome:'Foto / Vídeo',                   re:/\bfotografia\b|\bv[íi]deo\b|\bimagem\b|\bprint\b|\bprintscreen\b/gi },
+    { nome:'Atestado Médico',                re:/atestado\s+m[ée]dico|atestado\s+de\s+sa[úu]de/gi },
+    { nome:'Certidão Negativa (CND/CNDT)',   re:/certid[ãa]o\s+negativa|\bCND\b|\bCNDT\b/gi },
+    { nome:'Testemunho / Depoimento',        re:/\bdepoimento\b|test[ae]munho|\boitiva\b/gi },
+    { nome:'Perícia Contábil',               re:/per[íi]cia\s+cont[áa]bil|perito\s+cont[áa]dor/gi },
+    { nome:'Alvará / Autorização Judicial',  re:/\balvar[áa]\b|autoriza[çc][ãa]o\s+judicial/gi },
+    { nome:'Termo de Audiência',             re:/termo\s+de\s+audi[êe]ncia/gi },
+    { nome:'Certidão de Nascimento',         re:/certid[ãa]o\s+de\s+nascimento/gi },
+    { nome:'Certidão de Casamento',          re:/certid[ãa]o\s+de\s+casamento/gi },
+    { nome:'Certidão de Óbito',              re:/certid[ãa]o\s+de\s+[óo]bito/gi },
+    { nome:'RG / CNH / Documento Pessoal',   re:/\bRG\b|\bCNH\b|documento\s+(?:pessoal|de\s+identidade)/gi },
+    { nome:'Guia de Recolhimento / DARE',    re:/guia\s+de\s+recolhimento|\bDARE\b|\bGRU\b/gi },
+    { nome:'Laudo de Vistoria / Engenharia', re:/laudo\s+de\s+vistoria|laudo\s+de\s+avalia[çc][ãa]o/gi },
+    { nome:'Contrato de Locação',            re:/contrato\s+de\s+loca[çc][ãa]o/gi },
+    { nome:'Boletim Escolar / Frequência',   re:/boletim\s+escolar|frequ[êe]ncia\s+escolar/gi },
+  ];
+
+  var docs=[];
+  listaDocs.forEach(function(docDef){
+    docDef.re.lastIndex=0;
+    var m=docDef.re.exec(texto);
+    if(!m) return;
+    var c2=ctx(m.index,0,200).toLowerCase();
+    var status= (c2.match(/\bjunt[oa]|\banex[oa]|\bfl[s]?\.\s*\d|\bevento\s+\d|\bid\.\s*\d/))
       ? 'juntado'
-      : (c2.includes('não\s+junt') || c2.includes('nao\s+junt') || c2.includes('ausente') || c2.includes('não\s+apresent'))
+      : (c2.match(/n[ãa]o\s+(?:junt|apresent|acost)|ausente|n[ãa]o\s+localiz/))
       ? 'ausente'
       : 'mencionado_nao_juntado';
-    docs.push({ nome: docDef.nome, status: status, paginas: pagDe(m.index), observacao: '' });
+    docs.push({ nome:docDef.nome, status:status, paginas:pagDe(m.index), observacao:'' });
   });
   d.documentos = docs;
 
-  // ════════════════════════════════════════════════════
-  // 6. PRESCRIÇÃO — cálculo inteligente
-  // ════════════════════════════════════════════════════
-  var area = (document.getElementById('area') && document.getElementById('area').value) || 'civil';
-  var prazosArea = {
-    civil: { prazo: '3 anos', base: 'art. 206 §3º CC' },
-    trabalhista: { prazo: '2 anos (pós-rescisão) + 5 anos retroativos', base: 'art. 7º XXIX CF' },
-    consumidor: { prazo: '5 anos', base: 'art. 27 CDC' },
-    previdenciario: { prazo: '5 anos', base: 'art. 103 Lei 8.213/91' },
-    tributario: { prazo: '5 anos', base: 'art. 168 CTN' },
-    empresarial: { prazo: '3 anos', base: 'art. 206 CC' },
-    administrativo: { prazo: '5 anos', base: 'Dec. 20.910/32' },
-    familia: { prazo: 'Imprescritível (alimentos) / 2 anos (divórcio)', base: 'CC arts. 197-199' },
-    imobiliario: { prazo: '10 a 15 anos', base: 'CC arts. 205-206' },
-    penal: { prazo: 'Varia pela pena máxima', base: 'CP art. 109' }
+  // ══════════════════════════════════════════════════════════════
+  // 5. PRESCRIÇÃO + DECADÊNCIA — motor de cálculo
+  // ══════════════════════════════════════════════════════════════
+  var tabelaPrazos = {
+    civil:          [{prazo:'3 anos',   base:'art. 206 §3º III CC — pretensão de reparação civil'},
+                     {prazo:'10 anos',  base:'art. 205 CC — prazo geral subsidiário'},
+                     {prazo:'1 ano',    base:'art. 206 §1º II CC — seguro, hospedagem, crédito'},
+                     {prazo:'5 anos',   base:'art. 206 §5º I CC — dívidas líquidas com instrumento público'}],
+    trabalhista:    [{prazo:'2 anos',   base:'art. 7º XXIX CF — após extinção do contrato'},
+                     {prazo:'5 anos',   base:'art. 7º XXIX CF — retroativos durante o contrato'},
+                     {prazo:'30 anos',  base:'FGTS — Súmula 362 TST (revisada — verificar)'}],
+    consumidor:     [{prazo:'5 anos',   base:'art. 27 CDC — fato do produto/serviço (danos)'},
+                     {prazo:'30/90 dias',base:'art. 26 CDC — vício do produto (não durável/durável)'}],
+    previdenciario: [{prazo:'5 anos',   base:'art. 103 Lei 8.213/91'},
+                     {prazo:'10 anos',  base:'art. 103-A Lei 8.213/91 — revisão do ato de concessão'}],
+    tributario:     [{prazo:'5 anos',   base:'art. 168 CTN — repetição de indébito'},
+                     {prazo:'5 anos',   base:'art. 174 CTN — cobrança do crédito tributário'}],
+    empresarial:    [{prazo:'3 anos',   base:'art. 206 §3º CC'},
+                     {prazo:'1 ano',    base:'art. 206 §1º CC — cheque (6 meses execução + ação ordinária)'}],
+    administrativo: [{prazo:'5 anos',   base:'Dec. 20.910/32 — contra Fazenda Pública'},
+                     {prazo:'3 anos',   base:'art. 206 §3º V CC — responsabilidade civil do Estado (STJ)'}],
+    familia:        [{prazo:'imprescritível', base:'alimentos — Súmula 149 STF'},
+                     {prazo:'2 anos',   base:'art. 1.614 CC — ação investigatória de paternidade (menor após maioridade)'},
+                     {prazo:'10 anos',  base:'art. 205 CC — partilha de bens'}],
+    imobiliario:    [{prazo:'15 anos',  base:'art. 1.238 CC — usucapião extraordinário'},
+                     {prazo:'10 anos',  base:'art. 1.242 CC — usucapião ordinário'},
+                     {prazo:'5 anos',   base:'art. 1.240 CC — usucapião especial urbano (pro moradia)'}],
+    penal:          [{prazo:'20 anos',  base:'CP art. 109 I — pena máx > 12 anos'},
+                     {prazo:'16 anos',  base:'CP art. 109 II — pena máx > 8 anos'},
+                     {prazo:'12 anos',  base:'CP art. 109 III — pena máx > 4 anos'},
+                     {prazo:'8 anos',   base:'CP art. 109 IV — pena máx > 2 anos'},
+                     {prazo:'4 anos',   base:'CP art. 109 V — pena máx > 1 ano'},
+                     {prazo:'3 anos',   base:'CP art. 109 VI — demais casos'}]
   };
-  var pr = prazosArea[area] || { prazo: 'Verificar', base: '' };
 
-  // Tenta extrair datas do evento e do ajuizamento para cruzar
-  var dataEvento = datas.find(function(dt){ return dt.tipo.includes('Evento') || dt.tipo.includes('Fato'); });
-  var dataAjuiz = datas.find(function(dt){ return dt.tipo.includes('Ajuizamento') || dt.tipo.includes('Distribuição'); });
-  var dataRescisao = datas.find(function(dt){ return dt.tipo.includes('Rescisão'); });
+  var prazosArea = tabelaPrazos[area] || tabelaPrazos.civil;
+  var dataEvento  = datasMap['evento']  || datasMap['admissao'] || datasMap['vencimento'] || datasMap['obito'];
+  var dataAjuiz   = datasMap['ajuizamento'];
+  var dataRescisao= datasMap['rescisao'];
 
-  var analisePresc = '⚠ Verifique manualmente: data do evento → ' + (dataEvento ? dataEvento.data : 'não detectada')
-    + ' | data ajuizamento → ' + (dataAjuiz ? dataAjuiz.data : 'não detectada')
-    + '. Prazo: ' + pr.prazo + ' (' + pr.base + ').';
+  var analisePresc = 'Prazos aplicáveis — ' + area.toUpperCase() + ':\n';
+  prazosArea.forEach(function(p){ analisePresc += '• ' + p.prazo + ' (' + p.base + ')\n'; });
+  analisePresc += '\n⚠ Evento identificado: ' + (dataEvento?dataEvento.data:'não detectado');
+  analisePresc += ' | Ajuizamento: ' + (dataAjuiz?dataAjuiz.data:'não detectado');
 
   d.prescricao = {
-    prazo_legal: pr.prazo + ' — ' + pr.base,
+    prazo_legal: prazosArea.map(function(p){ return p.prazo; }).join(' / '),
     data_evento_principal: dataEvento ? dataEvento.data : 'não identificada',
     pagina_evento: dataEvento ? (dataEvento.paginas[0]||1) : 1,
     data_ajuizamento: dataAjuiz ? dataAjuiz.data : 'não identificada',
@@ -1747,214 +1811,344 @@ function scannerLocal(texto, paginas) {
     analise: analisePresc
   };
 
-  // ════════════════════════════════════════════════════
-  // 7. NULIDADES / VÍCIOS PROCESSUAIS — 30+ padrões
-  // ════════════════════════════════════════════════════
+  // ══════════════════════════════════════════════════════════════
+  // 6. NULIDADES PROCESSUAIS — 40+ padrões (todas as áreas)
+  // ══════════════════════════════════════════════════════════════
   var padroesNul = [
-    // Nulidades absolutas
-    { re: /cita[çc][ãa]o\s+(?:inv[áa]lida|nula|irregular|v[íi]ciada|inexistente|ficta\s+irregular)/gi,
-      tipo: 'Citação inválida ou irregular', fund: 'Arts. 238-242 CPC — nulidade absoluta se causar prejuízo', grav: 'critica' },
-    { re: /cerceamento\s+de\s+defesa/gi,
-      tipo: 'Cerceamento de defesa alegado', fund: 'Art. 5º LV CF + art. 370 CPC', grav: 'critica' },
-    { re: /(?:decis[ãa]o|senten[çc]a|ac[óo]rd[ãa]o)\s+(?:sem\s+fundamenta|infundamentad|carece?\s+de\s+motiva)/gi,
-      tipo: 'Decisão sem fundamentação', fund: 'Art. 93 IX CF + art. 489 §1º CPC — nulidade absoluta', grav: 'critica' },
-    { re: /litispend[êe]ncia/gi,
-      tipo: 'Litispendência', fund: 'Art. 485 V CPC — causa de extinção sem resolução do mérito', grav: 'critica' },
-    { re: /coisa\s+julgada/gi,
-      tipo: 'Coisa julgada mencionada', fund: 'Art. 502 CPC — verificar se é matéria de defesa ou obstáculo', grav: 'alta' },
-    { re: /incompet[êe]ncia\s+(?:absoluta|relativa|do\s+ju[íi]zo)/gi,
-      tipo: 'Incompetência do juízo', fund: 'Arts. 64-66 CPC — incompetência absoluta é cognoscível de ofício', grav: 'critica' },
-    { re: /ilegitimidade\s+(?:passiva|ativa|de\s+parte|ad\s+causam)/gi,
-      tipo: 'Ilegitimidade de parte', fund: 'Art. 17 CPC — condição da ação, gera extinção sem mérito', grav: 'alta' },
-    // Nulidades relativas / vícios importantes
-    { re: /intima[çc][ãa]o\s+(?:irregular|inv[áa]lida|deficiente|sem\s+prazo)/gi,
-      tipo: 'Intimação irregular', fund: 'Art. 272 CPC — intimação é condição para fluir prazos', grav: 'alta' },
-    { re: /prazo\s+(?:n[ãa]o\s+(?:fluiu|correu)|estava?\s+suspenso|em\s+recesso)/gi,
-      tipo: 'Prazo possivelmente suspenso ou não fluído', fund: 'Arts. 215-216 CPC — verificar se prazo realmente correu', grav: 'alta' },
-    { re: /juntad[ao]\s+intempestivamente?\b|intempestividade/gi,
-      tipo: 'Juntada ou ato intempestivo', fund: 'Art. 435 CPC — documentos juntados fora do prazo podem ser desconsiderados', grav: 'media' },
-    { re: /suspeição|impedimento\s+do\s+(?:juiz|magistrado|perito)/gi,
-      tipo: 'Suspeição ou impedimento', fund: 'Arts. 144-148 CPC — causa de nulidade absoluta se não declarada', grav: 'critica' },
-    { re: /cerceamento\s+probat[óo]rio|prova\s+(?:ilícita|obtida\s+ilegalmente|vedada)/gi,
-      tipo: 'Prova ilícita ou cerceamento probatório', fund: 'Art. 5º LVI CF + art. 369 CPC', grav: 'critica' },
-    { re: /falta\s+de\s+(?:advogado|represent|capacidade\s+postulatória)/gi,
-      tipo: 'Ausência de capacidade postulatória', fund: 'Art. 103 CPC — nulidade dos atos praticados', grav: 'alta' },
-    { re: /n[ãa]o\s+(?:foi\s+intimad|intimou|notificou)\s+(?:a\s+parte|o\s+réu|o\s+autor)/gi,
-      tipo: 'Parte não foi intimada', fund: 'Art. 272 CPC — verificar nulidade e prazo para arguição', grav: 'alta' },
-    { re: /excesso\s+de\s+(?:execu[çc][ãa]o|penhora)/gi,
-      tipo: 'Excesso de execução ou penhora', fund: 'Art. 917 CPC — embargos à execução cabíveis', grav: 'alta' },
-    { re: /bem\s+(?:impenhor[áa]vel|de\s+família)\s+(?:penhorad|bloqueado)/gi,
-      tipo: 'Bem de família ou impenhorável constrito', fund: 'Lei 8.009/90 + art. 833 CPC — nulidade da penhora', grav: 'critica' },
-    { re: /penhora\s+(?:de\s+)?salário|penhora\s+(?:de\s+)?proventos|penhora\s+(?:de\s+)?aposentadoria/gi,
-      tipo: 'Penhora de salário ou verba alimentar', fund: 'Art. 833 IV CPC — impenhorável (salvo alimentos)', grav: 'critica' },
-    { re: /dupla\s+(?:conde|cobran)|cobran[çc]a\s+(?:dupla|indevida)|bis\s+in\s+idem/gi,
-      tipo: 'Dupla cobrança ou bis in idem', fund: 'Verificar se há sobreposição de pedidos ou condenações', grav: 'alta' },
-    { re: /extra\s+petita|ultra\s+petita|citra\s+petita/gi,
-      tipo: 'Decisão extra/ultra/citra petita', fund: 'Art. 492 CPC — juiz não pode decidir além ou fora do pedido', grav: 'critica' },
-    { re: /reformatio\s+in\s+pejus/gi,
-      tipo: 'Reformatio in pejus', fund: 'Súmula 45 STJ — vedada no processo penal e limitada no cível', grav: 'alta' },
-    { re: /n[ãa]o\s+(?:aceit|receb)\s+(?:o\s+)?recurso|recurso\s+(?:n[ãa]o\s+conhecid|inadmitid|desertor)/gi,
-      tipo: 'Recurso não admitido ou deserto', fund: 'Verificar pressupostos recursais — possível novo recurso ou mandado de segurança', grav: 'alta' },
+    // ── NULIDADES ABSOLUTAS (CPC/CF) ──
+    { re:/cita[çc][ãa]o\s+(?:inv[áa]lida|nula|irregular|v[íi]ciada|inexistente|ficta\s+irregular)/gi,
+      tipo:'Citação inválida ou irregular', fund:'Arts. 238-242 CPC — nulidade absoluta se causar prejuízo', grav:'critica' },
+    { re:/cerceamento\s+de\s+defesa/gi,
+      tipo:'Cerceamento de defesa', fund:'Art. 5º LV CF + art. 370 CPC — nulidade se comprovado prejuízo', grav:'critica' },
+    { re:/(?:decisão|sentença|acórdão)\s+(?:sem\s+fundamenta|infundamentad|carece?\s+de\s+motiva)/gi,
+      tipo:'Decisão sem fundamentação', fund:'Art. 93 IX CF + art. 489 §1º CPC — nulidade absoluta', grav:'critica' },
+    { re:/litispend[êe]ncia/gi,
+      tipo:'Litispendência', fund:'Art. 485 V CPC — extinção sem resolução do mérito', grav:'critica' },
+    { re:/coisa\s+julgada/gi,
+      tipo:'Coisa julgada mencionada', fund:'Art. 502 CPC — verificar se obsta o prosseguimento', grav:'alta' },
+    { re:/incompet[êe]ncia\s+(?:absoluta|do\s+ju[íi]zo|em\s+razão)/gi,
+      tipo:'Incompetência absoluta do juízo', fund:'Art. 64 §1º CPC — cognoscível de ofício a qualquer tempo', grav:'critica' },
+    { re:/ilegitimidade\s+(?:passiva|ativa|de\s+parte|ad\s+causam)/gi,
+      tipo:'Ilegitimidade de parte', fund:'Art. 17 CPC — condição da ação, gera extinção sem mérito', grav:'alta' },
+    { re:/extra\s+petita|ultra\s+petita|citra\s+petita/gi,
+      tipo:'Decisão extra/ultra/citra petita', fund:'Art. 492 CPC — juiz vinculado aos limites do pedido', grav:'critica' },
+    { re:/suspeição|impedimento\s+do\s+(?:juiz|magistrado|perito|árbitro)/gi,
+      tipo:'Suspeição ou impedimento', fund:'Arts. 144-148 CPC — causa de nulidade absoluta', grav:'critica' },
+    { re:/prova\s+(?:ilícita|obtida\s+ilegal|vedada|clandestina)|interceptação\s+(?:ilegal|sem\s+autorização)/gi,
+      tipo:'Prova ilícita ou obtida ilegalmente', fund:'Art. 5º LVI CF + art. 369 CPC — inadmissível e deve ser desentranhada', grav:'critica' },
+    { re:/bem\s+(?:impenhor[áa]vel|de\s+família)\s+(?:penhorad|bloqueado|arrestado)/gi,
+      tipo:'Bem de família ou impenhorável constrito', fund:'Lei 8.009/90 + art. 833 CPC — nulidade absoluta da constrição', grav:'critica' },
+    { re:/penhora\s+(?:de\s+)?(?:salário|proventos|aposentadoria|benef[íi]cio\s+previdenci)/gi,
+      tipo:'Penhora de verba alimentar/salarial', fund:'Art. 833 IV CPC — impenhorável (salvo alimentos por sentença)', grav:'critica' },
+    { re:/reformatio\s+in\s+pejus/gi,
+      tipo:'Reformatio in pejus', fund:'Súmula 45 STJ — vedada; no penal viola art. 617 CPP', grav:'alta' },
+    { re:/dupla\s+condenação|bis\s+in\s+idem|cobran[çc]a\s+dupla/gi,
+      tipo:'Dupla condenação / bis in idem', fund:'Verificar sobreposição de pedidos — deve ser corrigida de ofício', grav:'critica' },
+    // ── INTIMAÇÃO E PRAZOS ──
+    { re:/intima[çc][ãa]o\s+(?:irregular|inv[áa]lida|deficiente|pessoal\s+não\s+realizada)/gi,
+      tipo:'Intimação irregular', fund:'Art. 272 CPC — prazo não fluiu se intimação foi defeituosa', grav:'alta' },
+    { re:/prazo\s+(?:n[ãa]o\s+(?:fluiu|correu)|estava?\s+suspenso|em\s+recesso|suspenso)/gi,
+      tipo:'Prazo suspenso ou não fluído', fund:'Arts. 215-216 CPC — recesso, férias, força maior suspendem prazos', grav:'alta' },
+    { re:/intempestiv[ao]|fora\s+do\s+prazo|prazo\s+(?:encerrado|expirado|vencido)/gi,
+      tipo:'Ato ou juntada intempestiva', fund:'Verificar se houve preclusão temporal — art. 223 CPC', grav:'alta' },
+    { re:/n[ãa]o\s+foi\s+(?:intimad|notificad)[oa]\s+(?:a\s+parte|o\s+réu|o\s+autor|o\s+advogado)/gi,
+      tipo:'Parte ou advogado não intimado', fund:'Art. 272 CPC — ato sem intimação válida é nulo', grav:'alta' },
+    // ── EXECUÇÃO ──
+    { re:/excesso\s+de\s+(?:execu[çc][ãa]o|penhora)/gi,
+      tipo:'Excesso de execução ou penhora', fund:'Art. 917 II CPC — fundamento de embargos à execução', grav:'alta' },
+    { re:/penhora\s+(?:sem\s+(?:ordem|observ[aâ]r\s+a\s+ordem)|fora\s+da\s+ordem)/gi,
+      tipo:'Penhora fora da ordem legal', fund:'Art. 835 CPC — ordem de preferência de bens penhoráveis', grav:'media' },
+    { re:/execu[çc][ãa]o\s+(?:de\s+título\s+(?:inválido|inexigível|nulo))/gi,
+      tipo:'Execução de título inválido ou inexigível', fund:'Art. 803 CPC — nulidade da execução', grav:'critica' },
+    // ── REPRESENTAÇÃO E CAPACIDADE ──
+    { re:/falta\s+de\s+(?:advogado|representa[çc][ãa]o|capacidade\s+postulatória)/gi,
+      tipo:'Ausência de capacidade postulatória', fund:'Art. 103 CPC — nulidade dos atos praticados', grav:'alta' },
+    { re:/procuração\s+(?:expirada|vencida|revogada|sem\s+poderes)/gi,
+      tipo:'Procuração expirada, revogada ou sem poderes', fund:'Art. 105 CPC — verificar data e poderes específicos', grav:'alta' },
+    { re:/menor\s+(?:sem\s+representação|n[ãa]o\s+representado|desassistido)/gi,
+      tipo:'Menor sem representação legal adequada', fund:'Art. 71 CPC — deve ser representado por genitor ou tutor', grav:'critica' },
+    { re:/MP\s+n[ãa]o\s+foi\s+intimad|minist[ée]rio\s+p[úu]blico\s+n[ãa]o\s+interveio/gi,
+      tipo:'MP não intimado em causa com interesse público', fund:'Art. 178 CPC — nulidade absoluta nas hipóteses do artigo', grav:'critica' },
+    // ── PENAL ──
+    { re:/flagrante\s+(?:ilegal|irregular|nulo|abusivo)/gi,
+      tipo:'Flagrante ilegal ou irregular', fund:'Art. 5º LXV CF + art. 310 CPP — relaxamento obrigatório', grav:'critica' },
+    { re:/ausência\s+de\s+(?:defesa\s+técnica|defensor|advogado)\s+(?:na\s+)?audi[êe]ncia/gi,
+      tipo:'Ausência de defesa técnica em audiência', fund:'Súmula 708 STF — nulidade absoluta', grav:'critica' },
+    { re:/confissão\s+(?:sob\s+coação|for[çc]ada|mediante\s+tortura|ilegal)/gi,
+      tipo:'Confissão obtida por coação ou tortura', fund:'Art. 5º III CF — prova ilícita, deve ser desconsiderada', grav:'critica' },
+    { re:/n[ãa]o\s+(?:leu|foram\s+lidos)\s+(?:os\s+)?direitos|direito\s+ao\s+sil[êe]ncio\s+n[ãa]o/gi,
+      tipo:'Direitos Miranda não lidos / direito ao silêncio violado', fund:'Art. 5º LXIII CF + Súmula 50 STJ — nulidade da prisão', grav:'critica' },
+    { re:/interceptação\s+telef[ôo]nica\s+(?:sem\s+autorização|ilegal|clandestina)/gi,
+      tipo:'Interceptação telefônica ilegal', fund:'Lei 9.296/96 + art. 5º XII CF — prova ilícita absoluta', grav:'critica' },
+    // ── TRABALHISTA ──
+    { re:/horas?\s+extras?\s+n[ãa]o\s+pagas?|horas?\s+extras?\s+(?:suprimidas?|sonegadas?)/gi,
+      tipo:'Horas extras não pagas ou suprimidas', fund:'Art. 7º XVI CF + art. 59 CLT — adicional de 50% mínimo', grav:'alta' },
+    { re:/adicional\s+(?:noturno|de\s+insalubridade|de\s+periculosidade)\s+n[ãa]o\s+pago/gi,
+      tipo:'Adicional legal não pago', fund:'Arts. 60/193/394 CLT — verificar cálculo e base', grav:'alta' },
+    { re:/FGTS\s+n[ãa]o\s+(?:recolhido|depositado|pago)|falta\s+de\s+recolhimento\s+FGTS/gi,
+      tipo:'FGTS não recolhido', fund:'Lei 8.036/90 + art. 477 CLT — multa 40% e indenização', grav:'alta' },
+    { re:/assédio\s+(?:moral|sexual)/gi,
+      tipo:'Assédio moral ou sexual alegado', fund:'Art. 483 CLT (rescisão indireta) + indenização por danos morais', grav:'alta' },
+    { re:/desvio\s+de\s+fun[çc][ãa]o|acúmulo\s+de\s+fun[çc][ão]/gi,
+      tipo:'Desvio ou acúmulo de função', fund:'Art. 461 CLT — equiparação salarial e diferenças', grav:'media' },
+    // ── FAMÍLIA ──
+    { re:/aliena[çc][ãa]o\s+parental/gi,
+      tipo:'Alienação parental identificada', fund:'Lei 12.318/2010 — medidas urgentes cabíveis', grav:'critica' },
+    { re:/descumprimento\s+(?:de\s+)?(?:guarda|visitas|regime\s+de\s+conviv[êe]ncia)/gi,
+      tipo:'Descumprimento de guarda ou visitas', fund:'Art. 22 ECA + art. 1.634 CC — contempt of court cabível', grav:'alta' },
+    { re:/alimentos\s+(?:n[ãa]o\s+pagos?|atrasados?|em\s+atraso|inadimplentes?)/gi,
+      tipo:'Inadimplemento de alimentos', fund:'Art. 733 CPC — execução com prisão civil cabível', grav:'critica' },
+    // ── CONTRADITÓRIO E AMPLA DEFESA ──
+    { re:/n[ãa]o\s+(?:foi\s+)?ouvid[oa]|\s+sem\s+(?:ouvir|intimar)\s+(?:a\s+parte|o\s+réu)/gi,
+      tipo:'Parte não ouvida antes da decisão', fund:'Art. 9º CPC — proibição de decisão surpresa', grav:'alta' },
+    { re:/decis[ãa]o\s+surpresa|decidiu\s+sem\s+(?:ouvir|intimar)/gi,
+      tipo:'Decisão surpresa vedada', fund:'Art. 10 CPC — contraditório prévio obrigatório', grav:'alta' },
   ];
 
-  var nulidades = [];
-  padroesNul.forEach(function(p) {
-    p.re.lastIndex = 0;
-    if (p.re.test(texto)) {
-      p.re.lastIndex = 0;
-      var m = p.re.exec(texto);
-      nulidades.push({ tipo: p.tipo, gravidade: p.grav, paginas: m ? pagDe(m.index) : [], fundamento: p.fund, recomendacao: 'Analise este ponto com prioridade nos autos' });
+  var nulidades=[];
+  padroesNul.forEach(function(p){
+    p.re.lastIndex=0;
+    if(p.re.test(texto)){
+      p.re.lastIndex=0;
+      var m=p.re.exec(texto);
+      nulidades.push({ tipo:p.tipo, gravidade:p.grav, paginas:m?pagDe(m.index):[], fundamento:p.fund, recomendacao:'Analisar com prioridade — verificar se houve prejuízo' });
     }
   });
   d.nulidades = nulidades;
 
-  // ════════════════════════════════════════════════════
-  // 8. ALERTAS URGENTES — o que o cansaço faz passar
-  // ════════════════════════════════════════════════════
-  var padroesAlerta = [
-    { re: /prazo\s+(?:vence|fatal|final|expira|improrrog[áa]vel|perent[óo]rio)/gi,
-      alerta: '⏰ Prazo fatal mencionado — identificar data exata e contar imediatamente', urg: 'maxima' },
-    { re: /(?:tutela|liminar)\s+(?:antecipada|de\s+urg[êe]ncia|cautelar|provisória)/gi,
-      alerta: '🚨 Pedido de tutela de urgência — verificar preenchimento dos requisitos do art. 300 CPC', urg: 'maxima' },
-    { re: /(?:penhora|bloqueio|arresto|sequestro)\s+(?:de\s+)?(?:bens|conta|ativos|dinheiro|im[óo]vel)/gi,
-      alerta: '🔴 Constrição patrimonial — verificar cabimento de embargos ou impugnação', urg: 'maxima' },
-    { re: /(?:recurso|apela[çc][ãa]o|agravo)\s+(?:pendente|n[ãa]o\s+interposto|em\s+aberto)/gi,
-      alerta: '📤 Recurso pendente de interposição — conferir prazo imediatamente', urg: 'maxima' },
-    { re: /revel[ia]/gi,
-      alerta: '⚡ Revelia — verificar se produz efeitos no caso concreto (art. 344 CPC)', urg: 'alta' },
-    { re: /cumpra-se|inicie-se\s+a\s+execu[çc][ãa]o|fase\s+de\s+cumprimento/gi,
-      alerta: '⚡ Fase de execução iniciada — prazo de 15 dias para pagamento voluntário (art. 523 CPC)', urg: 'maxima' },
-    { re: /intimad[oa]\s+(?:pessoalmente|via\s+oficial|por\s+oficial)/gi,
-      alerta: '📋 Intimação pessoal identificada — prazo conta da juntada do mandado (art. 231 CPC)', urg: 'alta' },
-    { re: /dep[óo]sito\s+recursal|preparo\s+(?:do\s+recurso|recursal)/gi,
-      alerta: '💰 Preparo/depósito recursal — verificar valor correto e prazo para recolhimento', urg: 'alta' },
-    { re: /julgamento\s+(?:antecipado|da\s+lide|improcedente)|improcedência\s+liminar/gi,
-      alerta: '⚖️ Julgamento antecipado ou improcedência liminar — verificar cabimento de recurso imediato', urg: 'alta' },
-    { re: /decretad[ao]\s+(?:a\s+)?pris[ãa]o|mandado\s+de\s+pris[ãa]o|preso\s+em\s+flagrante/gi,
-      alerta: '🚨 PRIVAÇÃO DE LIBERDADE — verificar flagrante, habeas corpus, audiência de custódia', urg: 'maxima' },
-    { re: /interdi[çc][ãa]o|curatela\s+(?:solicitada|pedida|requerida)/gi,
-      alerta: '👤 Interdição/curatela — verificar nomeação de curador e contraditório', urg: 'alta' },
-    { re: /menor\s+(?:impúbere|de\s+idade|absolutamente\s+incapaz)|represent(?:ação\s+)?\s+do\s+menor/gi,
-      alerta: '👶 Menor nos autos — verificar representação legal e intervenção do MP (art. 178 CPC)', urg: 'alta' },
-    { re: /MP\s+n[ãa]o\s+foi\s+intimad|minist[ée]rio\s+p[úu]blico\s+n[ãa]o\s+interveio/gi,
-      alerta: '⚠️ MP não intimado em causa com interesse público — verificar nulidade (art. 178 CPC)', urg: 'alta' },
-    { re: /en\s+acordo|acordo\s+homologado|homologa-se\s+o\s+acordo/gi,
-      alerta: '✅ Acordo homologado — verificar cumprimento das obrigações e prazo de vigência', urg: 'media' },
-    { re: /recurso\s+(?:de\s+revista|especial|extraordinário)\s+(?:admitido|recebido)/gi,
-      alerta: '📤 Recurso a tribunal superior admitido — verificar preparação das contrarrazões', urg: 'alta' },
-    { re: /suspen[ss][ãa]o\s+(?:do\s+processo|processual)|processo\s+suspenso/gi,
-      alerta: '⏸️ Processo suspenso — identificar causa e prazo de retomada (art. 221 CPC)', urg: 'media' },
-    { re: /prescrição\s+(?:decretada|reconhecida|declarada)|prescrito/gi,
-      alerta: '🚨 Prescrição reconhecida — verificar possibilidade de recurso (art. 924 CPC)', urg: 'maxima' },
-    { re: /arquivad[oa]\s+(?:definitivamente|por\s+abandono)|abandono\s+(?:da\s+causa|do\s+processo)/gi,
-      alerta: '🗂️ Risco de arquivamento por abandono — verificar regularidade das manifestações', urg: 'maxima' },
+  // ══════════════════════════════════════════════════════════════
+  // 7. ALERTAS URGENTES — 25+ situações críticas
+  // ══════════════════════════════════════════════════════════════
+  var padroesAlerta=[
+    { re:/prazo\s+(?:vence|fatal|final|expira|improrrog[áa]vel|perent[óo]rio)/gi,
+      alerta:'⏰ Prazo fatal identificado — calcular e agir imediatamente', urg:'maxima' },
+    { re:/(?:tutela|liminar)\s+(?:antecipada|de\s+urg[êe]ncia|cautelar|provisória)/gi,
+      alerta:'🚨 Tutela de urgência/liminar — verificar requisitos do art. 300 CPC (fumus+periculum)', urg:'maxima' },
+    { re:/(?:penhora|bloqueio|arresto|sequestro|indisponibilidade)\s+de\s+(?:bens|conta|ativos|dinheiro|im[óo]vel)/gi,
+      alerta:'🔴 Constrição patrimonial — prazo 15 dias para embargos ou impugnação', urg:'maxima' },
+    { re:/(?:recurso|apela[çc][ãa]o|agravo)\s+(?:pendente|n[ãa]o\s+interposto)/gi,
+      alerta:'📤 Recurso ainda não interposto — verificar prazo URGENTE', urg:'maxima' },
+    { re:/cumpra-se|inicie-se\s+a\s+execu[çc][ãa]o|fase\s+de\s+cumprimento\s+de\s+senten[çc]a/gi,
+      alerta:'⚡ Execução iniciada — 15 dias para pagamento voluntário (art. 523 CPC) antes da multa de 10%', urg:'maxima' },
+    { re:/decretad[ao]\s+(?:a\s+)?pris[ãa]o|mandado\s+de\s+pris[ãa]o|preso\s+em\s+flagrante/gi,
+      alerta:'🚨 PRIVAÇÃO DE LIBERDADE — habeas corpus, audiência de custódia (24h), relaxamento de flagrante', urg:'maxima' },
+    { re:/prescri[çc][ãa]o\s+(?:decretada|reconhecida|declarada)|prescrito\s+(?:o\s+direito|a\s+pretensão)/gi,
+      alerta:'🚨 Prescrição reconhecida — verificar recurso cabível IMEDIATO', urg:'maxima' },
+    { re:/arquivad[oa]\s+(?:definitivamente|por\s+abandono)|abandono\s+da\s+causa/gi,
+      alerta:'🗂️ Risco de arquivamento por abandono — providenciar manifestação urgente (art. 485 §6º CPC)', urg:'maxima' },
+    { re:/revelia/gi,
+      alerta:'⚡ Revelia — verificar se produz efeito (art. 344 CPC) e se há prova documental que afasta', urg:'alta' },
+    { re:/intimad[oa]\s+(?:pessoalmente|via\s+oficial\s+de\s+justiça|por\s+oficial)/gi,
+      alerta:'📋 Intimação pessoal — prazo conta da juntada do mandado aos autos (art. 231 VI CPC)', urg:'alta' },
+    { re:/dep[óo]sito\s+recursal|preparo\s+(?:recursal|do\s+recurso)/gi,
+      alerta:'💰 Preparo recursal — verificar valor exato e prazo, deserção é irremediável', urg:'alta' },
+    { re:/julgamento\s+antecipado|improcedência\s+liminar/gi,
+      alerta:'⚖️ Julgamento antecipado/liminar — apelação cabível em 15 dias (art. 1.009 CPC)', urg:'alta' },
+    { re:/menor\s+(?:impúbere|de\s+idade|absolutamente\s+incapaz)/gi,
+      alerta:'👶 Menor nos autos — verificar representação legal e intimação do MP (art. 178 II CPC)', urg:'alta' },
+    { re:/interdi[çc][ãa]o|curatela\s+(?:solicitada|requerida)/gi,
+      alerta:'👤 Interdição/curatela — curador provisório deve ser nomeado imediatamente (art. 749 CPC)', urg:'alta' },
+    { re:/recurso\s+(?:especial|extraordinário|de\s+revista)\s+(?:admitido|recebido)/gi,
+      alerta:'📤 Recurso a tribunal superior admitido — contrarrazões em 15 dias', urg:'alta' },
+    { re:/suspens[ãa]o\s+do\s+processo|processo\s+suspenso/gi,
+      alerta:'⏸️ Processo suspenso — identificar causa e prazo máximo (art. 221 CPC: 6 meses)', urg:'media' },
+    { re:/alimentos\s+(?:atrasados|em\s+atraso|inadimplentes)/gi,
+      alerta:'🍼 Alimentos inadimplentes — execução com prisão civil cabível (art. 528 CPC)', urg:'maxima' },
+    { re:/multa\s+(?:do\s+art(?:igo)?\s+523|de\s+10%|por\s+atraso\s+no\s+pagamento)/gi,
+      alerta:'💸 Multa de 10% incidindo — pagamento imediato evita multa adicional de 10%', urg:'maxima' },
+    { re:/astreintes|multa\s+(?:diária|por\s+descumprimento|cominatória)/gi,
+      alerta:'💸 Multa diária (astreintes) — verificar acúmulo e pedido de revisão (art. 537 §1º CPC)', urg:'alta' },
+    { re:/habeas\s+corpus|HC\s+impetrado/gi,
+      alerta:'🔓 Habeas corpus — verificar andamento e medida liminar (art. 660 CPP)', urg:'maxima' },
+    { re:/mandado\s+de\s+segurança/gi,
+      alerta:'📜 Mandado de segurança — prazo decadencial de 120 dias (art. 23 Lei 12.016/09)', urg:'alta' },
+    { re:/reclamação\s+constitucional/gi,
+      alerta:'⚖️ Reclamação constitucional — prazo e pressupostos específicos do STF/STJ', urg:'alta' },
+    { re:/nulidade\s+(?:da\s+senten[çc]a|absoluta\s+do\s+processo|de\s+pleno\s+direito)/gi,
+      alerta:'⚠️ Nulidade absoluta do processo — arguir em qualquer grau e tempo', urg:'alta' },
+    { re:/recupera[çc][ãa]o\s+judicial|falência/gi,
+      alerta:'🏦 Recuperação judicial/falência — habilitação de crédito e prazos específicos da Lei 11.101/05', urg:'alta' },
+    { re:/usucapi[ãa]o\s+(?:reconhecido|declarado|deferido)/gi,
+      alerta:'🏠 Usucapião reconhecido — registrar no Cartório de Imóveis imediatamente', urg:'media' },
   ];
 
-  var alertas = [];
-  padroesAlerta.forEach(function(p) {
-    p.re.lastIndex = 0;
-    if (p.re.test(texto)) {
-      p.re.lastIndex = 0;
-      var m = p.re.exec(texto);
-      alertas.push({ alerta: p.alerta, paginas: m ? pagDe(m.index) : [], urgencia: p.urg });
+  var alertas=[];
+  padroesAlerta.forEach(function(p){
+    p.re.lastIndex=0;
+    if(p.re.test(texto)){
+      p.re.lastIndex=0;
+      var m=p.re.exec(texto);
+      alertas.push({ alerta:p.alerta, paginas:m?pagDe(m.index):[], urgencia:p.urg });
     }
   });
   d.alertas_urgentes = alertas;
 
-  // ════════════════════════════════════════════════════
-  // 9. CONTRADIÇÕES — cruzamento de dados
-  // ════════════════════════════════════════════════════
-  var contradicoes = [];
+  // ══════════════════════════════════════════════════════════════
+  // 8. DETECTOR DE INCONSISTÊNCIAS — o que o humano deixa passar
+  // ══════════════════════════════════════════════════════════════
+  var contradicoes=[];
 
-  // Múltiplos números de processo
-  if (multiProcesso.length > 1) {
-    contradicoes.push({
-      descricao: 'Múltiplos números de processo identificados: ' + multiProcesso.join(' | '),
-      paginas_conflitantes: [],
-      gravidade: 'alta',
-      impacto: 'Verificar se há conexão, continência ou processos distintos mencionados nos autos'
-    });
+  // 8.1 DATAS IMPOSSÍVEIS — cruzamento temporal
+  var dAdmissao  = datasMap['admissao']  ? datasMap['admissao'].date  : null;
+  var dRescisao  = datasMap['rescisao']  ? datasMap['rescisao'].date  : null;
+  var dAjuiz2    = datasMap['ajuizamento']? datasMap['ajuizamento'].date : null;
+  var dSentenca  = datasMap['sentenca']  ? datasMap['sentenca'].date  : null;
+  var dTransito  = datasMap['transito']  ? datasMap['transito'].date  : null;
+  var dNascimento= datasMap['nascimento']? datasMap['nascimento'].date : null;
+  var hoje       = new Date();
+
+  if(dAdmissao && dRescisao && dRescisao < dAdmissao){
+    contradicoes.push({ descricao:'🚨 IMPOSSÍVEL: Data de rescisão ('+datasMap['rescisao'].data+') ANTERIOR à admissão ('+datasMap['admissao'].data+')', paginas_conflitantes:datasMap['rescisao'].paginas.concat(datasMap['admissao'].paginas), gravidade:'critica', impacto:'Contradição temporal que invalida o cálculo de verbas rescisórias — verificar imediatamente' });
+  }
+  if(dAjuiz2 && dSentenca && dSentenca < dAjuiz2){
+    contradicoes.push({ descricao:'🚨 IMPOSSÍVEL: Sentença ('+datasMap['sentenca'].data+') proferida ANTES do ajuizamento ('+datasMap['ajuizamento'].data+')', paginas_conflitantes:[], gravidade:'critica', impacto:'Datas inconsistentes — erro de digitação ou fraude documental' });
+  }
+  if(dTransito && dSentenca && dTransito < dSentenca){
+    contradicoes.push({ descricao:'🚨 IMPOSSÍVEL: Trânsito em julgado ('+datasMap['transito'].data+') ANTERIOR à sentença ('+datasMap['sentenca'].data+')', paginas_conflitantes:[], gravidade:'critica', impacto:'Sequência lógica processual violada — verificar datas nos autos' });
+  }
+  if(dNascimento && dNascimento > hoje){
+    contradicoes.push({ descricao:'🚨 IMPOSSÍVEL: Data de nascimento no futuro ('+datasMap['nascimento'].data+')', paginas_conflitantes:datasMap['nascimento'].paginas, gravidade:'critica', impacto:'Erro de digitação — corrigir antes de qualquer cálculo de idade ou menoridade' });
+  }
+  // Data no futuro (eventos passados com data futura)
+  todasDatas.forEach(function(dt){
+    if(dt.date && dt.date > hoje && !dt.tipo.includes('Audiência') && !dt.tipo.includes('Prazo') && !dt.tipo.includes('Vencimento')){
+      var anos = (dt.date - hoje) / (365*24*3600*1000);
+      if(anos > 1){
+        contradicoes.push({ descricao:'⚠️ Data suspeita no futuro: '+dt.tipo+' em '+dt.data, paginas_conflitantes:dt.paginas, gravidade:'alta', impacto:'Verificar se é erro de digitação (ex: 2204 no lugar de 2024)' });
+      }
+    }
+  });
+  // Data muito antiga
+  todasDatas.forEach(function(dt){
+    if(dt.date && dt.date.getFullYear() < 1900){
+      contradicoes.push({ descricao:'⚠️ Data improvável: '+dt.tipo+' em '+dt.data+' (anterior a 1900)', paginas_conflitantes:dt.paginas, gravidade:'alta', impacto:'Possível erro de digitação' });
+    }
+  });
+
+  // 8.2 VALORES QUE NÃO FECHAM
+  var vCausa  = valores.find(function(v){ return v.tipo==='Valor da Causa'; });
+  var vPedido = valores.find(function(v){ return v.tipo==='Valor Pedido'; });
+  var vCond   = valores.find(function(v){ return v.tipo==='Condenação'; });
+
+  if(vCausa && vPedido && Math.abs(vCausa.num - vPedido.num)/Math.max(vCausa.num,1) > 0.2){
+    contradicoes.push({ descricao:'💰 Valor da causa ('+vCausa.valor+') difere significativamente do pedido ('+vPedido.valor+')', paginas_conflitantes:(vCausa.paginas||[]).concat(vPedido.paginas||[]), gravidade:'media', impacto:'Art. 292 CPC — valor da causa deve corresponder ao benefício econômico pretendido' });
+  }
+  if(vCond && vPedido && vCond.num > vPedido.num * 1.1){
+    contradicoes.push({ descricao:'💰 Condenação ('+vCond.valor+') SUPERIOR ao valor pedido ('+vPedido.valor+')', paginas_conflitantes:(vCond.paginas||[]).concat(vPedido.paginas||[]), gravidade:'critica', impacto:'Decisão ultra petita — art. 492 CPC, passível de nulidade' });
   }
 
-  // Partes com mesmo nome em polos diferentes (possível erro)
-  if (autor && reu && autor.toLowerCase() === reu.toLowerCase()) {
-    contradicoes.push({
-      descricao: 'Autor e Réu com mesmo nome identificado: ' + autor,
-      paginas_conflitantes: [],
-      gravidade: 'critica',
-      impacto: 'Possível erro de extração ou situação processual atípica — verificar manualmente'
-    });
+  // 8.3 MÚLTIPLOS PROCESSOS
+  if(numProcs.length > 1){
+    contradicoes.push({ descricao:'⚠️ Múltiplos números de processo: '+numProcs.join(' | '), paginas_conflitantes:[], gravidade:'alta', impacto:'Verificar conexão, continência ou menção a processos distintos' });
   }
 
-  // Valor da causa vs. valor pedido divergentes
-  var vcausa = valores.find(function(v){ return v.tipo === 'Valor da Causa'; });
-  var vpedido = valores.find(function(v){ return v.tipo === 'Valor Pedido'; });
-  if (vcausa && vpedido && vcausa.valor !== vpedido.valor) {
-    contradicoes.push({
-      descricao: 'Valor da causa (' + vcausa.valor + ') diferente do valor pedido (' + vpedido.valor + ')',
-      paginas_conflitantes: (vcausa.paginas||[]).concat(vpedido.paginas||[]),
-      gravidade: 'media',
-      impacto: 'Verificar adequação do valor da causa (art. 292 CPC) — pode gerar impugnação'
-    });
-  }
+  // 8.4 TERMOS JURIDICAMENTE PERIGOSOS (palavra trocada muda tudo)
+  var termosPadrão = [
+    { errado:/\bnão\s+culpado\b/gi,          correto:'inocente ou absolvido', motivo:'No direito penal brasileiro não existe "não culpado" como categoria — usar absolvido (art. 386 CPP)' },
+    { errado:/\bprescri[çc][ãa]o\s+aquisitiva\b/gi, correto:'usucapião',    motivo:'Prescrição aquisitiva é termo antiquado — o atual é usucapião (CC/2002)' },
+    { errado:/\bforo\s+privil[ae]giado\b/gi, correto:'foro especial por prerrogativa de função', motivo:'Termo correto é prerrogativa de função, não privilégio' },
+    { errado:/\bcusta\s+judici[áa]ria\b/gi,  correto:'custas judiciais',    motivo:'Forma correta é "custas judiciais" (plural)' },
+    { errado:/\badvogad[oa]\s+d[ae]do\b/gi,  correto:'advogado dativo',     motivo:'Forma correta é "advogado dativo"' },
+    { errado:/\bimpunidade\b/gi,             correto:'verificar contexto',   motivo:'Termo com conotação jornalística — verificar se o contexto é adequado em peça processual' },
+    { errado:/\bcrime\s+hediondo\b/gi,       correto:'verificar lista',      motivo:'Verificar se o crime está na lista taxativa da Lei 8.072/90 — erro comum' },
+    { errado:/\bcondena[çc][ãa]o\s+criminal\b.*\bcivil\b/gi, correto:'verificar instâncias', motivo:'Confusão entre condenação criminal e responsabilidade civil — instâncias independentes' },
+    { errado:/\bfiança\b(?!\s+(?:bancária|real|fidejussória))/gi, correto:'verificar tipo', motivo:'Fiança: verificar se é fiança criminal (CPP), fiança locatícia ou fiança contratual — são institutos distintos' },
+  ];
+  termosPadrão.forEach(function(t){
+    t.errado.lastIndex=0;
+    var m=t.errado.exec(texto);
+    if(m){
+      contradicoes.push({ descricao:'🔍 Termo jurídico a verificar: "'+m[0]+'" — deveria ser: '+t.correto, paginas_conflitantes:pagDe(m.index), gravidade:'media', impacto:t.motivo });
+    }
+  });
+
+  // 8.5 ASSINATURAS E ELEMENTOS AUSENTES
+  var elementosObrig=[
+    { re:/qualifica[çc][ãa]o\s+(?:das\s+partes|completa)\s+(?:ausente|incompleta|faltando)/gi,
+      desc:'Qualificação das partes ausente ou incompleta', fund:'Art. 319 II CPC — requisito obrigatório da petição inicial' },
+    { re:/sem\s+(?:data|datado)|n[ãa]o\s+(?:datado|possui\s+data)/gi,
+      desc:'Documento sem data identificada', fund:'Documento sem data tem valor probatório reduzido — verificar autenticidade' },
+    { re:/sem\s+(?:assinatura|assinar)|n[ãa]o\s+(?:assinado|possui\s+assinatura)/gi,
+      desc:'Documento sem assinatura', fund:'Documentos sem assinatura têm validade jurídica questionável' },
+    { re:/sem\s+(?:reconhecimento\s+de\s+firma|firma\s+reconhecida)/gi,
+      desc:'Sem reconhecimento de firma exigido', fund:'Verificar se o ato exige reconhecimento — art. 784 CPC' },
+    { re:/procura[çc][ãa]o\s+(?:n[ãa]o\s+juntada|ausente|faltando)/gi,
+      desc:'Procuração não juntada', fund:'Art. 104 CPC — advogado deve exibir procuração em 15 dias ou atos são nulos' },
+    { re:/valor\s+da\s+causa\s+(?:n[ãa]o\s+(?:atribuído|informado|indicado)|ausente)/gi,
+      desc:'Valor da causa não atribuído', fund:'Art. 291 CPC — obrigatório em toda petição inicial' },
+  ];
+  elementosObrig.forEach(function(e){
+    e.re.lastIndex=0;
+    var m=e.re.exec(texto);
+    if(m){
+      contradicoes.push({ descricao:'📋 '+e.desc, paginas_conflitantes:pagDe(m.index), gravidade:'alta', impacto:e.fund });
+    }
+  });
 
   d.contradicoes = contradicoes;
 
-  // ════════════════════════════════════════════════════
-  // 10. ATOS PROCESSUAIS — linha do tempo
-  // ════════════════════════════════════════════════════
-  var atos = [];
-  var padroesAtos = [
-    { re: /petição\s+inicial\s+(?:distribuída|protocolada|ajuizada)/gi, ato: 'Petição Inicial', status: 'concluido' },
-    { re: /(?:emenda[çc][ãa]o|emenda)\s+(?:da\s+)?inicial/gi, ato: 'Emenda à Inicial', status: 'concluido' },
-    { re: /cita[çc][ãa]o\s+(?:realizada|efetuada|cumprida)/gi, ato: 'Citação realizada', status: 'concluido' },
-    { re: /contest[a]?[çc][ãa]o\s+(?:apresentada|juntada)/gi, ato: 'Contestação apresentada', status: 'concluido' },
-    { re: /r[ée]plica\s+(?:apresentada|juntada)/gi, ato: 'Réplica apresentada', status: 'concluido' },
-    { re: /audiência\s+(?:realizada|designada|marcada|adiada)/gi, ato: 'Audiência', status: 'concluido' },
-    { re: /perícia\s+(?:realizada|concluída|deferida)/gi, ato: 'Perícia', status: 'concluido' },
-    { re: /senten[çc]a\s+(?:proferida|publicada)/gi, ato: 'Sentença proferida', status: 'concluido' },
-    { re: /apela[çc][ãa]o\s+(?:interposta|apresentada)/gi, ato: 'Apelação interposta', status: 'concluido' },
-    { re: /transit(?:ou|ado)\s+em\s+julgado/gi, ato: 'Trânsito em julgado', status: 'concluido' },
-    { re: /cumprimento\s+de\s+senten[çc]a\s+(?:iniciado|instaurado)/gi, ato: 'Cumprimento de sentença iniciado', status: 'concluido' },
+  // ══════════════════════════════════════════════════════════════
+  // 9. ATOS PROCESSUAIS — linha do tempo automática
+  // ══════════════════════════════════════════════════════════════
+  var padroesAtos=[
+    { re:/petição\s+inicial\s+(?:distribuída|protocolada|ajuizada)/gi,         ato:'Petição Inicial protocolada', status:'concluido' },
+    { re:/emenda\s+(?:da|à)\s+inicial/gi,                                       ato:'Emenda à Inicial', status:'concluido' },
+    { re:/cita[çc][ãa]o\s+(?:realizada|efetuada|cumprida|juntada)/gi,          ato:'Citação realizada', status:'concluido' },
+    { re:/contest[aç][ãa]o\s+(?:apresentada|juntada|protocolada)/gi,           ato:'Contestação apresentada', status:'concluido' },
+    { re:/r[ée]plica\s+(?:apresentada|juntada)/gi,                              ato:'Réplica apresentada', status:'concluido' },
+    { re:/audiência\s+(?:de\s+concilia[çc][ãa]o|preliminar)\s+(?:realizada|designada)/gi, ato:'Audiência de conciliação', status:'concluido' },
+    { re:/audiência\s+(?:de\s+instrução|instru[çc][ãa]o\s+e\s+julgamento)\s+(?:realizada|designada)/gi, ato:'Audiência de instrução', status:'concluido' },
+    { re:/perícia\s+(?:realizada|concluída|deferida)/gi,                        ato:'Perícia realizada', status:'concluido' },
+    { re:/laudo\s+pericial\s+(?:juntado|apresentado|entregue)/gi,              ato:'Laudo pericial juntado', status:'concluido' },
+    { re:/senten[çc]a\s+(?:proferida|publicada|juntada)/gi,                    ato:'Sentença proferida', status:'concluido' },
+    { re:/apela[çc][ãa]o\s+(?:interposta|apresentada)/gi,                      ato:'Apelação interposta', status:'concluido' },
+    { re:/contrarraz[õo]es\s+(?:apresentadas|juntadas)/gi,                     ato:'Contrarrazões apresentadas', status:'concluido' },
+    { re:/ac[óo]rd[ãa]o\s+(?:proferido|publicado)/gi,                          ato:'Acórdão proferido', status:'concluido' },
+    { re:/transit(?:ou|ado)\s+em\s+julgado/gi,                                 ato:'Trânsito em julgado', status:'concluido' },
+    { re:/cumprimento\s+de\s+senten[çc]a\s+(?:iniciado|instaurado)/gi,        ato:'Cumprimento de sentença', status:'concluido' },
+    { re:/penhora\s+(?:realizada|efetuada|determinada)/gi,                     ato:'Penhora efetuada', status:'concluido' },
+    { re:/hasta\s+p[úu]blica|leil[ãa]o\s+(?:designado|realizado)/gi,          ato:'Hasta pública/leilão', status:'concluido' },
   ];
-  padroesAtos.forEach(function(p) {
-    p.re.lastIndex = 0;
-    var m = p.re.exec(texto);
-    if (m) atos.push({ ato: p.ato, data: '', paginas: pagDe(m.index), status: p.status });
+
+  var atos=[];
+  padroesAtos.forEach(function(p){
+    p.re.lastIndex=0;
+    var m=p.re.exec(texto);
+    if(m) atos.push({ ato:p.ato, data:'', paginas:pagDe(m.index), status:p.status });
   });
   d.atos_processuais = atos;
 
-  // ════════════════════════════════════════════════════
-  // 11. RESUMO EXECUTIVO INTELIGENTE
-  // ════════════════════════════════════════════════════
+  // ══════════════════════════════════════════════════════════════
+  // 10. RESUMO EXECUTIVO INTELIGENTE
+  // ══════════════════════════════════════════════════════════════
   var nCrit = nulidades.filter(function(n){ return n.gravidade==='critica'; }).length
-            + alertas.filter(function(a){ return a.urgencia==='maxima'; }).length;
-  var nAlert = nulidades.length + alertas.length - nCrit;
+            + alertas.filter(function(a){ return a.urgencia==='maxima'; }).length
+            + contradicoes.filter(function(c){ return c.gravidade==='critica'; }).length;
+  var nAlerta = nulidades.length + alertas.length + contradicoes.length - nCrit;
 
-  var resumo = '';
-  resumo += 'Scanner identificou ' + paginas.length + ' páginas analisadas. ';
-  if (d.partes.autor) resumo += 'Autor: ' + d.partes.autor.nome + '. ';
-  if (d.partes.reu) resumo += 'Réu: ' + d.partes.reu.nome + '. ';
-  if (numProc) resumo += 'Processo: ' + numProc + '. ';
-  if (valores.length) resumo += valores.length + ' valor(es) identificado(s). ';
-  if (datas.length) resumo += datas.length + ' data(s) crítica(s) detectada(s). ';
-  if (nCrit > 0) resumo += '🚨 ' + nCrit + ' PONTO(S) CRÍTICO(S) exigem atenção imediata. ';
-  if (nAlert > 0) resumo += '⚡ ' + nAlert + ' alerta(s) para análise. ';
-  if (nCrit === 0 && nAlert === 0) resumo += '✅ Nenhuma nulidade ou alerta urgente detectado automaticamente. ';
-  resumo += 'Análise local por padrões — revise os resultados com atenção profissional.';
+  var resumo = 'Scanner Militar analisou '+paginas.length+' páginas. ';
+  if(d.partes.autor) resumo += 'Autor: '+d.partes.autor.nome+'. ';
+  if(d.partes.reu)   resumo += 'Réu: '+d.partes.reu.nome+'. ';
+  if(numProcs[0])    resumo += 'Processo: '+numProcs[0]+'. ';
+  if(valores.length) resumo += valores.length+' valor(es) detectado(s). ';
+  if(datas.length)   resumo += datas.length+' data(s) crítica(s). ';
+  if(docs.length)    resumo += docs.length+' documento(s) identificado(s). ';
+  if(nCrit>0)  resumo += '🚨 '+nCrit+' ITEM(S) CRÍTICO(S) — AÇÃO IMEDIATA NECESSÁRIA. ';
+  if(nAlerta>0) resumo += '⚡ '+nAlerta+' alerta(s) para revisão. ';
+  if(nCrit===0 && nAlerta===0) resumo += '✅ Nenhuma inconsistência crítica detectada automaticamente. ';
+  resumo += 'Esta análise por padrões complementa — não substitui — a análise do advogado.';
 
   d.resumo_executivo = resumo;
   d.qualidade_analise = {
     paginas_analisadas: paginas.length,
     paginas_total: paginas.length,
-    confiabilidade: paginas.length > 5 ? 'media' : 'baixa',
-    motivo_baixa_confiabilidade: paginas.length <= 5
-      ? 'Poucas páginas — cole mais texto do processo para melhor análise'
-      : 'Análise local por padrões de texto. Para análise com IA use o botão Gerar Prompt.'
+    confiabilidade: paginas.length > 10 ? 'alta' : paginas.length > 3 ? 'media' : 'baixa',
+    motivo_baixa_confiabilidade: paginas.length<=3 ? 'Cole mais texto para análise mais completa' : ''
   };
 
   return d;
 }
+
 
 function acharPaginas(termo, paginas) {
   if (!termo) return [];
