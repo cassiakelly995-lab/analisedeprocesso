@@ -718,6 +718,10 @@ body { padding-bottom: 42px; }
     <div id="aviso-checks" style="display:none;text-align:center;font-size:11px;color:rgba(217,95,95,0.8);margin-bottom:10px;">
       ⚠ Marque todos os itens acima para continuar
     </div>
+    <div id="aviso-acesso" style="display:none;text-align:center;font-size:12px;color:rgba(217,95,95,0.9);margin-bottom:10px;padding:12px;background:rgba(217,95,95,0.07);border:1px solid rgba(217,95,95,0.3);border-radius:6px;">
+      🚫 <strong>Acesso não autorizado.</strong><br>
+      <span style="font-size:11px;color:rgba(232,224,208,0.5);">Este link é inválido, expirado ou foi revogado.<br>Entre em contato com o administrador para obter acesso.</span>
+    </div>
 
     <button id="btn-aceitar" onclick="tentarEntrar()" style="width:100%;padding:18px;background:linear-gradient(135deg,#8c6520,#c9973d,#f0c96b,#c9973d,#8c6520);color:#000;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-weight:900;font-size:13px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:filter 0.2s;">
       ACEITO — ACESSAR O SISTEMA
@@ -1081,7 +1085,29 @@ body { padding-bottom: 42px; }
 <script>
 
 // ── SIGILO ──
-function tentarEntrar() {
+// ── FIREBASE CONFIG (mesmo projeto do painel admin) ──
+var _fbApp = null;
+var _fbDb  = null;
+
+async function _initFirebase() {
+  if (_fbApp) return;
+  var { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+  var { getFirestore, doc, getDoc, updateDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  _fbApp = initializeApp({
+    apiKey:            "AIzaSyCpitlvdEs9Ck2CBcmnfWytg-wL8FJvYK8",
+    authDomain:        "cassiapromptv8.firebaseapp.com",
+    projectId:         "cassiapromptv8",
+    storageBucket:     "cassiapromptv8.firebasestorage.app",
+    messagingSenderId: "48347984689",
+    appId:             "1:48347984689:web:62ef4cb1fd7c4093483610"
+  });
+  _fbDb = getFirestore(_fbApp);
+  window._fbGetDoc   = getDoc;
+  window._fbDoc      = doc;
+  window._fbUpdateDoc = updateDoc;
+}
+
+async function tentarEntrar() {
   var c1 = document.getElementById('ck1').checked;
   var c2 = document.getElementById('ck2').checked;
   var c3 = document.getElementById('ck3').checked;
@@ -1089,11 +1115,51 @@ function tentarEntrar() {
     document.getElementById('aviso-checks').style.display = 'block';
     return;
   }
+
+  var params = new URLSearchParams(window.location.search);
+  var id = params.get('id');
+
+  if (!id) {
+    document.getElementById('aviso-acesso').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('btn-aceitar').textContent = 'VERIFICANDO ACESSO...';
+  document.getElementById('btn-aceitar').style.opacity = '0.7';
+
+  try {
+    await _initFirebase();
+    var snap = await window._fbGetDoc(window._fbDoc(_fbDb, 'lexis_usuarios', id));
+
+    if (!snap.exists() || snap.data().ativo === false) {
+      document.getElementById('btn-aceitar').textContent = 'ACEITO — ACESSAR O SISTEMA';
+      document.getElementById('btn-aceitar').style.opacity = '';
+      document.getElementById('aviso-acesso').style.display = 'block';
+      return;
+    }
+
+    // Registra acesso
+    try {
+      await window._fbUpdateDoc(window._fbDoc(_fbDb, 'lexis_usuarios', id), {
+        ultimoAcesso: new Date().toISOString(),
+        totalAcessos: (snap.data().totalAcessos || 0) + 1
+      });
+    } catch(e) {}
+
+    abrirSistema(id);
+  } catch(e) {
+    // Se falhar verificação por rede, deixa entrar
+    abrirSistema(id);
+  }
+}
+
+function abrirSistema(id) {
   document.getElementById('pagina-sigilo').style.display = 'none';
   document.getElementById('main-nav').style.display = '';
   document.getElementById('main-wrapper').style.display = '';
   document.getElementById('security-bar').style.display = 'flex';
   window._sessaoInicio = new Date().toLocaleTimeString('pt-BR');
+  window._userId = id || 'dev';
 }
 
 // ── ERROS ──
@@ -1413,10 +1479,12 @@ async function executarScanner() {
 
   var dadosScanner = null, erroAPI = null;
   try {
-    var resp = await fetch('https://api.anthropic.com/v1/messages', {
+    // Chama proxy seguro — chave API nunca exposta no frontend
+    var PROXY_URL = window.LEXIS_PROXY_URL || '/api/anthropic';
+    var resp = await fetch(PROXY_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 4000, messages: [{ role: 'user', content: promptScanner }] })
+      body: JSON.stringify({ max_tokens: 4000, messages: [{ role: 'user', content: promptScanner }] })
     });
     progFill.style.width = '75%';
     msgEl.textContent = 'Processando resultado...';
