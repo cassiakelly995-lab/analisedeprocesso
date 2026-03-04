@@ -1826,19 +1826,7 @@ function copiarPrompt() {
 function exportarWord() {
   var txt = document.getElementById('prompt-final').value;
   if (!txt) { toast('⚠ GERE O PROMPT PRIMEIRO'); return; }
-  var html = '<html><head><meta charset="UTF-8"><style>body{font-family:Arial,sans-serif;font-size:12pt;line-height:1.6;margin:2cm;}pre{white-space:pre-wrap;font-family:Arial,sans-serif;}</style>
-<style>
-#calc-trib option, #calc-com option, #calc-tipo option {
-  background-color: #1a1f24 !important;
-  color: #e8e0d0 !important;
-}
-select#calc-trib, select#calc-com, select#calc-tipo {
-  color: #e8e0d0 !important;
-  -webkit-appearance: auto;
-  appearance: auto;
-}
-</style>
-</head><body><pre>' + txt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</pre><\/body><\/html>';
+  var html = '<html><head><meta charset="UTF-8"><style>body{font-family:Arial,sans-serif;font-size:12pt;line-height:1.6;margin:2cm;}pre{white-space:pre-wrap;font-family:Arial,sans-serif;}</style><\/head><body><pre>' + txt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '<\/pre><\/body><\/html>';
   var blob = new Blob(['\ufeff' + html], { type: 'application/msword;charset=utf-8' });
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
