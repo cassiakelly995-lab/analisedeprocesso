@@ -950,6 +950,8 @@ body { padding-bottom: 42px; }
         <div class="etag" data-v="jurisprudencia">📚 Buscar Jurisprudência Aplicável</div>
         <div class="etag" data-v="timeline">📅 Linha do Tempo Processual</div>
         <div class="etag" data-v="checklist">✅ Checklist de Provas Necessárias</div>
+        <div class="etag" data-v="quesitacao" style="border-color:rgba(185,100,63,0.4);">⚖️ Quesitação do Júri</div>
+        <div class="etag" data-v="tese_juri" style="border-color:rgba(185,100,63,0.4);">🎯 Teses ao Conselho de Sentença</div>
       </div>
 
       <label>Instrução adicional ao modelo de IA (opcional)</label>
@@ -1454,7 +1456,7 @@ function mostrarRelatorioAnon(rel) {
 }
 
 // ── SCANNER FORENSE ──
-async function executarScanner() {
+function executarScanner() {
   var texto = document.getElementById('fatos').value.trim();
   if (texto.length < 200) { toast('⚠ ADICIONE O TEXTO DO PROCESSO PRIMEIRO'); return; }
   if (paginasIndexadas.length === 0) indexarTextoCola(texto);
@@ -1988,7 +1990,7 @@ function gerarPrompt() {
   if (outputCard) { outputCard.style.display = 'block'; outputCard.scrollIntoView({ behavior: 'smooth' }); }
 
   // Show loading overlay briefly
-  var overlay = document.getElementById('loading-overlay');
+  var overlay = document.getElementById('loading');
   if (overlay) { overlay.style.display = 'flex'; setTimeout(function() { overlay.style.display = 'none'; }, 1800); }
 
   toast('✅ PROMPT GERADO!');
@@ -2019,6 +2021,8 @@ function exportarWord() {
   URL.revokeObjectURL(url);
   toast('✅ EXPORTADO!');
 }
+function baixarDoc() { exportarWord(); }
+
 
 // ── NOVA ANÁLISE ──
 function novaAnalise() {
