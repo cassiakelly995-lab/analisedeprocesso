@@ -2036,33 +2036,33 @@ var CALC_FN = ["01-01","04-21","05-01","09-07","10-12","11-02","11-15","11-20","
 
 // Feriados estaduais fixos MM-DD (apenas os estabelecidos em lei estadual)
 var CALC_FE = {
-  "AC":["01-23","06-15"],
-  "AL":["09-16"],
-  "AM":["09-05"],
-  "AP":["03-19"],
+  "AC":["01-20","01-25","06-15","09-05","11-17"],
+  "AL":["06-24","06-29","09-16"],
+  "AM":["09-05","12-08"],
+  "AP":["03-19","07-25"],
   "BA":["07-02"],
   "CE":["03-25"],
-  "DF":["11-30"],
-  "ES":["10-28"],
-  "GO":["10-24"],
+  "DF":["04-21","11-30"],
+  "ES":[],
+  "GO":[],
   "MA":["07-28"],
-  "MG":["12-08"],
+  "MG":["04-21"],
   "MS":["10-11"],
-  "MT":["11-08"],
+  "MT":[],
   "PA":["08-15"],
   "PB":["08-05"],
-  "PE":["03-06"],
-  "PI":["10-19"],
-  "PR":["12-19"],
-  "RJ":["01-20","04-23","10-28"],
-  "RN":["10-03"],
+  "PE":["03-06","06-24"],
+  "PI":["03-13","10-19"],
+  "PR":[],
+  "RJ":["04-23"],
+  "RN":["08-07","10-03"],
   "RO":["01-04"],
   "RR":["10-05"],
   "RS":["09-20"],
-  "SC":["08-11","11-25"],
+  "SC":["08-11"],
   "SE":["07-08"],
   "SP":["07-09"],
-  "TO":["03-18"]
+  "TO":["09-08","10-05"]
 };
 
 // Tipos de prazo (dias úteis conforme CPC)
@@ -2105,6 +2105,16 @@ function ehFeriado(data, uf) {
   var mmdd = String(data.getMonth()+1).padStart(2,'0') + '-' + String(data.getDate()).padStart(2,'0');
   var moveis = calcMoveis(data.getFullYear());
   var estaduais = CALC_FE[uf] || [];
+  // ES: N.Sra. da Penha = segunda-feira da semana após a Oitava da Páscoa (Páscoa + 8 dias)
+  if (uf === 'ES') {
+    var pascoa = calcPascoa(data.getFullYear());
+    var penha = new Date(pascoa.getTime());
+    penha.setDate(penha.getDate() + 8);
+    // Se não cair em segunda, avança para a próxima segunda
+    while (penha.getDay() !== 1) penha.setDate(penha.getDate() + 1);
+    var penhaMmdd = String(penha.getMonth()+1).padStart(2,'0') + '-' + String(penha.getDate()).padStart(2,'0');
+    if (mmdd === penhaMmdd) return true;
+  }
   return CALC_FN.indexOf(mmdd) >= 0 || moveis.indexOf(mmdd) >= 0 || estaduais.indexOf(mmdd) >= 0;
 }
 
