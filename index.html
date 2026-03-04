@@ -1911,56 +1911,320 @@ document.getElementById('fatos').addEventListener('input', function() { this.sty
 </div>
 </div>
 <script>
-
-var TR={TJSP:{n:"TJSP — São Paulo",u:"SP"},TJRJ:{n:"TJRJ — Rio de Janeiro",u:"RJ"},TJMG:{n:"TJMG — Minas Gerais",u:"MG"},TJRS:{n:"TJRS — Rio Grande do Sul",u:"RS"},TJPR:{n:"TJPR — Paraná",u:"PR"},TJSC:{n:"TJSC — Santa Catarina",u:"SC"},TJBA:{n:"TJBA — Bahia",u:"BA"},TJGO:{n:"TJGO — Goiás",u:"GO"},TJPE:{n:"TJPE — Pernambuco",u:"PE"},TJCE:{n:"TJCE — Ceará",u:"CE"},TJAM:{n:"TJAM — Amazonas",u:"AM"},TJPA:{n:"TJPA — Pará",u:"PA"},TJMT:{n:"TJMT — Mato Grosso",u:"MT"},TJMS:{n:"TJMS — Mato Grosso do Sul",u:"MS"},TJMA:{n:"TJMA — Maranhão",u:"MA"},TJES:{n:"TJES — Espírito Santo",u:"ES"},TJRN:{n:"TJRN — Rio Grande do Norte",u:"RN"},TJPB:{n:"TJPB — Paraíba",u:"PB"},TJAL:{n:"TJAL — Alagoas",u:"AL"},TJPI:{n:"TJPI — Piauí",u:"PI"},TJSE:{n:"TJSE — Sergipe",u:"SE"},TJRO:{n:"TJRO — Rondônia",u:"RO"},TJTO:{n:"TJTO — Tocantins",u:"TO"},TJAC:{n:"TJAC — Acre",u:"AC"},TJAP:{n:"TJAP — Amapá",u:"AP"},TJRR:{n:"TJRR — Roraima",u:"RR"},TJDFT:{n:"TJDFT — Distrito Federal",u:"DF"}};
-var CM={TJSP:["São Paulo (Capital)","Campinas","Santos","Ribeirão Preto","Sorocaba","São José dos Campos","Santo André","São Bernardo do Campo","Osasco","Guarulhos","Bauru","Jundiaí","Taubaté","Presidente Prudente","Barueri"],TJRJ:["Rio de Janeiro (Capital)","Niterói","Duque de Caxias","Nova Iguaçu","São Gonçalo","Campos dos Goytacazes","Petrópolis","Volta Redonda"],TJMG:["Belo Horizonte (Capital)","Uberlândia","Contagem","Juiz de Fora","Betim","Montes Claros","Uberaba","Governador Valadares"],TJRS:["Porto Alegre (Capital)","Caxias do Sul","Pelotas","Canoas","Santa Maria","Novo Hamburgo","São Leopoldo"],TJPR:["Curitiba (Capital)","Londrina","Maringá","Ponta Grossa","Cascavel","São José dos Pinhais","Foz do Iguaçu"],TJSC:["Florianópolis (Capital)","Joinville","Blumenau","São José","Chapecó","Criciúma","Itajaí"],TJBA:["Salvador (Capital)","Feira de Santana","Vitória da Conquista","Camaçari","Itabuna","Barreiras"],TJGO:["Goiânia (Capital)","Aparecida de Goiânia","Anápolis","Rio Verde","Jataí"],TJPE:["Recife (Capital)","Caruaru","Olinda","Petrolina","Garanhuns"],TJCE:["Fortaleza (Capital)","Caucaia","Juazeiro do Norte","Maracanaú","Sobral"],TJAM:["Manaus (Capital)","Parintins","Itacoatiara","Manacapuru"],TJPA:["Belém (Capital)","Ananindeua","Santarém","Marabá","Castanhal"],TJMT:["Cuiabá (Capital)","Várzea Grande","Rondonópolis","Sinop"],TJMS:["Campo Grande (Capital)","Dourados","Três Lagoas","Corumbá"],TJMA:["São Luís (Capital)","Imperatriz","Timon","Caxias"],TJES:["Vitória (Capital)","Serra","Vila Velha","Cariacica","Linhares"],TJRN:["Natal (Capital)","Mossoró","Parnamirim","Caicó"],TJPB:["João Pessoa (Capital)","Campina Grande","Patos","Sousa"],TJAL:["Maceió (Capital)","Arapiraca","Rio Largo","Penedo"],TJPI:["Teresina (Capital)","Parnaíba","Picos","Floriano"],TJSE:["Aracaju (Capital)","Lagarto","Itabaiana","Estância"],TJRO:["Porto Velho (Capital)","Ji-Paraná","Ariquemes","Vilhena"],TJTO:["Palmas (Capital)","Araguaína","Gurupi","Porto Nacional"],TJAC:["Rio Branco (Capital)","Cruzeiro do Sul","Sena Madureira"],TJAP:["Macapá (Capital)","Santana","Laranjal do Jari"],TJRR:["Boa Vista (Capital)","Rorainópolis","Caracaraí"],TJDFT:["Brasília (Capital)","Taguatinga","Ceilândia","Samambaia","Planaltina","Gama"]};
-var FN=["01-01","04-21","05-01","09-07","10-12","11-02","11-15","11-20","12-25"];
-var FE={SP:["07-09"],RJ:["01-20","04-23","10-28"],MG:["12-08"],RS:["09-20"],PR:["12-19"],SC:["08-11","11-25"],BA:["07-02"],GO:["10-24"],PE:["03-06"],CE:["03-25"],AM:["09-05"],PA:["08-15"],MT:["11-08"],MS:["10-11"],MA:["07-28"],ES:["10-28"],RN:["10-03"],PB:["08-05"],AL:["09-16"],PI:["10-19"],SE:["07-08"],RO:["01-04"],TO:["03-18"],AC:["01-23","06-15"],AP:["03-19"],RR:["10-05"],DF:["11-30"]};
-var PZ={transito:{nm:"Trânsito em Julgado",d:15,b:"CPC art. 502 e 1.003 par.5"},apelacao:{nm:"Recurso de Apelação",d:15,b:"CPC art. 1.003 par.5"},embargos:{nm:"Embargos de Declaração",d:5,b:"CPC art. 1.023"},contrarrazoes:{nm:"Contrarrazões",d:15,b:"CPC art. 1.010 par.1"},contestacao:{nm:"Contestação",d:15,b:"CPC art. 335"}};
-function pas(y){var a=y%19,b=Math.floor(y/100),cc=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(cc/4),k=cc%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),ms=Math.floor((h+l-7*m+114)/31),di=((h+l-7*m+114)%31)+1;return new Date(y,ms-1,di);}
-function mv(y){var p=pas(y),r=[];[-48,-47,-2,0,60].forEach(function(o){var d=new Date(p);d.setDate(d.getDate()+o);r.push(((d.getMonth()+1)+'').padStart(2,'0')+'-'+(d.getDate()+'').padStart(2,'0'));});return r;}
-function fer(d,u){var s=((d.getMonth()+1)+'').padStart(2,'0')+'-'+(d.getDate()+'').padStart(2,'0');return FN.includes(s)||mv(d.getFullYear()).includes(s)||(FE[u]||[]).includes(s);}
-function util(d,u){return d.getDay()!==0&&d.getDay()!==6&&!fer(d,u);}
-function add(st,n,u){var d=new Date(st),c=0;while(c<n){d.setDate(d.getDate()+1);if(util(d,u))c++;}while(!util(d,u))d.setDate(d.getDate()+1);return d;}
-function fd(d){return(d.getDate()+'').padStart(2,'0')+'/'+(((d.getMonth()+1)+'')).padStart(2,'0')+'/'+d.getFullYear();}
-function wd(d){return["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"][d.getDay()];}
-function calcComarcas(){var t=document.getElementById('calc-trib').value,s=document.getElementById('calc-com');s.innerHTML='';if(!t){s.innerHTML='<option>Selecione o tribunal...</option>';return;}(CM[t]||["Capital"]).forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v;s.appendChild(o);});}
-function calcularPrazo(){
-  var t=document.getElementById('calc-trib').value,co=document.getElementById('calc-com').value,tp=document.getElementById('calc-tipo').value,dv=document.getElementById('calc-data').value;
-  if(!t||!dv){alert('Selecione o tribunal e a data da publicação.');return;}
-  var u=TR[t].u,inf=PZ[tp],pp=dv.split('-'),pub=new Date(+pp[0],+pp[1]-1,+pp[2]);
-  var ini=new Date(pub);ini.setDate(ini.getDate()+1);while(!util(ini,u))ini.setDate(ini.getDate()+1);
-  var fim=add(pub,inf.d,u);
-  var fs=[],dx=new Date(pub);dx.setDate(dx.getDate()+1);
-  while(dx<=fim){if(fer(dx,u))fs.push(fd(dx)+' ('+wd(dx)+')');dx.setDate(dx.getDate()+1);}
-  var hj=new Date();hj.setHours(0,0,0,0);
-  var df=Math.ceil((fim-hj)/864e5);
-  var cor=df<=0?'#d95f5f':df<=3?'#d9a24a':df<=7?'#f0c96b':'#5faf7a';
-  var ms=df<=0?'PRAZO VENCIDO':df===1?'VENCE AMANHA':df+' DIAS RESTANTES';
-  var h='<div style="background:var(--surface);border:2px solid '+cor+';border-radius:10px;padding:22px;margin-bottom:14px;">'
-    +'<div style="font-size:10px;color:var(--muted);margin-bottom:14px;">'+inf.nm+' — '+TR[t].n+' / '+co+'</div>'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;">'
-    +'<div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:7px;padding:12px;text-align:center;"><div style="font-size:8px;color:var(--muted);margin-bottom:3px;">PUBLICAÇÃO</div><div style="font-size:15px;font-weight:900;">'+fd(pub)+'</div><div style="font-size:9px;color:var(--muted);">'+wd(pub)+'</div></div>'
-    +'<div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:7px;padding:12px;text-align:center;"><div style="font-size:8px;color:var(--muted);margin-bottom:3px;">INÍCIO</div><div style="font-size:15px;font-weight:900;">'+fd(ini)+'</div><div style="font-size:9px;color:var(--muted);">'+wd(ini)+'</div></div>'
-    +'<div style="background:rgba(255,255,255,0.03);border:2px solid '+cor+';border-radius:7px;padding:12px;text-align:center;"><div style="font-size:8px;color:var(--muted);margin-bottom:3px;">ÚLTIMO DIA ('+inf.d+'d)</div><div style="font-size:18px;font-weight:900;color:'+cor+';">'+fd(fim)+'</div><div style="font-size:9px;font-weight:800;color:'+cor+';">'+wd(fim)+'</div></div>'
-    +'</div>'
-    +'<div style="background:rgba(0,0,0,0.2);border:1px solid '+cor+';border-radius:7px;padding:11px;text-align:center;margin-bottom:11px;"><span style="font-size:13px;font-weight:900;color:'+cor+';">'+ms+'</span></div>'
-    +(fs.length?'<div style="background:rgba(217,162,74,0.07);border:1px solid rgba(217,162,74,0.25);border-radius:7px;padding:11px;margin-bottom:11px;"><div style="font-size:8px;font-weight:800;color:var(--warn);margin-bottom:5px;">FERIADOS EXCLUÍDOS ('+fs.length+')</div>'+fs.map(function(f){return'<div style="font-size:10px;color:var(--muted);">• '+f+'</div>';}).join('')+'</div>':'')
-    +'<div style="font-size:10px;color:var(--muted);border-top:1px solid var(--border);padding-top:9px;">'+inf.b+'</div>'
-    +'</div>'
-    +'<button onclick="window.cpCalc()" style="width:100%;background:rgba(185,150,63,0.1);border:1px solid rgba(185,150,63,0.3);color:var(--gold);padding:10px;border-radius:5px;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">COPIAR RESULTADO</button>';
-  window._cr=inf.nm+' — '+TR[t].n+' / '+co+'\nPublicação: '+fd(pub)+'\nInício: '+fd(ini)+'\nÚltimo dia: '+fd(fim)+' ('+wd(fim)+')\n'+ms+(fs.length?'\nFeriados: '+fs.join(', '):'')+' | '+inf.b;
-  var r=document.getElementById('calc-resultado');r.innerHTML=h;r.style.display='block';r.scrollIntoView({behavior:'smooth',block:'nearest'});
-}
-function cpCalc(){navigator.clipboard.writeText(window._cr||'').then(function(){toast('COPIADO!');}).catch(function(){toast('Erro');});}
-function abrirCalculadora(){
-  var s=document.getElementById('calc-trib');
-  if(s.options.length<2){Object.keys(TR).sort().forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=TR[k].n;s.appendChild(o);});}
-  document.getElementById('painel-calc').style.display='block';
-  document.body.style.overflow='hidden';
+// ══ CALCULADORA DE PRAZOS ══
+// Dados dos tribunais
+var CALC_TR = {
+  "TJAC":{"n":"TJAC — Acre","u":"AC"},
+  "TJAL":{"n":"TJAL — Alagoas","u":"AL"},
+  "TJAM":{"n":"TJAM — Amazonas","u":"AM"},
+  "TJAP":{"n":"TJAP — Amapá","u":"AP"},
+  "TJBA":{"n":"TJBA — Bahia","u":"BA"},
+  "TJCE":{"n":"TJCE — Ceará","u":"CE"},
+  "TJDFT":{"n":"TJDFT — Distrito Federal","u":"DF"},
+  "TJES":{"n":"TJES — Espírito Santo","u":"ES"},
+  "TJGO":{"n":"TJGO — Goiás","u":"GO"},
+  "TJMA":{"n":"TJMA — Maranhão","u":"MA"},
+  "TJMG":{"n":"TJMG — Minas Gerais","u":"MG"},
+  "TJMS":{"n":"TJMS — Mato Grosso do Sul","u":"MS"},
+  "TJMT":{"n":"TJMT — Mato Grosso","u":"MT"},
+  "TJPA":{"n":"TJPA — Pará","u":"PA"},
+  "TJPB":{"n":"TJPB — Paraíba","u":"PB"},
+  "TJPE":{"n":"TJPE — Pernambuco","u":"PE"},
+  "TJPI":{"n":"TJPI — Piauí","u":"PI"},
+  "TJPR":{"n":"TJPR — Paraná","u":"PR"},
+  "TJRJ":{"n":"TJRJ — Rio de Janeiro","u":"RJ"},
+  "TJRN":{"n":"TJRN — Rio Grande do Norte","u":"RN"},
+  "TJRO":{"n":"TJRO — Rondônia","u":"RO"},
+  "TJRR":{"n":"TJRR — Roraima","u":"RR"},
+  "TJRS":{"n":"TJRS — Rio Grande do Sul","u":"RS"},
+  "TJSC":{"n":"TJSC — Santa Catarina","u":"SC"},
+  "TJSE":{"n":"TJSE — Sergipe","u":"SE"},
+  "TJSP":{"n":"TJSP — São Paulo","u":"SP"},
+  "TJTO":{"n":"TJTO — Tocantins","u":"TO"}
 };
-function fecharCalculadora(){document.getElementById('painel-calc').style.display='none';document.body.style.overflow='';}
 
+var CALC_CM = {
+  "TJSP":["São Paulo (Capital)","Campinas","Santos","Ribeirão Preto","Sorocaba","São José dos Campos","Santo André","São Bernardo do Campo","Osasco","Guarulhos","Bauru","Jundiaí","Taubaté","Presidente Prudente","Barueri","Mogi das Cruzes","Guarujá","Praia Grande","Indaiatuba","Carapicuíba"],
+  "TJRJ":["Rio de Janeiro (Capital)","Niterói","Duque de Caxias","Nova Iguaçu","São Gonçalo","Campos dos Goytacazes","Petrópolis","Volta Redonda","Macaé","Cabo Frio"],
+  "TJMG":["Belo Horizonte (Capital)","Uberlândia","Contagem","Juiz de Fora","Betim","Montes Claros","Uberaba","Governador Valadares","Ipatinga","Divinópolis"],
+  "TJRS":["Porto Alegre (Capital)","Caxias do Sul","Pelotas","Canoas","Santa Maria","Novo Hamburgo","São Leopoldo","Rio Grande","Passo Fundo"],
+  "TJPR":["Curitiba (Capital)","Londrina","Maringá","Ponta Grossa","Cascavel","São José dos Pinhais","Foz do Iguaçu","Colombo","Paranaguá"],
+  "TJSC":["Florianópolis (Capital)","Joinville","Blumenau","São José","Chapecó","Criciúma","Itajaí","Lages","Balneário Camboriú"],
+  "TJBA":["Salvador (Capital)","Feira de Santana","Vitória da Conquista","Camaçari","Itabuna","Barreiras","Porto Seguro"],
+  "TJGO":["Goiânia (Capital)","Aparecida de Goiânia","Anápolis","Rio Verde","Luziânia","Jataí"],
+  "TJPE":["Recife (Capital)","Caruaru","Olinda","Petrolina","Garanhuns","Jaboatão dos Guararapes"],
+  "TJCE":["Fortaleza (Capital)","Caucaia","Juazeiro do Norte","Maracanaú","Sobral","Crato"],
+  "TJAM":["Manaus (Capital)","Parintins","Itacoatiara","Manacapuru","Coari","Tefé"],
+  "TJPA":["Belém (Capital)","Ananindeua","Santarém","Marabá","Castanhal","Parauapebas"],
+  "TJMT":["Cuiabá (Capital)","Várzea Grande","Rondonópolis","Sinop","Cáceres","Sorriso"],
+  "TJMS":["Campo Grande (Capital)","Dourados","Três Lagoas","Corumbá","Ponta Porã"],
+  "TJMA":["São Luís (Capital)","Imperatriz","São José de Ribamar","Timon","Caxias"],
+  "TJES":["Vitória (Capital)","Serra","Vila Velha","Cariacica","Linhares","Cachoeiro de Itapemirim"],
+  "TJRN":["Natal (Capital)","Mossoró","Parnamirim","São Gonçalo do Amarante","Caicó"],
+  "TJPB":["João Pessoa (Capital)","Campina Grande","Santa Rita","Patos","Sousa"],
+  "TJAL":["Maceió (Capital)","Arapiraca","Rio Largo","Palmeira dos Índios","Penedo"],
+  "TJPI":["Teresina (Capital)","Parnaíba","Picos","Floriano","Campo Maior"],
+  "TJSE":["Aracaju (Capital)","Lagarto","Itabaiana","São Cristóvão","Estância"],
+  "TJRO":["Porto Velho (Capital)","Ji-Paraná","Ariquemes","Vilhena","Cacoal"],
+  "TJTO":["Palmas (Capital)","Araguaína","Gurupi","Porto Nacional","Paraíso do Tocantins"],
+  "TJAC":["Rio Branco (Capital)","Cruzeiro do Sul","Sena Madureira","Tarauacá"],
+  "TJAP":["Macapá (Capital)","Santana","Laranjal do Jari","Oiapoque"],
+  "TJRR":["Boa Vista (Capital)","Rorainópolis","Caracaraí","Alto Alegre"],
+  "TJDFT":["Brasília (Capital)","Taguatinga","Ceilândia","Samambaia","Planaltina","Gama","Sobradinho"]
+};
+
+// Feriados nacionais fixos MM-DD
+var CALC_FN = ["01-01","04-21","05-01","09-07","10-12","11-02","11-15","11-20","12-25"];
+
+// Feriados estaduais fixos MM-DD (apenas os estabelecidos em lei estadual)
+var CALC_FE = {
+  "AC":["01-23","06-15"],
+  "AL":["09-16"],
+  "AM":["09-05"],
+  "AP":["03-19"],
+  "BA":["07-02"],
+  "CE":["03-25"],
+  "DF":["11-30"],
+  "ES":["10-28"],
+  "GO":["10-24"],
+  "MA":["07-28"],
+  "MG":["12-08"],
+  "MS":["10-11"],
+  "MT":["11-08"],
+  "PA":["08-15"],
+  "PB":["08-05"],
+  "PE":["03-06"],
+  "PI":["10-19"],
+  "PR":["12-19"],
+  "RJ":["01-20","04-23","10-28"],
+  "RN":["10-03"],
+  "RO":["01-04"],
+  "RR":["10-05"],
+  "RS":["09-20"],
+  "SC":["08-11","11-25"],
+  "SE":["07-08"],
+  "SP":["07-09"],
+  "TO":["03-18"]
+};
+
+// Tipos de prazo (dias úteis conforme CPC)
+var CALC_PZ = {
+  "transito":    {"nm":"Trânsito em Julgado",       "d":15, "b":"CPC art. 502 c/c art. 1.003 §5º"},
+  "apelacao":    {"nm":"Recurso de Apelação",        "d":15, "b":"CPC art. 1.003 §5º"},
+  "embargos":    {"nm":"Embargos de Declaração",     "d":5,  "b":"CPC art. 1.023"},
+  "contrarrazoes":{"nm":"Contrarrazões de Apelação", "d":15, "b":"CPC art. 1.010 §1º"},
+  "contestacao": {"nm":"Prazo para Contestar",       "d":15, "b":"CPC art. 335"}
+};
+
+// Calcula data da Páscoa (algoritmo anônimo de Gauss)
+function calcPascoa(ano) {
+  var a=ano%19, b=Math.floor(ano/100), cc=ano%100;
+  var d=Math.floor(b/4), e=b%4, f=Math.floor((b+8)/25);
+  var g=Math.floor((b-f+1)/3), h=(19*a+b-d-g+15)%30;
+  var i=Math.floor(cc/4), k=cc%4, l=(32+2*e+2*i-h-k)%7;
+  var m=Math.floor((a+11*h+22*l)/451);
+  var mes=Math.floor((h+l-7*m+114)/31);
+  var dia=((h+l-7*m+114)%31)+1;
+  return new Date(ano, mes-1, dia);
+}
+
+// Retorna array de MM-DD dos feriados móveis do ano
+function calcMoveis(ano) {
+  var p = calcPascoa(ano);
+  var res = [];
+  [-48,-47,-2,0,60].forEach(function(offset) {
+    var d = new Date(p.getTime());
+    d.setDate(d.getDate() + offset);
+    res.push(
+      String(d.getMonth()+1).padStart(2,'0') + '-' +
+      String(d.getDate()).padStart(2,'0')
+    );
+  });
+  return res;
+}
+
+function ehFeriado(data, uf) {
+  var mmdd = String(data.getMonth()+1).padStart(2,'0') + '-' + String(data.getDate()).padStart(2,'0');
+  var moveis = calcMoveis(data.getFullYear());
+  var estaduais = CALC_FE[uf] || [];
+  return CALC_FN.indexOf(mmdd) >= 0 || moveis.indexOf(mmdd) >= 0 || estaduais.indexOf(mmdd) >= 0;
+}
+
+function ehDiaUtil(data, uf) {
+  var dow = data.getDay();
+  if (dow === 0 || dow === 6) return false;
+  return !ehFeriado(data, uf);
+}
+
+function proximoDiaUtil(data, uf) {
+  var d = new Date(data.getTime());
+  while (!ehDiaUtil(d, uf)) d.setDate(d.getDate() + 1);
+  return d;
+}
+
+function somarDiasUteis(dataInicio, qtd, uf) {
+  var d = new Date(dataInicio.getTime());
+  var contados = 0;
+  while (contados < qtd) {
+    d.setDate(d.getDate() + 1);
+    if (ehDiaUtil(d, uf)) contados++;
+  }
+  // Garantir que cai em dia útil
+  while (!ehDiaUtil(d, uf)) d.setDate(d.getDate() + 1);
+  return d;
+}
+
+function formatarData(d) {
+  return String(d.getDate()).padStart(2,'0') + '/' +
+         String(d.getMonth()+1).padStart(2,'0') + '/' +
+         d.getFullYear();
+}
+
+function nomeDia(d) {
+  return ["Domingo","Segunda-feira","Terça-feira","Quarta-feira","Quinta-feira","Sexta-feira","Sábado"][d.getDay()];
+}
+
+// Popula select de comarcas
+function calcComarcas() {
+  var tribVal = document.getElementById('calc-trib').value;
+  var selCom = document.getElementById('calc-com');
+  selCom.innerHTML = '';
+  if (!tribVal) {
+    selCom.innerHTML = '<option value="">Selecione o tribunal primeiro...</option>';
+    return;
+  }
+  var lista = CALC_CM[tribVal] || ["Capital"];
+  lista.forEach(function(nome) {
+    var opt = document.createElement('option');
+    opt.value = nome;
+    opt.textContent = nome;
+    selCom.appendChild(opt);
+  });
+}
+
+// Calcula o prazo
+function calcularPrazo() {
+  var tribVal  = document.getElementById('calc-trib').value;
+  var comVal   = document.getElementById('calc-com').value;
+  var tipoVal  = document.getElementById('calc-tipo').value;
+  var dataVal  = document.getElementById('calc-data').value;
+
+  if (!tribVal) { alert('Selecione o tribunal.'); return; }
+  if (!dataVal) { alert('Informe a data da publicação.'); return; }
+
+  var uf   = CALC_TR[tribVal].u;
+  var info = CALC_PZ[tipoVal];
+  var partes = dataVal.split('-');
+  var dataPub = new Date(parseInt(partes[0]), parseInt(partes[1])-1, parseInt(partes[2]));
+
+  // CPC art. 224: prazo começa no dia SEGUINTE à publicação
+  var inicioCount = new Date(dataPub.getTime());
+  inicioCount.setDate(inicioCount.getDate() + 1);
+  // Se o dia seguinte não for útil, avança
+  inicioCount = proximoDiaUtil(inicioCount, uf);
+
+  // Conta os dias úteis
+  var ultimoDia = somarDiasUteis(dataPub, info.d, uf);
+
+  // Lista feriados que caíram no período
+  var feriadosNoPeriodo = [];
+  var dd = new Date(dataPub.getTime());
+  dd.setDate(dd.getDate() + 1);
+  while (dd <= ultimoDia) {
+    if (ehFeriado(dd, uf)) {
+      feriadosNoPeriodo.push(formatarData(dd) + ' (' + nomeDia(dd) + ')');
+    }
+    dd.setDate(dd.getDate() + 1);
+  }
+
+  // Urgência
+  var hoje = new Date(); hoje.setHours(0,0,0,0);
+  var diffDias = Math.ceil((ultimoDia - hoje) / 86400000);
+  var cor  = diffDias <= 0 ? '#d95f5f' : diffDias <= 3 ? '#d9a24a' : diffDias <= 7 ? '#f0c96b' : '#5faf7a';
+  var status = diffDias <= 0 ? '🚨 PRAZO VENCIDO' :
+               diffDias === 1 ? '🔴 VENCE AMANHÃ' :
+               diffDias <= 3  ? '🟡 ' + diffDias + ' DIAS RESTANTES' :
+                                '🟢 ' + diffDias + ' DIAS RESTANTES';
+
+  var comarca = comVal || 'Capital';
+
+  var html =
+    '<div style="background:var(--surface);border:2px solid '+cor+';border-radius:10px;padding:22px;margin-bottom:14px;">' +
+    '<div style="font-size:10px;color:var(--muted);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px;">'+info.nm+' — '+CALC_TR[tribVal].n+' / '+comarca+'</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;">' +
+    '<div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:7px;padding:12px;text-align:center;">' +
+    '<div style="font-size:8px;color:var(--muted);margin-bottom:4px;letter-spacing:1px;">PUBLICAÇÃO</div>' +
+    '<div style="font-size:16px;font-weight:900;color:var(--text);">'+formatarData(dataPub)+'</div>' +
+    '<div style="font-size:10px;color:var(--muted);">'+nomeDia(dataPub)+'</div></div>' +
+    '<div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:7px;padding:12px;text-align:center;">' +
+    '<div style="font-size:8px;color:var(--muted);margin-bottom:4px;letter-spacing:1px;">INÍCIO DO PRAZO</div>' +
+    '<div style="font-size:16px;font-weight:900;color:var(--text);">'+formatarData(inicioCount)+'</div>' +
+    '<div style="font-size:10px;color:var(--muted);">'+nomeDia(inicioCount)+'</div></div>' +
+    '<div style="background:rgba(255,255,255,0.03);border:2px solid '+cor+';border-radius:7px;padding:12px;text-align:center;">' +
+    '<div style="font-size:8px;color:var(--muted);margin-bottom:4px;letter-spacing:1px;">ÚLTIMO DIA ('+info.d+' dias úteis)</div>' +
+    '<div style="font-size:20px;font-weight:900;color:'+cor+';">'+formatarData(ultimoDia)+'</div>' +
+    '<div style="font-size:10px;font-weight:800;color:'+cor+';">'+nomeDia(ultimoDia)+'</div></div>' +
+    '</div>' +
+    '<div style="background:rgba(0,0,0,0.25);border:1px solid '+cor+';border-radius:7px;padding:12px;text-align:center;margin-bottom:12px;">' +
+    '<span style="font-size:14px;font-weight:900;color:'+cor+';letter-spacing:1px;">'+status+'</span></div>' +
+    (feriadosNoPeriodo.length ?
+      '<div style="background:rgba(217,162,74,0.07);border:1px solid rgba(217,162,74,0.3);border-radius:7px;padding:12px;margin-bottom:12px;">' +
+      '<div style="font-size:8px;font-weight:900;color:var(--warn);letter-spacing:2px;margin-bottom:6px;">FERIADOS EXCLUÍDOS DO PERÍODO ('+feriadosNoPeriodo.length+')</div>' +
+      feriadosNoPeriodo.map(function(f){ return '<div style="font-size:11px;color:var(--muted);padding:1px 0;">• '+f+'</div>'; }).join('') +
+      '</div>' : '') +
+    '<div style="font-size:10px;color:var(--muted);border-top:1px solid var(--border);padding-top:10px;line-height:1.8;">' +
+    '<strong style="color:var(--text);">Base legal:</strong> '+info.b+'</div>' +
+    '</div>' +
+    '<button onclick="copiarResultadoPrazo()" style="width:100%;background:rgba(185,150,63,0.1);border:1px solid rgba(185,150,63,0.3);color:var(--gold);padding:11px;border-radius:5px;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">📋 COPIAR RESULTADO</button>';
+
+  window._calcTexto =
+    info.nm + ' — ' + CALC_TR[tribVal].n + ' / ' + comarca +
+    '
+Publicação: ' + formatarData(dataPub) + ' (' + nomeDia(dataPub) + ')' +
+    '
+Início do prazo: ' + formatarData(inicioCount) + ' (' + nomeDia(inicioCount) + ')' +
+    '
+Último dia (' + info.d + ' dias úteis): ' + formatarData(ultimoDia) + ' (' + nomeDia(ultimoDia) + ')' +
+    '
+Status: ' + status.replace(/[🚨🔴🟡🟢]/g,'').trim() +
+    (feriadosNoPeriodo.length ? '
+Feriados excluídos: ' + feriadosNoPeriodo.join(', ') : '') +
+    '
+Base legal: ' + info.b;
+
+  var res = document.getElementById('calc-resultado');
+  res.innerHTML = html;
+  res.style.display = 'block';
+  res.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function copiarResultadoPrazo() {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(window._calcTexto || '').then(function(){ toast('✅ COPIADO!'); });
+  }
+}
+
+function abrirCalculadora() {
+  // Popula tribunais no select se ainda vazio
+  var sel = document.getElementById('calc-trib');
+  // Remove tudo exceto a primeira opção (placeholder)
+  while (sel.options.length > 1) sel.remove(1);
+  // Adiciona todos os tribunais ordenados
+  Object.keys(CALC_TR).sort().forEach(function(k) {
+    var opt = document.createElement('option');
+    opt.value = k;
+    opt.textContent = CALC_TR[k].n;
+    sel.appendChild(opt);
+  });
+  // Mostra o painel
+  document.getElementById('painel-calc').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function fecharCalculadora() {
+  document.getElementById('painel-calc').style.display = 'none';
+  document.body.style.overflow = '';
+}
 </script>
 </body>
 </html>
